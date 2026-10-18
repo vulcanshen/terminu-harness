@@ -37,6 +37,9 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
   - 從畫面量的時間（動畫每格的毫秒、toast 停留的時間、splash 的停頓），跟條目寫的差距在 33ms 內判符合；理由寫出量到的值。
   - splash 揭露的 tick（S5-27～S5-30）：錄影只判順序、方向與段間的停頓，一格畫面多走了幾個 tick 不算違反；tick 的 10ms 與每個
     tick 的量讀程式判，拿不到 repo 判「判不了」。
+  - 每個 app 都要有的東西（Space menu、key reference、footer、splash……）app 整個沒有時：「那個東西本身有沒有」的條目判違反；
+    它的細節條目（含「不得……」這種禁止類的）一律判「判不了」，理由寫「清單不清楚：<東西> 整個沒有，見 HN4」，不判違反、
+    不適用，也不判符合。
 
 ## 認識 app
 
