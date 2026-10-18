@@ -49,6 +49,8 @@ user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 s
 - MCP 終端機、judge 的 skill 與 agent、成績單。
 - 第一個判的 app 是 demou（`~/Documents/sideproj/demou`）：小、每次啟動都一樣、是 tdp project 的參考實作。判完得到第一個
   `tdp-0.7.4 N gene`，也順便試清單好不好用。
+- **現在先不判任何成員**（user 2026-10-18）：所有成員正在大重構，判了也沒意義。專心把 harness 做完；要開真的 app 驗 harness
+  的話，用 harness 自己的測試用 app，不碰成員。2026-10-18 對 demou 跑到一半的那次已經停掉、刪掉。
 - new-app（問需求、照 project 範本開 repo、用 terminu-go 寫）、report-gap（開 issue 回 tdp 或 terminu-go）、align 之後再做。
 
 ## 已定（user 2026-10-18，在 harness 的 session）
