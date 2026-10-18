@@ -59,7 +59,8 @@ argument-hint: [app 的需求]
 
 1. 寫程式與測試（tdp 要的測試：L4 跨尺寸、E5 兩種寬度、E6-5 splash 與 `docs/icon.svg` 一致）。
 2. `make check` 過。
-3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這一塊相關的清單條目自己走一遍。
+3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這一塊相關的清單條目自己走一遍。app 會寫系統檔或使用者的
+   檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。
 4. 把畫面給使用者看，講做了什麼。
 5. commit，更新 `.local/terminu/progress.md`。
 
@@ -83,7 +84,8 @@ argument-hint: [app 的需求]
 ## 7. 完成
 
 - 里程碑都做完、`make check` 過、剩下的 TODO 都在等 issue → 用 Skill 叫 `terminu:judge`，app 指令是建好的執行檔，repo 是這個
-  repo。
+  repo。app 會寫系統檔或使用者的檔案時，給 judge 一個包裝指令：每次啟動開一個新的暫存目錄，把 `HOME` 與 app 的環境變數指進去，
+  並在補充裡寫明（judge 會轉給每個 judge agent）。
 - 報告給使用者：gene 數、違反的條目、判不了的原因、tdp 沒規範的東西、還在等的 issue。
 - 違反的條目問使用者要不要修；修完再判一次。
 - 打 tag、發布、Homebrew 都先問使用者。
