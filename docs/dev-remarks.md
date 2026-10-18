@@ -1,8 +1,14 @@
 # terminu-harness 開發者備忘
 
-terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）的清單判 TUI app。harness 只放流程，不寫規定；規定一律在 tdp。
+terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用 terminu-go 做 TUI app，做完照 tdp 的清單檢查。harness 只放流程，不寫規定；規定一律在 tdp。
 
 ## 運作方式
+
+- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：只問要做新 app、繼續做、還是判 app，再用 Skill 叫 `terminu:new-app` 或 `terminu:judge`。
+- **new-app**（`skills/new-app`，主 session 照著做）：準備（讀 tdp、terminu-go 最新 tag）→ 一次一題問需求 → `docs/spec.md` 給使用者確認 → 照 tdp project 範本開 repo → 照里程碑一塊一塊寫，每塊 `make check`、用 harness 的終端機開起來看、給使用者看、commit → 卡住叫 `terminu:report-gap` 寫 issue（同意才發），程式標 `TODO(tdp #N)`／`TODO(tgo #N)` 先用暫時的做法 → 做完叫 `terminu:judge`。進度在 app repo 的 `.local/terminu/progress.md`，「繼續」從它接著做，並查 issue 與新 tag。
+- **report-gap**（`skills/report-gap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`。
+
+judge 的流程：
 
 ```
 /terminu:judge（skill，主 session）
@@ -45,7 +51,8 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）的
 - 不送滑鼠事件。
 - Bubble Tea v1 一秒最多畫 60 格，tick 比一格短的動畫從畫面上看不出每個 tick（HN1）。
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
-- 還沒做：new-app、report-gap、align；tdp 沒規範的東西也還沒自動開 issue。
+- 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回來打 `/terminu` 選「繼續」。
+- 還沒做：align（tdp 新版時重判、列出要修的）；judge 找到的 tdp 沒規範的東西還沒自動轉成 report-gap 的草稿。
 
 ## 建置與開發
 
