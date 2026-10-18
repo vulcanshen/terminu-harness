@@ -23,7 +23,8 @@ argument-hint: [app 的需求]
 
 - 一次問一題（AskUserQuestion），用問句寫明要決定什麼，列 2–4 個選項，推薦的排第一個並寫理由。
 - 先問會改變架構的：畫面與 panel、資料從哪來、存什麼到磁碟、要不要系統權限、外部指令、出不出 Windows 版、app 名字。
-- 每一題都對到 tdp：需求落在哪個元件（panel、明細 panel、viewer、textarea、confirm、toast、terminal popup……）。跟 tdp 衝突的
+- 每一題都對到 tdp：需求落在哪個元件（panel、明細 panel、viewer、textarea、confirm、toast、terminal popup……）。選元件前先讀那個
+  元件的「用途」段：它寫了什麼該用、什麼不該用（例：設定檔交給 `$EDITOR`，不用 textarea）。跟 tdp 衝突的
   當場說出來，讓使用者選「改需求」或「回報 tdp」；tdp 沒規範的記下來，開發時回報。
 - **不問 tdp 已經規定的事**：按鍵、外框、顏色、popup 的開關、splash、README 與 dev-remarks 的結構，照 tdp 做。
 - tdp 綁著 vulcanshen 的規定（module 路徑、Homebrew tap、splash 的信箱，見 tdp 的 HN3）：使用者不是 vulcanshen 時先問怎麼辦。
