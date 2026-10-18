@@ -1,0 +1,7 @@
+{
+  "name": "terminu",
+  "description": "The terminu harness: judge how many terminu genes a TUI app has, against the checklist of terminu design (tdp)",
+  "author": { "name": "vulcanshen" },
+  "repository": "https://github.com/vulcanshen/terminu-harness",
+  "license": "GPL-3.0"
+}

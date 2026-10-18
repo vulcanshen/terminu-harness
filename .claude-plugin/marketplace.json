@@ -1,0 +1,6 @@
+{
+  "name": "terminu-harness",
+  "description": "terminu-harness: build and judge TUI apps with terminu design (tdp)",
+  "owner": { "name": "vulcanshen" },
+  "plugins": [{ "name": "terminu", "source": "./" }]
+}
