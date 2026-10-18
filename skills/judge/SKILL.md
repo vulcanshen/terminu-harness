@@ -16,6 +16,8 @@ judge 從外面操作 app（harness 自己帶的終端機），任何 TUI app �
 - **app 怎麼啟動**：指令，例 `demou`、`./demou`。必要。
 - **app 的 repo**：本機路徑，沒有就不給。現在的工作目錄看起來就是那個 app 的 repo 時，問 user 要不要用它。
 - **照哪一版 tdp**：不給就用最新的 tag。
+- **怎麼啟動、操作 app 的補充**（有的話）：例如要先設環境變數、要用包裝指令、不能碰真的系統檔。下面每個 judge 的 prompt 都原樣
+  附上這段。
 
 ## 2. 開一個 run
 
@@ -27,7 +29,7 @@ judge 從外面操作 app（harness 自己帶的終端機），任何 TUI app �
 用 Agent 工具派一個 `terminu:judge`，prompt 寫明：
 
 - 這次做「認識 app」
-- run 目錄、app 的指令、repo（或「沒有 repo」）、在哪個目錄啟動 app（目前的工作目錄）
+- run 目錄、app 的指令、repo（或「沒有 repo」）、在哪個目錄啟動 app（目前的工作目錄）、使用者的補充
 
 等它回來。它把 profile 存在 run 目錄的 `profile.md`。
 
@@ -36,7 +38,7 @@ judge 從外面操作 app（harness 自己帶的終端機），任何 TUI app �
 在**同一則訊息**裡，每一批派一個 `terminu:judge`（讓它們同時跑），prompt 寫明：
 
 - 這次做「判一批條目」，批次編號與那一批的檔案路徑
-- run 目錄、app 的指令、repo（或「沒有 repo」）、在哪個目錄啟動 app
+- run 目錄、app 的指令、repo（或「沒有 repo」）、在哪個目錄啟動 app、使用者的補充
 
 全部回來之後呼叫 `judge_status`。有沒判到的條目，就把那幾條的編號交給一個 `terminu:judge` 再判一次（只補一次）。
 
