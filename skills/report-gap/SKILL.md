@@ -49,6 +49,9 @@ B …（後果）
 
 同意後：`gh issue create -R <repo> --title "<標題>" --body-file <檔案>`。沒有 `gh` 或沒登入時，把標題與內文給使用者自己貼。
 
+使用者指定別的送法時照使用者的（例：先不發 GitHub，在本機用 SendMessage 送給負責 tdp 的 Claude session），草稿檔記下送去哪、
+哪一天。
+
 ## 5. 記下來
 
 把 issue 網址、程式裡的標記（把 `#?` 換成編號）、在等什麼，記進 app 的 `.local/terminu/progress.md` 的「回報」。

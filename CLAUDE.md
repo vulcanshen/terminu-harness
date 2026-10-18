@@ -48,8 +48,10 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
   Linux。
 - user：「專案可以反覆刪除和創建，直到完成，過程中不會開啟新的 session，由你直接進行整個流程，直到開發完成」；之後設了目標
   「請依照指示執行直到此專案及測試專案開發完成」，明天（2026-10-19）來檢查。
-- user 不在的期間：需求由我照推薦選項定、寫進 `docs/spec.md` 標成「待 user 確認」，照目標先開發；**對外的動作不做**：issue
-  只寫草稿（`.local/terminu/issues/`）、不建 hostu 的 GitHub repo、不 push、不發版。規範盲點照舊記 HN。
+- user 不在的期間：需求由我照推薦選項定、寫進 `docs/spec.md` 標成「待 user 確認」，照目標先開發；**對外的動作不做**：不建
+  hostu 的 GitHub repo、不 push、不發版。規範盲點照舊記 HN。
+- user（2026-10-18）：「issue 發給 terminu 的 session，直接本地端通知，還不走 github issue 那套」「hostu 先不 push 都留在本地」。
+  草稿留在 hostu 的 `.local/terminu/issues/`，內容用 SendMessage 送給 terminu 的 session（2026-10-18 送了三張）。
 - hostu 放在 `~/Documents/sideproj/hostu`。它是新做的 app，不是正在重構的成員；完成後照流程 judge。
 
 ## 已定（user 2026-10-18，在 terminu 的 session）
