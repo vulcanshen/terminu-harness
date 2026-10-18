@@ -53,4 +53,6 @@ judge 從外面操作 app（harness 自己帶的終端機），任何 TUI app �
 - tdp 沒規範的東西有幾項
 - 成績單的路徑（`report.md`）
 
-不要改 app 的 repo，也不要替 app 開 issue；要不要回報 tdp 由 user 決定。
+最後問 user 要不要把「清單不清楚」與「tdp 沒規範的東西」交給 `terminu:report-gap` 寫成回報（它會先給 user 看草稿）。
+
+不要改 app 的 repo，也不要自己發 issue；要不要回報 tdp 由 user 決定。

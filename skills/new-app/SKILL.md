@@ -77,7 +77,8 @@ argument-hint: [app 的需求]
 ## 6. 繼續
 
 1. 讀 `.local/terminu/progress.md` 與 `docs/spec.md`。
-2. 「回報」裡的每張 issue：`gh issue view <網址>` 看狀態。tdp 或 terminu-go 出了新 tag：terminu-go 用 `go get` 升級；tdp 新版先讀
+2. 「回報」裡的每一張：照當初送的方式看有沒有回應（GitHub issue 用 `gh issue view <網址>`；在本機送給別的 session 的，看那邊的
+   回覆或紀錄）。tdp 或 terminu-go 出了新 tag：terminu-go 用 `go get` 升級；tdp 新版先讀
    它的 CHANGELOG 看改了什麼。把對應的 `TODO(tdp #N)`、`TODO(tgo #N)` 改掉，記進 progress.md。
 3. 接著做沒做完的里程碑（回到 4）。
 
