@@ -51,6 +51,19 @@ user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 s
   `tdp-0.7.4 N gene`，也順便試清單好不好用。
 - new-app（問需求、照 project 範本開 repo、用 terminu-go 寫）、report-gap（開 issue 回 tdp 或 terminu-go）、align 之後再做。
 
+## 已定（user 2026-10-18，在 harness 的 session）
+
+- **終端機模擬器照 GPL 複製 terminu-go 的 `vt.go`**（連同它量寬度的 `width.go`），註明出處；不用 charmbracelet 的 x/vt。理由：
+  icon 與 powerline 各佔幾格是 vt.go 本來就有的設定，量法跟家族 app 同一套，判 E5 才準；它會回 CPR、DA1、調色盤。x/vt 把 icon
+  一律算一格，要 fork 才能判 E5。代價：非家族 app 用到 vt.go 沒做的控制序列時畫面可能不對，遇到再補；terminu-go 改 vt.go 時
+  harness 自己跟。
+- **看畫面預設只回文字**（一列一行，加游標位置）；要看顏色、粗體時另外指定一個範圍，只回那一塊的樣式段（從第幾欄、連續幾格、
+  前景、背景、粗體……）。理由：大部分條目看文字就判得出來，顏色只看少數條目的一小塊。demou 一個 120×40 的畫面樣式有 269 段，
+  每次全回要多約 5k token；每一格一筆（4800 筆、約 7 萬 token）不考慮。
+- **時間軸只在畫面變了的時候記**：app 每次輸出、畫面真的變了，記一格並標上時間（ms）；送鍵時可以要求「接著錄 N ms」，回傳每一格
+  的時間與跟上一格比較變了哪幾列。不用固定間隔拍快照（會漏格、會重複、資料量大）。精度受 app 自己的畫面更新率限制
+  （HN1、HN2）。
+
 ## 還沒定（跟 user 一題一題定）
 
 - 成績單的格式（檔名、欄位、證據怎麼放）與輸出目錄放哪裡。
@@ -58,8 +71,6 @@ user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 s
 - 時間軸怎麼取樣（開關動畫、splash 揭露的 250ms、400ms）。
 - 畫圖片用的字型（Nerd Font 要不要跟著帶）。
 - 怎麼拿到某一版 tdp 的清單（本機 `git show <tag>:checklist/…`，或 GitHub 上的檔案）。
-- 終端機模擬器從哪來：terminu-go 的 `vt.go` 沒有對外公開（型別 `vt` 是小寫），要用就照 GPL 複製過來、註明出處；或改用別的模擬器
-  （例：charmbracelet 的 x/vt）。
 - harness 不是家族 app，tdp 的 project（`family.mk` 等）不套；repo 自己的 Makefile、發布方式要不要照它，跟 user 定。
 
 ## 規範與清單是唯一的依據
