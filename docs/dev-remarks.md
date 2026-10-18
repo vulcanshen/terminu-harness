@@ -43,7 +43,12 @@ judge 的流程：
 - **judge agent 沒有 Write、Edit**：判定、profile 都經 MCP 工具記，agent 從頭到尾只讀。
 - **環境變數**：開 app 時拿掉真終端機的 `TERM`、`*__ICON_WIDTH`、`*__POWERLINE_WIDTH`，app 才會探測 harness 這個終端機；judge 要測
   E5-5 這種條目時自己用 `env` 設。
-- **時間的暫時判法**（33ms、splash 的 tick 只看順序）寫在 `agents/judge.md`，對應 tdp 那邊的 HN1、HN2；tdp 定案後改。
+- **清單不清楚時的暫時判法**寫在 `agents/judge.md`，對應 tdp 那邊的 HN1、HN2、HN4～HN6（時間差在兩格畫面內、splash 的 tick
+  只看順序、缺了整個東西時細節判「判不了」、K3-7 優先於 K3-8、toast-7 照 80 欄）。不寫的話，十批 judge 各判各的（用測試程式
+  跑完整流程時看到過）。tdp 定案後照定案改。
+- **會寫系統檔的 app 用包裝指令判**：judge 會在 app 裡按會寫檔的鍵。判 hostu 時給 judge 一個包裝指令：每次啟動在暫存資料夾開新的
+  `HOME` 與 hosts 檔（系統檔的複本），使用者的 `XDG_CONFIG_HOME` 指向真的家目錄時拿掉；judge skill 把使用者的這段補充原樣轉給
+  每個 judge。new-app 也照這樣交代。
 
 ## 已知的牆與未做
 
@@ -52,7 +57,18 @@ judge 的流程：
 - Bubble Tea v1 一秒最多畫 60 格，tick 比一格短的動畫從畫面上看不出每個 tick（HN1）。
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回來打 `/terminu` 選「繼續」。
-- 還沒做：align（tdp 新版時重判、列出要修的）；judge 找到的 tdp 沒規範的東西還沒自動轉成 report-gap 的草稿。
+- 判一次很貴：1302 條、11 個 agent。測試程式（幾乎沒有功能）約 22 美元；hostu 約 74 美元、30 分鐘。
+- 還沒做：align（tdp 新版時重判、列出要修的）；judge 找到的 tdp 沒規範的東西，judge skill 會問要不要交給 report-gap，還沒有自動
+  轉成草稿。
+
+## 用 hostu 試整套流程（2026-10-18）
+
+new-app 照 user 給的需求做了 hostu（`~/Documents/sideproj/hostu`，只在本機）。學到的：
+
+- judge 抓得到 new-app 自己寫錯的地方：spec 的 D5 原本用 textarea 編 hosts 檔，judge 照 tdp textarea-1 判違反（設定檔要交給
+  `$EDITOR`），改了。new-app 問需求時要先讀用到的元件的「用途」段，不只看「長相」。
+- 開發中用 harness 的終端機開 app，抓到 L4 違反（Pager 照原樣畫 Tab），畫面測試量不出來（`terminu.Width` 把 `\t` 算 0 格）。
+- 卡在 terminu-go 的條目多（第一次 judge 的 20 條違反裡 8 條），照流程標 TODO、列進 app 的 `docs/<app>-terminu-fix.md`、回報。
 
 ## 建置與開發
 
