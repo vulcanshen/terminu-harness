@@ -20,6 +20,38 @@ user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 s
 **界線**：harness 只放流程（skill、agent、MCP server、script、範本），**不寫任何規定**。規定一律在 tdp；judge 判到規範沒寫、寫得模糊
 的地方，回報成 tdp 的缺漏，不在 harness 裡自己補一條。
 
+## harness 的全貌（user 2026-10-18，在 harness 的 session）
+
+user：「harness 不應該只是這樣而已」—— judge 只是最後一步。整套應該是：
+
+1. 使用者裝好 plugin，打 **`/terminu`** 就開始跟使用者互動。
+2. 要做新 app：**問需求**，最終確認後**開始開發**。
+3. 開發中遇到問題**跟使用者反饋**，並**發 issue 到 terminu 的 GitHub**，等 tdp 與 tgo 回應或更新，再繼續開發，直到完成。
+4. 完成後**自動 judge**，生成報告。
+
+細節（入口怎麼叫、怎麼等 issue、誰寫程式、狀態放哪……）跟 user 一題一題定：
+
+- **卡在 tdp 或 tgo、issue 發出去之後，其他部分照做**（user 選 A）：卡住的地方用暫時的做法，在程式標 `TODO(tdp #N)`
+  （tgo 的標 `TODO(tgo #N)`），tdp 或 tgo 更新後回來改掉。理由：issue 可能等好幾天。
+- 查過 Claude Code 文件（2026-10-18）：plugin skill 的 frontmatter 設 `name: terminu`，裸的 `/terminu` 也叫得到它（沒有別的
+  指令佔這個名字時），要實測；一個 session 沒辦法可靠地等好幾天（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine
+  是 research preview 且沒有 issue 事件）。
+- 照建議定（user 不在，2026-10-19 檢查）：入口 skill `skills/terminu`（`name: terminu`）只問要做什麼，再叫 `terminu:new-app`
+  或 `terminu:judge`；開發由主 session 寫，judge 照舊是獨立的 agent；進度放 app repo 的 `.local/terminu/progress.md`（tdp 的
+  gitignore 範本不收 `.local/`），規格放 `docs/spec.md`；issue 一律先給使用者看草稿、同意才發（`terminu:report-gap`）；完成後
+  judge，違反的條目問使用者要不要修。等 issue 的方式：使用者回來打 `/terminu` 選「繼續」，harness 查 issue 與新 tag。
+
+## 測試：用 harness 做 hostu（user 2026-10-18）
+
+- user 給的需求：hostu 管理本地 hosts 檔，master-detail（側邊欄是存著的設定清單，detail 是那個 hosts 檔的內容），一次只有一個
+  生效、要有 icon 標示，可以編輯、新增、切換生效的那一個；參考舊的 CLI `~/Documents/sideproj/hostfile`；支援 Windows、macOS、
+  Linux。
+- user：「專案可以反覆刪除和創建，直到完成，過程中不會開啟新的 session，由你直接進行整個流程，直到開發完成」；之後設了目標
+  「請依照指示執行直到此專案及測試專案開發完成」，明天（2026-10-19）來檢查。
+- user 不在的期間：需求由我照推薦選項定、寫進 `docs/spec.md` 標成「待 user 確認」，照目標先開發；**對外的動作不做**：issue
+  只寫草稿（`.local/terminu/issues/`）、不建 hostu 的 GitHub repo、不 push、不發版。規範盲點照舊記 HN。
+- hostu 放在 `~/Documents/sideproj/hostu`。它是新做的 app，不是正在重構的成員；完成後照流程 judge。
+
 ## 已定（user 2026-10-18，在 terminu 的 session）
 
 **分數是 gene 的數量**（tdp v0.7.3 起寫在 checklist 的說明頁）：
