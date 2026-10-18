@@ -64,14 +64,31 @@ user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 s
   的時間與跟上一格比較變了哪幾列。不用固定間隔拍快照（會漏格、會重複、資料量大）。精度受 app 自己的畫面更新率限制
   （HN1、HN2）。
 
-## 還沒定（跟 user 一題一題定）
+下面這些 user 說「都依照你 recommended 的，一路做到結束，我們再來調整」（2026-10-18），照建議定，做完再一起調：
 
-- 成績單的格式（檔名、欄位、證據怎麼放）與輸出目錄放哪裡。
-- MCP 工具的確切介面（名稱、參數、回傳的格子長什麼樣）。
-- 時間軸怎麼取樣（開關動畫、splash 揭露的 250ms、400ms）。
-- 畫圖片用的字型（Nerd Font 要不要跟著帶）。
-- 怎麼拿到某一版 tdp 的清單（本機 `git show <tag>:checklist/…`，或 GitHub 上的檔案）。
-- harness 不是家族 app，tdp 的 project（`family.mk` 等）不套；repo 自己的 Makefile、發布方式要不要照它，跟 user 定。
+- **畫圖片的字型由 harness 自己帶**：Go Mono（`golang.org/x/image/font/gofont`）畫字，Symbols Nerd Font Mono（MIT，放在
+  `internal/render/fonts/`）畫 icon 與 powerline 符號，框線與方塊字元自己畫；哪個字型都沒有的字畫成外框。理由：跑 judge 的
+  機器不一定有字型，自己帶才每台畫得一樣。
+- **清單從 GitHub 抓那一版 tag 的檔案**（`raw.githubusercontent.com`，不給版本就用最新的 tag），存在
+  `~/.terminu-harness/cache/tdp/`；設 `TERMINU_HARNESS__TDP_REPO` 指到本機的 terminu clone 時改用 `git show`。理由：裝 plugin
+  的人沒有 terminu 的 clone。
+- **成績單**寫在 `~/.terminu-harness/judge/<app>/<時間>-tdp-<版本>/`（`TERMINU_HARNESS__OUT` 可以換）：`report.md`（給人看）、
+  `verdicts.jsonl`、`gaps.jsonl`、`profile.md`、`evidence/`（畫面的文字、錄影、樣式、圖片，編號 `eNNNN`）、`batches/`、清單的
+  副本。gene 由程式數。理由：user 多半在 app 的 repo 裡打 `/terminu:judge`，寫在工作目錄就動到 app 的 repo。
+- **分工**：一個 judge 先認識 app、存 profile；清單照章切成 10 批（不拆章），每批一個 judge 同時判；`judge_status` 補沒判到的
+  一次；`judge_finish` 寫成績單，還是沒判到的算判不了。理由：一個 agent 判不完 1302 條。
+- **judge agent 不給 Write、Edit**：判定、profile、tdp 沒規範的東西都用 MCP 工具記；Bash 只准看東西的指令（寫在 agent 裡）。
+- **MCP 工具**：`open`、`keys`、`screen`、`styles`、`image`、`resize`、`overflow`、`close`、`tdp_file`、`judge_start`、
+  `judge_profile`、`judge_verdicts`、`judge_gap`、`judge_status`、`judge_finish`（server 名 `harness`）。Go 寫，用
+  `mark3labs/mcp-go`（家族的 clerk 也用）、`creack/pty`；只支援 macOS、Linux。
+- **repo 自己的 Makefile**（build、test、check、clean），不套 `family.mk`。plugin 的 `.mcp.json` 跑 `scripts/mcp.sh`：有
+  `.local/bin/terminu-harness` 就用，沒有就用 Go 從原始碼建到 `~/.terminu-harness/bin/`，所以現在使用者要有 Go。發版要不要改成
+  下載 release 的 binary，發版時跟 user 定。
+- **時間的暫時判法**照 HN1、HN2 的「暫時」寫在 judge agent 裡，tdp 定案後改。
+
+## 還沒定
+
+- 發布：GitHub repo、tag、release 的 binary 怎麼給使用者（見上一節最後）。
 
 ## 規範與清單是唯一的依據
 
