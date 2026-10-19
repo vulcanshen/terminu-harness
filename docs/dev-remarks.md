@@ -41,7 +41,7 @@ judge 的流程：
   有，所以不適用留著；但只有 app 真的沒有、tdp 也沒要求要有才算，理由要寫怎麼知道沒有；「都要」的條目、tdp 要求某種情況必須有的，
   缺了判違反。寫在 `agents/judge.md`。
 - **只重判有改到的**（user 2026-10-19，粗分）：開 run 時記下 app 的 commit 與 terminu-go 版本；找同一個 app、同一版 tdp、判完的上一份成績單（同一版 terminu-go、有記 commit），看兩個 commit 之間（加上還沒 commit 的）改了哪些檔：改到程式（`.go`、`go.mod`、`cmd/`、`internal/`）就重判「讀檔案」以外的條目，改到其他檔就重判「讀檔案」的條目，其他沿用，理由前面標「沿用 <commit>」、證據連回上一份成績單。細分（只重判改動碰到的功能）不做：改到共用的程式時會漏判。
-- **按程式碼分（`judge_scan`）**（user 2026-10-19）：有 repo、用 terminu-go 寫的 app，掃非測試的 `.go`，看用了哪些 terminu-go 元件（`terminu.DatePicker`、`OpenTerminal(`、`Details:`……），對到清單「適用」表的功能；「適用」寫的功能全部確定沒有的條目直接判不適用、理由寫出來。掃描看不出來的功能（多 panel、存設定……）與「都要」不判；app 有自己畫的 body 或 popup 時一律不判（它可能用自己的方式做了那個功能）。hostu 試過：1302 條裡 493 條。tdp v0.8.0 加的：模式分成 panel 上（`terminu.Mode`、`EnterMode(`，與 PTY）與 popup 裡（viewer 的選取、reorder 的 Drag、terminal 的歷史與選取，元件自己帶的）；有預覽的 finder、有檔案預覽看一般 finder 與 file-picker；發過版看 repo 有沒有 tag（沒有 tag 就一定沒發過）。位置列、zoom、工作清單沒有對應的 terminu-go API，不判。不適用的理由照功能寫怎麼知道的（`scan.Why`）。
+- **按程式碼分（`judge_scan`）**（user 2026-10-19）：有 repo、用 terminu-go 寫的 app，掃非測試的 `.go`，看用了哪些 terminu-go 元件（`terminu.DatePicker`、`OpenTerminal(`、`Details:`……），對到清單「適用」表的功能；「適用」寫的功能全部確定沒有的條目直接判不適用、理由寫出來。掃描看不出來的功能（多 panel、存設定……）與「都要」不判；app 有自己畫的 body 或 popup 時一律不判（它可能用自己的方式做了那個功能）。hostu 試過：1302 條裡 493 條。tdp v0.8.0 加的：模式分成 panel 上（`terminu.Mode`、`EnterMode(`，與 PTY）與 popup 裡（viewer 的選取、reorder 的 Drag、terminal 的歷史與選取，元件自己帶的）；有預覽的 finder、有檔案預覽看一般 finder 與 file-picker；發過版看 repo 有沒有 tag（沒有 tag 就一定沒發過）。terminu-go v0.2.0 加的：位置列看 `List.Location`；error popup 也看 `ErrorAbout(`、不限第一個參數是字串（`err.Error()` 不算）；confirm 也看 `AskFor:`；loading 也看 `LoadSelect(`、`LoadChecks(`、`LoadingFrame`；color picker 算有 select（清單說明頁）；自己畫的東西不限參數名，popup 的 body（`Draw(w, h int, layer Color)`）、`App.Popup(` 與 `App.Canvas` 都算。zoom、工作清單沒有對應的 terminu-go API，不判。不適用的理由照功能寫怎麼知道的（`scan.Why`）。
 - **`terminu-harness report <run>`**：用目前這版 harness 的判法重寫一個 run 的成績單，不用重判。
 
 - **模擬器複製 terminu-go 的 `vt.go`**（GPL，檔頭註明出處與 commit），不用 charmbracelet 的 x/vt：icon 與 powerline 各佔幾格是
@@ -88,7 +88,7 @@ new-app 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；�
 ## 建置與開發
 
 - `make build`：建到 `.local/bin/terminu-harness`，`scripts/mcp.sh` 優先用它。
-- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗真的清單（v0.8.0 要是 1388 條）。
+- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗真的清單（v0.8.1 要是 1391 條）。
 - server 的測試開 `internal/server/testdata/fixture`（測試時才建的小程式，不靠外部套件）代替真的 app：它照家族 app 的方式探測
   icon 寬度、顯示收到的鍵、按 `a` 播 5 格動畫、按 `w` 印超過邊界、按 `q` 結束。驗 MCP 工具用它，不拿家族成員來試。
 - `make check`：gofmt、go vet、測試、`claude plugin validate`。

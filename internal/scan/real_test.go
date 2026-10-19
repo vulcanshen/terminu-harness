@@ -8,7 +8,7 @@ import (
 )
 
 // TestARealApp scans the app at TERMINU_HARNESS__SCAN_REPO against tdp
-// v0.8.0 from the terminu clone at TERMINU_HARNESS__TDP_REPO, and says how
+// v0.8.1 from the terminu clone at TERMINU_HARNESS__TDP_REPO, and says how
 // many items the scan judges not applicable.
 func TestARealApp(t *testing.T) {
 	app, terminu := os.Getenv("TERMINU_HARNESS__SCAN_REPO"), os.Getenv("TERMINU_HARNESS__TDP_REPO")
@@ -19,7 +19,7 @@ func TestARealApp(t *testing.T) {
 	if err != nil || r == nil {
 		t.Fatalf("scan: %v", err)
 	}
-	b, err := tdp.Source{Repo: terminu}.File("v0.8.0", tdp.ItemsPath)
+	b, err := tdp.Source{Repo: terminu}.File("v0.8.1", tdp.ItemsPath)
 	if err != nil {
 		t.Fatal(err)
 	}

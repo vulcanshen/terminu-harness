@@ -114,3 +114,37 @@ func TestModesPreviewsAndReleases(t *testing.T) {
 		t.Error("an app with a tag was taken as never released")
 	}
 }
+
+func TestTgo020(t *testing.T) {
+	r, _ := Scan(repo(t, map[string]string{"ui.go": `package ui
+func build(a *terminu.App, err error) {
+	_ = err.Error()
+	l := &terminu.List{}
+	l.Location = "~/notes"
+	a.ErrorAbout("RENAME FAILED", "notes.md", err.Error())
+	_ = terminu.Action{AskFor: nil}
+	a.LoadSelect(nil)
+	_ = &terminu.ColorPicker{}
+}
+`}), "v0.2.0")
+	for f, want := range map[string]bool{
+		"位置列": true, "error popup": true, "confirm": true, "loading": true, "select": true, "finder": true,
+	} {
+		if r.Has[f] != want {
+			t.Errorf("%s: %v, want %v", f, r.Has[f], want)
+		}
+	}
+	if r, _ = Scan(repo(t, map[string]string{"ui.go": "package ui\nfunc f(err error) string { return err.Error() }\n"}), "v0.2.0"); r.Has["error popup"] {
+		t.Error("err.Error() was taken for an error popup")
+	}
+	for name, src := range map[string]string{
+		"a popup's body": "package ui\nfunc (g *grid) Draw(w, h int, layer terminu.Color) []string { return nil }\n",
+		"a popup":        "package ui\nfunc f(a *terminu.App, p terminu.Popup) { a.Popup(p) }\n",
+		"a canvas":       "package ui\nfunc f(a *terminu.App) { a.Canvas = lock }\n",
+		"a body":         "package ui\nfunc (g *grid) Draw(width, height int, _ bool) []string { return nil }\n",
+	} {
+		if r, _ := Scan(repo(t, map[string]string{"ui.go": src}), "v0.2.0"); len(r.Custom) == 0 {
+			t.Errorf("%s of the app's own was not seen", name)
+		}
+	}
+}

@@ -5,7 +5,7 @@ terminu 的 harness：一個 Claude Code plugin，放進 marketplace，讓人照
 - repo：`terminu-harness`（本機 `~/Documents/sideproj/terminu-harness`，還沒有 GitHub repo）；plugin 名 `terminu`（skill 打
   `/terminu:judge` 這種）。
 - 授權：GPL-3.0（跟家族其他 repo 一樣；可以用 terminu-go 的程式）。
-- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.8.0**，2026-10-19 發的）。judge 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1388 條）。
+- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.8.1**，2026-10-19 發的；對應的 terminu-go 是 v0.2.0）。judge 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1391 條）。
 
 上面這些都已經跟 user 定案，不要重提。
 

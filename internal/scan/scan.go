@@ -30,11 +30,12 @@ var features = map[string]string{
 	"一列一個值的 panel":    `terminu\.Values\b`,
 	"分組清單":            `\bGroup:`,
 	"明細 panel":        `\bDetails:`,
+	"位置列":             `\.Location\s*=|\bLocation:`,
 	"排序":              `SortBy\(|terminu\.SortKey`,
 	"標記":              `Marks:\s*true`,
 	"panel filter":    `Filterable:\s*true`,
 	"串流內容":            `Stream:\s*true|Follow:\s*true`,
-	"loading":         `\bLoading\b`,
+	"loading":         `\bLoading\b|LoadingFrame|LoadSelect\(|LoadChecks\(`,
 	"模式（在 panel 上）":   `terminu\.Mode\b|\.EnterMode\(`,
 	"停用":              `\bDisabled:`,
 	"長時間工作":           `\.Progress\b|SubmitLong`,
@@ -43,8 +44,8 @@ var features = map[string]string{
 	"表單":              `terminu\.Form\b`,
 	"viewer":          `terminu\.Viewer\b`,
 	"toast":           `\.Toast\(`,
-	"error popup":     `\.Error\(\s*"`,
-	"confirm":         `\.Confirm\(|terminu\.Ask\{|\bAsk:\s`,
+	"error popup":     `\.Error\(\s*[^)\s]|\.ErrorAbout\(`, // not err.Error()
+	"confirm":         `\.Confirm\(|terminu\.Ask\{|\bAsk:\s|\bAskFor:\s`,
 	"text":            `terminu\.TextInput\b`,
 	"password":        `terminu\.PasswordInput\b`,
 	"number":          `terminu\.NumberInput\b`,
@@ -59,8 +60,9 @@ var features = map[string]string{
 	"mouse":           `WithMouse|MouseMsg`,
 }
 
-// custom is code that draws a body or a popup of the app's own.
-var custom = regexp.MustCompile(`func \([^)]*\) Draw\(w, h int, focused bool\) \[\]string|\.Popup\(terminu\.Popup`)
+// custom is code that draws a body, a popup or a whole screen (App.Canvas)
+// of the app's own.
+var custom = regexp.MustCompile(`func \([^)]*\) Draw\([^)]*\) \[\]string|\.Popup\(|\bCanvas:\s|\.Canvas\s*=`)
 
 // Scan reads the repo; nil when the app is not written with terminu-go.
 func Scan(repo, tgo string) (*Result, error) {
@@ -120,7 +122,8 @@ func Scan(repo, tgo string) (*Result, error) {
 	}
 	// A finder is a finder or one of its kinds; an input, any input. A plain
 	// finder and a file-picker show a preview, maybe of files; select and
-	// checkbox popups none.
+	// checkbox popups none. A color picker has a select (its R, G and B).
+	r.Has["select"] = r.Has["select"] || r.Has["color picker"]
 	finder := regexp.MustCompile(`terminu\.Finder\b`).MatchString(text)
 	r.Has["finder"] = r.Has["select"] || r.Has["checkbox"] || r.Has["file-picker"] || finder
 	r.Has["有預覽的 finder"] = r.Has["file-picker"] || finder
