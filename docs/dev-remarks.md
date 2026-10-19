@@ -92,7 +92,9 @@ new-app 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；�
 - server 的測試開 `internal/server/testdata/fixture`（測試時才建的小程式，不靠外部套件）代替真的 app：它照家族 app 的方式探測
   icon 寬度、顯示收到的鍵、按 `a` 播 5 格動畫、按 `w` 印超過邊界、按 `q` 結束。驗 MCP 工具用它，不拿家族成員來試。
 - `make check`：gofmt、go vet、測試、`claude plugin validate`。
-- 不裝 plugin 試：`claude --plugin-dir <這個 repo>`；headless 判一次：
+- 不裝 plugin 試：`claude --plugin-dir <這個 repo>`。這個 flag 只管那一次啟動，`--resume`、`-c` 接回舊的 session 時也要再帶，
+  沒帶就沒有 plugin，也沒有 harness 的 MCP（2026-10-19 在 harness 的 session 踩到：`claude --resume -c` 開的 session 沒有 harness
+  的工具）。`claude --plugin-dir <repo> mcp list` 看得到 `plugin:terminu:harness … Connected` 就是連得上。headless 判一次：
   `claude -p --plugin-dir <repo> --permission-mode auto --allowedTools "mcp__plugin_terminu_harness__*" Agent Read Grep Glob "/terminu:judge <app> <repo>"`。
 
 ## 發布
