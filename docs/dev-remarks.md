@@ -19,7 +19,7 @@ judge 的流程：
   └─ judge_finish ─────────────► report.md（gene 由程式數）
 ```
 
-- **MCP server**（`cmd/terminu-harness`，子指令 `mcp`）：plugin 的 `.mcp.json` 跑 `scripts/mcp.sh`，server 名 `harness`，工具在
+- **MCP server**（`cmd/terminu-harness`，子指令 `mcp`）：plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（不放根目錄的 `.mcp.json`：在這個 repo 裡開 Claude Code 時它會被當成專案的 MCP 設定，`${CLAUDE_PLUGIN_ROOT}` 是空的就啟動失敗），server 名 `harness`，工具在
   Claude Code 裡叫 `mcp__plugin_terminu_harness__<工具>`。
 - **終端機**（`internal/term`、`internal/vt`）：`creack/pty` 開 app，`vt` 是從 terminu-go 複製的模擬器。讀 PTY 與處理畫面分兩個
   goroutine：一個只管讀（app 寫 PTY 不會被卡住），一個把讀到的全部一次餵給畫面，再用每一列的 checksum 找出變了哪幾列。錄影記的
