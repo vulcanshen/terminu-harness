@@ -54,6 +54,16 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 - user（2026-10-18）：「issue 發給 terminu 的 session，直接本地端通知，還不走 github issue 那套」「hostu 先不 push 都留在本地」。
   草稿留在 hostu 的 `.local/terminu/issues/`，內容用 SendMessage 送給 terminu 的 session（2026-10-18 送了三張）。
 - hostu 放在 `~/Documents/sideproj/hostu`。它是新做的 app，不是正在重構的成員；完成後照流程 judge。
+- user 看過第一版 spec 後加的需求（2026-10-19）：「對於某一個 profile 異動，或者新增 profile，應該要有我們 hostu 的 format，
+  來儲存，類似 kamonu 的作法，設定是一回事，匯出是另一回事，所以 profiles.yaml 應該儲存這些設定，當啟用某一個 profile 的時候，
+  才把該 profile 匯出覆蓋到 hosts 檔案，相反的，也應該要能夠把當前 hosts 檔案 parse 成 profile 格式的功能，這樣才能建立「預設」
+  profile……在 TUI 中我們可以提供使用者一個 domain 一個 domain 的添加，或者一個 domain 多個 ip 的添加，不是讓使用者直接去編輯
+  hosts 檔本身」。
+- **2026-10-19 移除了 hostu**（user：「我們的 hostu 應該要移除，等這次 terminu 更新後，重新用更新後的 harness 架構重建，現在
+  hostu 已經有形狀了，這種流程不太對了」）：一路跟著規範與判法改出來的 app 測不出整套流程，等 tdp 與 terminu-go 這次更新、
+  harness 跟上之後，從上面兩段需求重新做一次。刪了 repo 與開發時寫到真的家目錄的 `~/.config/hostu`（真的 `/etc/hosts` 沒被
+  寫過）；留著三次 judge 的成績單 `~/.terminu-harness/judge/hostu/`（terminu 的紀錄有引用），回報的草稿搬到 harness 的
+  `.local/hostu-v2/issues/`。做過一次學到的寫在 `docs/dev-remarks.md`。
 
 ## 已定（user 2026-10-18，在 terminu 的 session）
 

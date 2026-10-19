@@ -74,12 +74,16 @@ judge 的流程：
 
 ## 用 hostu 試整套流程（2026-10-18）
 
-new-app 照 user 給的需求做了 hostu（`~/Documents/sideproj/hostu`，只在本機）。學到的：
+new-app 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；三次 judge 的成績單還在 `~/.terminu-harness/judge/hostu/`）。學到的：
 
 - judge 抓得到 new-app 自己寫錯的地方：spec 的 D5 原本用 textarea 編 hosts 檔，judge 照 tdp textarea-1 判違反（設定檔要交給
   `$EDITOR`），改了。new-app 問需求時要先讀用到的元件的「用途」段，不只看「長相」。
 - 開發中用 harness 的終端機開 app，抓到 L4 違反（Pager 照原樣畫 Tab），畫面測試量不出來（`terminu.Width` 把 `\t` 算 0 格）。
 - 卡在 terminu-go 的條目多（第一次 judge 的 20 條違反裡 8 條），照流程標 TODO、列進 app 的 `docs/<app>-terminu-fix.md`、回報。
+- 第一版直接編 hosts 檔，user 要的是 TUI 的做法：app 有自己的格式存設定（`profiles.yaml`，一個 domain 一筆、可以有多個位址），
+  啟用時才匯出成系統檔，也能把現有的系統檔解析回來。new-app 決定設計時，管理某種檔案的 app 先想「自己的格式＋匯出」。
+- 試流程的 app 不要一路跟著改：hostu 做了兩版、判了三次，中間 tdp 的判法與 harness 都改過，最後的樣子是一路修出來的，測不出
+  「從需求做到通過」的整套流程（user：「現在 hostu 已經有形狀了，這種流程不太對了」）。規範或 harness 大改之後，從需求重做一次。
 
 ## 建置與開發
 
