@@ -38,6 +38,8 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
     一格（約 16.7ms）的倍數，量到剛好兩格也算在內。理由寫出量到的值（HN2）。
   - 欄位打開時是空的又不能空，什麼都不打按 `Enter`：照 K3-7 擋下判符合（K3-8 不算違反），理由寫「K3-7 與 K3-8 衝突，見 HN5」。
   - 「會被截掉的訊息」（toast-7）照 80 欄的終端機算（HN6）。
+  - departure-1：有意不照做的固定規定都寫在「偏離 tdp」就判符合；列在 `docs/<app>-terminu-fix.md` 的還沒做到的不算漏寫（HN7）。
+  - 刪掉東西的短 confirm，完成後對象已經不在，清掉 source 照 T1-1 不算違反 T1-2（HN8）。
   - splash 揭露的 tick（S5-27～S5-30）：錄影只判順序、方向與段間的停頓，一格畫面多走了幾個 tick 不算違反；tick 的 10ms 與每個
     tick 的量讀程式判，拿不到 repo 判「判不了」。
   - 每個 app 都要有的東西（Space menu、key reference、footer、splash……）app 整個沒有時：「那個東西本身有沒有」的條目判違反；
