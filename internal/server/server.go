@@ -186,6 +186,13 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 		mcp.WithString("out_dir", mcp.Description("Where runs go, ~/.terminu-harness/judge when left out.")),
 	), sv.judgeStart)
 
+	s.AddTool(mcp.NewTool("judge_scan",
+		mcp.WithDescription("Read the app's Go source (the run's repo) for the terminu-go components it uses, keep it as scan.json in the run, "+
+			"and judge 不適用 every item whose 適用 names only features the source shows the app has none of. Nothing when there is no "+
+			"repo, the app is not written with terminu-go, or it draws bodies or popups of its own. Call it right after judge_start."),
+		runDir,
+	), sv.judgeScan)
+
 	s.AddTool(mcp.NewTool("judge_profile",
 		mcp.WithDescription("Keep what the judge learned about the app (profile.md in the run): its help and version, screens, panels, popups, "+
 			"the features the checklist's 適用 column names and which the app has, and how to reach each surface. Replaces the earlier one."),

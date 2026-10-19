@@ -21,7 +21,8 @@ judge 從外面操作 app（harness 自己帶的終端機），任何 TUI app �
 
 ## 2. 開一個 run
 
-呼叫 `judge_start`（`app_command`、`repo`、`tdp_version`）。它回傳 run 目錄與各批條目的檔案。告訴 user：照哪一版 tdp、幾條、
+呼叫 `judge_start`（`app_command`、`repo`、`tdp_version`）。它回傳 run 目錄與各批條目的檔案。有 repo 時接著呼叫 `judge_scan`：
+它掃 app 的原始碼，把 app 確定沒有的功能的條目直接判不適用（user 2026-10-19：按程式碼分）。告訴 user：照哪一版 tdp、幾條、
 分幾批，成績單會寫在哪個目錄。
 
 ## 3. 認識 app

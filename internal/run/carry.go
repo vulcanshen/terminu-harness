@@ -87,3 +87,6 @@ func (r *Run) Carry(prev *Run, keep func(tdp.Item) bool) (int, error) {
 	r.Meta.Previous, r.Meta.Carried = prev.Dir, n
 	return n, r.saveMeta()
 }
+
+// Items is the checklist the run judges by.
+func (r *Run) Items() []tdp.Item { return r.items }

@@ -41,6 +41,7 @@ judge 的流程：
   有，所以不適用留著；但只有 app 真的沒有、tdp 也沒要求要有才算，理由要寫怎麼知道沒有；「都要」的條目、tdp 要求某種情況必須有的，
   缺了判違反。寫在 `agents/judge.md`。
 - **只重判有改到的**（user 2026-10-19，粗分）：開 run 時記下 app 的 commit 與 terminu-go 版本；找同一個 app、同一版 tdp、判完的上一份成績單（同一版 terminu-go、有記 commit），看兩個 commit 之間（加上還沒 commit 的）改了哪些檔：改到程式（`.go`、`go.mod`、`cmd/`、`internal/`）就重判「讀檔案」以外的條目，改到其他檔就重判「讀檔案」的條目，其他沿用，理由前面標「沿用 <commit>」、證據連回上一份成績單。細分（只重判改動碰到的功能）不做：改到共用的程式時會漏判。
+- **按程式碼分（`judge_scan`）**（user 2026-10-19）：有 repo、用 terminu-go 寫的 app，掃非測試的 `.go`，看用了哪些 terminu-go 元件（`terminu.DatePicker`、`OpenTerminal(`、`Details:`……），對到清單「適用」表的功能；「適用」寫的功能全部確定沒有的條目直接判不適用、理由寫出來。掃描看不出來的功能（多 panel、存設定……）與「都要」不判；app 有自己畫的 body 或 popup 時一律不判（它可能用自己的方式做了那個功能）。hostu 試過：1302 條裡 493 條。
 - **`terminu-harness report <run>`**：用目前這版 harness 的判法重寫一個 run 的成績單，不用重判。
 
 - **模擬器複製 terminu-go 的 `vt.go`**（GPL，檔頭註明出處與 commit），不用 charmbracelet 的 x/vt：icon 與 powerline 各佔幾格是
