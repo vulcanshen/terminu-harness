@@ -188,11 +188,11 @@ func TestJudgeStart(t *testing.T) {
 	}
 	t.Setenv(EnvHome, t.TempDir())
 	sv := New()
-	out, _ := call(t, sv.judgeStart, map[string]any{"app_command": "demo", "tdp_version": "0.8.1"})
-	if !strings.Contains(out, "tdp v0.8.1, 1391 items, 10 batches") {
+	out, _ := call(t, sv.judgeStart, map[string]any{"app_command": "demo", "tdp_version": "0.8.2"})
+	if !strings.Contains(out, "tdp v0.8.2, 1394 items, 10 batches") {
 		t.Errorf("judge_start:\n%s", out)
 	}
-	out, _ = call(t, sv.tdpFile, map[string]any{"path": "checklist/README-zh_TW.md", "version": "v0.8.1"})
+	out, _ = call(t, sv.tdpFile, map[string]any{"path": "checklist/README-zh_TW.md", "version": "v0.8.2"})
 	if !strings.Contains(out, "# terminu checklist") {
 		t.Errorf("tdp_file: %.200s", out)
 	}

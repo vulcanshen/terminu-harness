@@ -88,7 +88,7 @@ new-app 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；�
 ## 建置與開發
 
 - `make build`：建到 `.local/bin/terminu-harness`，`scripts/mcp.sh` 優先用它。
-- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗真的清單（v0.8.1 要是 1391 條）。
+- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗真的清單（v0.8.2 要是 1394 條）。
 - server 的測試開 `internal/server/testdata/fixture`（測試時才建的小程式，不靠外部套件）代替真的 app：它照家族 app 的方式探測
   icon 寬度、顯示收到的鍵、按 `a` 播 5 格動畫、按 `w` 印超過邊界、按 `q` 結束。驗 MCP 工具用它，不拿家族成員來試。
 - `make check`：gofmt、go vet、測試、`claude plugin validate`。

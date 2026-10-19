@@ -32,7 +32,7 @@ func TestParseTheChecklist(t *testing.T) {
 	if repo == "" {
 		t.Skip("no terminu clone")
 	}
-	b, err := Source{Repo: repo}.File("v0.8.1", ItemsPath)
+	b, err := Source{Repo: repo}.File("v0.8.2", ItemsPath)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -44,8 +44,8 @@ func TestParseTheChecklist(t *testing.T) {
 	for _, s := range secs {
 		total += len(s.Items)
 	}
-	if total != 1391 {
-		t.Errorf("%d items in v0.8.1, want 1391", total)
+	if total != 1394 {
+		t.Errorf("%d items in v0.8.2, want 1394", total)
 	}
 	batches := Batches(secs, 10)
 	sum := 0
