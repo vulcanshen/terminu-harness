@@ -58,7 +58,8 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
 
 ## 判一批條目
 
-1. 讀 run 目錄裡的 `profile.md`，再讀派給你的那一批的檔案（`batches/bN.md`）。
+1. 讀 run 目錄裡的 `profile.md`，再讀派給你的那一批的檔案（`batches/bN.md`）。呼叫 `judge_status`：已經有判定的條目（含沿用上一次
+   的）不用判，只判這一批沒判到的。
 2. 一條一條判：
    - 先照「適用」與 profile 決定適不適用；不適用就判不適用，理由寫 app 沒有哪個功能。
    - 適用的照「怎麼驗」做：開 app、按鍵、看畫面；固定步驟的用工具（每一列有沒有超出畫面用 `overflow`、色碼用 `styles`）；

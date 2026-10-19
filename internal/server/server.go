@@ -620,8 +620,15 @@ func (sv *Server) judgeStart(_ context.Context, req mcp.CallToolRequest) (*mcp.C
 	sv.mu.Lock()
 	sv.runs[r.Dir] = r
 	sv.mu.Unlock()
+	carried, err := carryOver(r, base, repo, tag)
+	if err != nil {
+		return fail("%v", err)
+	}
 	var b strings.Builder
 	fmt.Fprintf(&b, "run %s\ntdp %s, %d items, %d batches:\n", r.Dir, tag, r.Total(), len(r.Meta.Batches))
+	if carried != "" {
+		b.WriteString(carried)
+	}
 	for _, bt := range r.Meta.Batches {
 		fmt.Fprintf(&b, "  %s %d items: %s — %s\n", bt.ID, bt.Count, filepath.Join(r.Dir, bt.File), strings.Join(bt.Sections, "、"))
 	}

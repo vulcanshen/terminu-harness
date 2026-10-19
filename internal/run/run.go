@@ -43,6 +43,12 @@ type Meta struct {
 	TDP     string       `json:"tdp"`
 	Started time.Time    `json:"started"`
 	Batches []BatchFiles `json:"batches"`
+	// Commit and Tgo are the app's commit and terminu-go version, when there
+	// is a repo; Previous is the run whose verdicts the Carried items reuse.
+	Commit   string `json:"commit,omitempty"`
+	Tgo      string `json:"tgo,omitempty"`
+	Previous string `json:"previous,omitempty"`
+	Carried  int    `json:"carried,omitempty"`
 }
 
 // BatchFiles is one batch and the file listing its items for its judge.
@@ -92,7 +98,14 @@ func Start(base, command, repo, tag string, itemsMD []byte, batches int) (*Run, 
 	}
 	app := unsafeName.ReplaceAllString(filepath.Base(strings.Fields(command)[0]), "_")
 	now := time.Now()
-	dir := filepath.Join(base, app, now.Format("20060102-150405")+"-tdp-"+strings.TrimPrefix(tag, "v"))
+	stamp := now.Format("20060102-150405")
+	dir := filepath.Join(base, app, stamp+"-tdp-"+strings.TrimPrefix(tag, "v"))
+	for n := 2; ; n++ { // two runs started in the same second
+		if _, err := os.Stat(dir); os.IsNotExist(err) {
+			break
+		}
+		dir = filepath.Join(base, app, fmt.Sprintf("%s-%d-tdp-%s", stamp, n, strings.TrimPrefix(tag, "v")))
+	}
 	if err := os.MkdirAll(filepath.Join(dir, "evidence"), 0o755); err != nil {
 		return nil, err
 	}

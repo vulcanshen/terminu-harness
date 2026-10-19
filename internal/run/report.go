@@ -145,6 +145,10 @@ func cell(s string) string {
 func (r *Run) links(ids []string) string {
 	var out []string
 	for _, id := range ids {
+		if strings.Contains(id, "/") { // carried from an earlier run: a path to it
+			out = append(out, fmt.Sprintf("[%s](%s)", strings.TrimSuffix(filepath.Base(id), filepath.Ext(id)), id))
+			continue
+		}
 		m, _ := filepath.Glob(filepath.Join(r.Dir, "evidence", id+".*"))
 		if len(m) == 0 {
 			out = append(out, id)
