@@ -33,10 +33,13 @@ judge 的流程：
 
 ## 設計決定
 
-- **判斷線在 harness**（user 2026-10-19：tdp 只放規範，判斷是 harness 的核心）：沒有違反是「通過」；違反都列在 app 的
-  `docs/<app>-terminu-fix.md`（tdp E7，在等 tdp 或 terminu-go）是「待修」；有違反沒列進去是「不通過」，沒給 repo 時有違反就是
-  不通過。程式在 fix 文件裡找每條違反的編號（`K1-3` 不會配到 `K1-30`）。gene 數量留著看進度：它跟 app 的功能多寡綁在一起，
-  不同 app 的數字比不了，也看不出能不能出貨。
+- **判斷線在 harness**（user 2026-10-19：tdp 只放規範，判斷是 harness 的核心）：有任何一條違反就「不通過」，不管是 app 自己要修、
+  還是在等 tdp 或 terminu-go（user 選的：有違反就是有東西壞了）；沒有就「通過」。偏離（寫明理由、刻意不照做，tdp 允許的）不擋，
+  列在成績單最前面。違反照 app 的 `docs/<app>-terminu-fix.md`（tdp E7）分開列：列在裡面的是在等 tdp 或 terminu-go，沒列的是 app
+  自己要修（程式找編號，`K1-3` 不會配到 `K1-30`）。gene 數量留著看進度：它跟 app 的功能多寡綁在一起，不同 app 的數字比不了。
+- **不適用要有根據**（user 2026-10-19 問「會有不適用的情況嗎」）：components 規範的是「用了這個元件時要這樣」，不是每個 app 都要
+  有，所以不適用留著；但只有 app 真的沒有、tdp 也沒要求要有才算，理由要寫怎麼知道沒有；「都要」的條目、tdp 要求某種情況必須有的，
+  缺了判違反。寫在 `agents/judge.md`。
 - **只重判有改到的**（user 2026-10-19，粗分）：開 run 時記下 app 的 commit 與 terminu-go 版本；找同一個 app、同一版 tdp、判完的上一份成績單（同一版 terminu-go、有記 commit），看兩個 commit 之間（加上還沒 commit 的）改了哪些檔：改到程式（`.go`、`go.mod`、`cmd/`、`internal/`）就重判「讀檔案」以外的條目，改到其他檔就重判「讀檔案」的條目，其他沿用，理由前面標「沿用 <commit>」、證據連回上一份成績單。細分（只重判改動碰到的功能）不做：改到共用的程式時會漏判。
 - **`terminu-harness report <run>`**：用目前這版 harness 的判法重寫一個 run 的成績單，不用重判。
 

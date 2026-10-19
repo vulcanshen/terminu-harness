@@ -125,8 +125,11 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 
 ## 已定（user 2026-10-19，在 harness 的 session）
 
-- **判斷線在 harness**（見上面的「界線」）：通過＝沒有違反；待修＝違反都列在 app 的 `docs/<app>-terminu-fix.md`；不通過＝有違反沒
-  列進去。成績單第一行寫結果，gene 數量看進度。`terminu-harness report <run>` 照目前的判法重寫成績單。
+- **判斷線在 harness**（見上面的「界線」）：有任何違反就**不通過**（user 選 A，包括在等 terminu-go 的），沒有就通過；偏離不擋、列在
+  最前面；違反分開列 app 自己要修的與在等 tdp／terminu-go 的。成績單第一行寫結果，gene 數量看進度。`terminu-harness report <run>`
+  照目前的判法重寫成績單。
+- **不適用要有根據**（user 問「會有不適用的情況嗎」）：components 規範「用了才要這樣」，不適用留著；但只有 app 真的沒有、tdp 也沒
+  要求要有才算，要寫怎麼知道；「都要」的與 tdp 要求必須有的，缺了判違反。
 - **只重判有改到的，粗分**（user 選 A）：記 commit 與 terminu-go 版本；改到程式重判「讀檔案」以外的條目，改到其他檔重判「讀檔案」
   的條目，其他沿用上一份成績單；terminu-go 換版、沒有上一份就全部判。
 - **判一次太久，按程式碼分**（user 的想法，還沒做）：有原始碼時掃程式，知道哪些功能用 terminu-go 做、哪些是 app 自己寫的；沒有的

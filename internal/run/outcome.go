@@ -7,11 +7,12 @@ import (
 )
 
 // The outcomes of a judging: harness's line for whether an app is done
-// (user, 2026-10-19: judging is the harness's, tdp only says what an app is).
+// (user, 2026-10-19: judging is the harness's, tdp only says what an app is;
+// any violation blocks, whoever has to fix it; a departure, written down with
+// its reason, does not).
 const (
-	Passed  = "通過"  // no item violated
-	Pending = "待修"  // every violation is listed in the app's terminu-fix file, waiting on tdp or terminu-go
-	Failed  = "不通過" // a violation is listed nowhere: the app has work of its own left
+	Passed = "通過"  // no item violated
+	Failed = "不通過" // an item is violated
 )
 
 // FixFile is where an app lists what it does not meet yet (tdp E7).
@@ -23,8 +24,9 @@ func (r *Run) FixFile() string {
 }
 
 // Outcome is the run's outcome over the violated items, and the violated
-// items the fix file does not name. Without a repo there is no fix file to
-// read, so any violation fails.
+// items the app's fix file does not name: those are the app's own to fix,
+// the rest wait on tdp or terminu-go. Without a repo there is no fix file to
+// read, so none is named.
 func (r *Run) Outcome(violated []string) (string, []string) {
 	if len(violated) == 0 {
 		return Passed, nil
@@ -41,8 +43,5 @@ func (r *Run) Outcome(violated []string) (string, []string) {
 			unlisted = append(unlisted, id)
 		}
 	}
-	if len(unlisted) > 0 {
-		return Failed, unlisted
-	}
-	return Pending, nil
+	return Failed, unlisted
 }

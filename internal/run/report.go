@@ -32,12 +32,15 @@ func (r *Run) Finish() (string, error) {
 	}
 	count := map[string]int{}
 	unjudged := 0
-	var violated []string
+	var violated, departed []string
 	for _, it := range r.items {
 		v := verdictOf(it).Verdict
 		count[v]++
-		if v == Violates {
+		switch v {
+		case Violates:
 			violated = append(violated, it.ID)
+		case Departs:
+			departed = append(departed, it.ID)
 		}
 		if _, ok := judged[it.ID]; !ok {
 			unjudged++
@@ -48,10 +51,14 @@ func (r *Run) Finish() (string, error) {
 
 	var s strings.Builder
 	fmt.Fprintf(&s, "# %s 的成績單\n\n**%s**　%s\n\n", r.Meta.App, outcome, genes)
-	s.WriteString("- 判斷線：沒有違反是「通過」；違反都列在 app 的 `docs/<app>-terminu-fix.md`（在等 tdp 或 terminu-go）是「待修」；" +
-		"有違反沒列進去是「不通過」。gene 數量看進度。\n")
-	if len(unlisted) > 0 {
-		fmt.Fprintf(&s, "- 沒列進 fix 文件的違反（%d）：%s\n", len(unlisted), strings.Join(unlisted, "、"))
+	s.WriteString("- 判斷線：有任何一條違反就「不通過」，不管是 app 自己要修、還是在等 tdp 或 terminu-go；偏離（寫明理由、刻意不照做）" +
+		"不擋，列在下面。gene 數量看進度。\n")
+	if len(departed) > 0 {
+		fmt.Fprintf(&s, "- 偏離（%d）：%s\n", len(departed), strings.Join(departed, "、"))
+	}
+	if len(violated) > 0 {
+		fmt.Fprintf(&s, "- 違反（%d）：在等 tdp 或 terminu-go 的 %d 條（列在 `docs/%s-terminu-fix.md`）；app 自己要修的 %d 條：%s\n",
+			len(violated), len(violated)-len(unlisted), r.Meta.App, len(unlisted), strings.Join(unlisted, "、"))
 	}
 	fmt.Fprintf(&s, "- app：`%s`\n", r.Meta.Command)
 	if r.Meta.Repo != "" {
@@ -121,7 +128,7 @@ func (r *Run) Finish() (string, error) {
 	var sum strings.Builder
 	fmt.Fprintf(&sum, "%s：%s，%s\n", r.Meta.App, outcome, genes)
 	if len(unlisted) > 0 {
-		fmt.Fprintf(&sum, "  沒列進 fix 文件的違反：%s\n", strings.Join(unlisted, "、"))
+		fmt.Fprintf(&sum, "  app 自己要修的違反：%s\n", strings.Join(unlisted, "、"))
 	}
 	for _, v := range Verdicts {
 		fmt.Fprintf(&sum, "  %s %d\n", v, count[v])
