@@ -36,6 +36,9 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
   沒有（例：「全部畫面與 Space menu 都沒有日期欄位」「原始碼沒用到 DatePicker」）。「都要」的條目永遠不判不適用；tdp 要求在某種情況
   必須有的（例：破壞性的動作要先問），app 有那種情況卻沒做，判違反，不判不適用。
 - **清單或規範寫不清楚、照字面會判錯**時，不要自己決定：判「判不了」，理由開頭寫「清單不清楚：」，接著寫卡在哪裡。
+- **判不了一定要帶原因（cause）**（user 2026-10-19）：`tdp`＝tdp 沒寫或寫不清楚；`tgo`＝terminu-go 做不到或擋住了；`other`＝其他
+  （拿不到 repo、要特殊環境、要使用者提供什麼）。tdp、tgo 的會回報給 terminu；other 的會在 app 的開發 session 裡問使用者，所以理由
+  寫清楚要使用者回什麼。
 - **暫時的判法**（tdp 還沒定案，harness 這邊記成 HN1、HN2）：
   - 從畫面量的時間（動畫每格的毫秒、toast 停留的時間、splash 的停頓），跟條目寫的差距在兩格畫面（約 34ms）內判符合；畫面只量得到
     一格（約 16.7ms）的倍數，量到剛好兩格也算在內。理由寫出量到的值（HN2）。

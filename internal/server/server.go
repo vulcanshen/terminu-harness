@@ -195,7 +195,8 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 
 	s.AddTool(mcp.NewTool("judge_verdicts",
 		mcp.WithDescription("Keep verdicts on items. verdict is one of 符合 偏離 違反 不適用 判不了; reason says why in Traditional Chinese "+
-			"(for 判不了 what is missing); evidence lists evidence ids the terminal tools returned. A later verdict on an item replaces an "+
+			"(for 判不了 what is missing); for 判不了, cause says why: tdp (tdp says nothing clear), tgo (terminu-go can't), other "+
+			"(no repo, a special environment); evidence lists evidence ids the terminal tools returned. A later verdict on an item replaces an "+
 			"earlier one. Returns how many were kept and what was wrong with the rest."),
 		runDir,
 		mcp.WithArray("verdicts", mcp.Required(), mcp.Items(map[string]any{
@@ -204,6 +205,7 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 				"id":       map[string]any{"type": "string", "description": "The item number, e.g. K4-2."},
 				"verdict":  map[string]any{"type": "string", "enum": run.Verdicts},
 				"reason":   map[string]any{"type": "string"},
+				"cause":    map[string]any{"type": "string", "enum": run.Causes},
 				"evidence": map[string]any{"type": "array", "items": map[string]any{"type": "string"}},
 			},
 			"required": []string{"id", "verdict", "reason"},

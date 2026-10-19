@@ -61,12 +61,26 @@ type BatchFiles struct {
 
 // Verdict is a judge's verdict on one item.
 type Verdict struct {
-	ID       string    `json:"id"`
-	Verdict  string    `json:"verdict"`
-	Reason   string    `json:"reason"`
+	ID      string `json:"id"`
+	Verdict string `json:"verdict"`
+	Reason  string `json:"reason"`
+	// Cause is why an item can't be told (user, 2026-10-19), where it goes:
+	// tdp or terminu-go are reported back to terminu; other is put to the
+	// user in the app's session.
+	Cause    string    `json:"cause,omitempty"`
 	Evidence []string  `json:"evidence,omitempty"`
 	At       time.Time `json:"at"`
 }
+
+// The causes of 判不了.
+const (
+	CauseTDP   = "tdp"   // tdp says nothing, or nothing clear
+	CauseTgo   = "tgo"   // terminu-go can't do it, or gets in the way
+	CauseOther = "other" // anything else: no repo, a special environment
+)
+
+// Causes in the order a report lists them.
+var Causes = []string{CauseTDP, CauseTgo, CauseOther}
 
 // Gap is something the app does that tdp does not cover yet.
 type Gap struct {
@@ -222,6 +236,9 @@ func (r *Run) AddVerdicts(vs []Verdict) (kept int, problems []string) {
 			continue
 		case strings.TrimSpace(v.Reason) == "":
 			problems = append(problems, fmt.Sprintf("%s: no reason", v.ID))
+			continue
+		case v.Verdict == CannotTell && v.Cause != CauseTDP && v.Cause != CauseTgo && v.Cause != CauseOther:
+			problems = append(problems, fmt.Sprintf("%s: why it can't be told: cause is tdp, tgo or other", v.ID))
 			continue
 		}
 		for _, e := range v.Evidence {

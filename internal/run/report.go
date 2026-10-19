@@ -91,9 +91,21 @@ func (r *Run) Finish() (string, error) {
 			s.WriteString("沒有。\n\n")
 			continue
 		}
-		s.WriteString("| 編號 | 檢查什麼 | 為什麼 | 證據 |\n|---|---|---|---|\n")
+		if v == CannotTell {
+			// Each goes somewhere (user, 2026-10-19): tdp and terminu-go back to
+			// terminu, the rest to the user in the app's session.
+			s.WriteString("原因是 tdp 或 terminu-go 的回報給 terminu；其他的在 app 的開發 session 裡請使用者回應。\n\n")
+			s.WriteString("| 編號 | 檢查什麼 | 原因 | 為什麼 | 證據 |\n|---|---|---|---|---|\n")
+		} else {
+			s.WriteString("| 編號 | 檢查什麼 | 為什麼 | 證據 |\n|---|---|---|---|\n")
+		}
 		for _, it := range r.items {
-			if vd := verdictOf(it); vd.Verdict == v {
+			vd := verdictOf(it)
+			switch {
+			case vd.Verdict != v:
+			case v == CannotTell:
+				fmt.Fprintf(&s, "| %s | %s | %s | %s | %s |\n", it.ID, cell(it.Check), causeLabel(vd.Cause), cell(vd.Reason), r.links(vd.Evidence))
+			default:
 				fmt.Fprintf(&s, "| %s | %s | %s | %s |\n", it.ID, cell(it.Check), cell(vd.Reason), r.links(vd.Evidence))
 			}
 		}
@@ -138,6 +150,19 @@ func (r *Run) Finish() (string, error) {
 	}
 	fmt.Fprintf(&sum, "  tdp 沒規範的東西 %d 項\n成績單：%s\n", len(gaps), filepath.Join(r.Dir, ReportFile))
 	return sum.String(), nil
+}
+
+// causeLabel says where an item that can't be told goes.
+func causeLabel(cause string) string {
+	switch cause {
+	case CauseTDP:
+		return "tdp（回報 terminu）"
+	case CauseTgo:
+		return "terminu-go（回報 terminu）"
+	case CauseOther:
+		return "其他（問使用者）"
+	}
+	return "沒寫"
 }
 
 // cell makes text fit in one table cell.

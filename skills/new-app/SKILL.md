@@ -93,5 +93,7 @@ argument-hint: [app 的需求]
   repo。app 會寫系統檔或使用者的檔案時，給 judge 一個包裝指令：每次啟動開一個新的暫存目錄，把 `HOME` 與 app 的環境變數指進去，
   並在補充裡寫明（judge 會轉給每個 judge agent）。
 - 報告給使用者：gene 數、違反的條目、判不了的原因、tdp 沒規範的東西、還在等的 issue。
-- 違反的條目問使用者要不要修；修完再判一次。
+- 有任何違反就是不通過：app 自己能修的修掉；terminu-go 做不到、tdp 沒寫清楚的，用 `terminu:report-gap` 回報給 terminu，先用暫時的
+  做法（`TODO(tdp #N)`、`TODO(tgo #N)`），列進 `docs/<app>-terminu-fix.md`；修完再判一次，直到通過。
+- 判不了的照原因：tdp、tgo 的回報給 terminu；其他的（例：要一台 Windows 才驗得了）在這個 session 裡問使用者。
 - 打 tag、發布、Homebrew 都先問使用者。
