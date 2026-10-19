@@ -16,7 +16,7 @@ judge 的流程：
   ├─ judge agent「認識 app」 ──► open / keys / screen … ──► profile.md
   ├─ judge agent × 10「判一批」► open / keys / styles … ──► verdicts.jsonl、gaps.jsonl、evidence/
   ├─ judge_status ─────────────► 沒判到的再派一次
-  └─ judge_finish ─────────────► report.md（gene 由程式數）
+  └─ judge_finish ─────────────► report.md（結果與 gene 都由程式算）
 ```
 
 - **MCP server**（`cmd/terminu-harness`，子指令 `mcp`）：plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（不放根目錄的 `.mcp.json`：在這個 repo 裡開 Claude Code 時它會被當成專案的 MCP 設定，`${CLAUDE_PLUGIN_ROOT}` 是空的就啟動失敗），server 名 `harness`，工具在
@@ -32,6 +32,12 @@ judge 的流程：
   `judge_finish` 從它們寫出來。
 
 ## 設計決定
+
+- **判斷線在 harness**（user 2026-10-19：tdp 只放規範，判斷是 harness 的核心）：沒有違反是「通過」；違反都列在 app 的
+  `docs/<app>-terminu-fix.md`（tdp E7，在等 tdp 或 terminu-go）是「待修」；有違反沒列進去是「不通過」，沒給 repo 時有違反就是
+  不通過。程式在 fix 文件裡找每條違反的編號（`K1-3` 不會配到 `K1-30`）。gene 數量留著看進度：它跟 app 的功能多寡綁在一起，
+  不同 app 的數字比不了，也看不出能不能出貨。
+- **`terminu-harness report <run>`**：用目前這版 harness 的判法重寫一個 run 的成績單，不用重判。
 
 - **模擬器複製 terminu-go 的 `vt.go`**（GPL，檔頭註明出處與 commit），不用 charmbracelet 的 x/vt：icon 與 powerline 各佔幾格是
   vt.go 本來就有的設定，量法跟家族 app 同一套，判 E5 才準；x/vt 把 icon 一律算一格。改了的地方：寬度跟著每個畫面、數折行與

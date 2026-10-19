@@ -32,16 +32,27 @@ func (r *Run) Finish() (string, error) {
 	}
 	count := map[string]int{}
 	unjudged := 0
+	var violated []string
 	for _, it := range r.items {
-		count[verdictOf(it).Verdict]++
+		v := verdictOf(it).Verdict
+		count[v]++
+		if v == Violates {
+			violated = append(violated, it.ID)
+		}
 		if _, ok := judged[it.ID]; !ok {
 			unjudged++
 		}
 	}
 	genes := Genes(r.Meta.TDP, count[Meets])
+	outcome, unlisted := r.Outcome(violated)
 
 	var s strings.Builder
-	fmt.Fprintf(&s, "# %s 的成績單\n\n**%s**\n\n", r.Meta.App, genes)
+	fmt.Fprintf(&s, "# %s 的成績單\n\n**%s**　%s\n\n", r.Meta.App, outcome, genes)
+	s.WriteString("- 判斷線：沒有違反是「通過」；違反都列在 app 的 `docs/<app>-terminu-fix.md`（在等 tdp 或 terminu-go）是「待修」；" +
+		"有違反沒列進去是「不通過」。gene 數量看進度。\n")
+	if len(unlisted) > 0 {
+		fmt.Fprintf(&s, "- 沒列進 fix 文件的違反（%d）：%s\n", len(unlisted), strings.Join(unlisted, "、"))
+	}
 	fmt.Fprintf(&s, "- app：`%s`\n", r.Meta.Command)
 	if r.Meta.Repo != "" {
 		fmt.Fprintf(&s, "- repo：`%s`\n", r.Meta.Repo)
@@ -108,7 +119,10 @@ func (r *Run) Finish() (string, error) {
 	}
 
 	var sum strings.Builder
-	fmt.Fprintf(&sum, "%s：%s\n", r.Meta.App, genes)
+	fmt.Fprintf(&sum, "%s：%s，%s\n", r.Meta.App, outcome, genes)
+	if len(unlisted) > 0 {
+		fmt.Fprintf(&sum, "  沒列進 fix 文件的違反：%s\n", strings.Join(unlisted, "、"))
+	}
 	for _, v := range Verdicts {
 		fmt.Fprintf(&sum, "  %s %d\n", v, count[v])
 	}

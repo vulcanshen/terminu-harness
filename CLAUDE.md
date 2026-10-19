@@ -17,8 +17,9 @@ user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 s
 做出家族 app；做不到的開 issue 回 tdp，user 審核後更新。harness 分四層：說明（tdp、skill）、限制（terminu-go）、回饋（issue → tdp
 → terminu-go）、**檢查** —— 前三層已經有，缺的是檢查。這個 repo 第一步就是做檢查：judge。
 
-**界線**：harness 只放流程（skill、agent、MCP server、script、範本），**不寫任何規定**。規定一律在 tdp；judge 判到規範沒寫、寫得模糊
-的地方，回報成 tdp 的缺漏，不在 harness 裡自己補一條。
+**界線**：tdp 只放規範（app 該長什麼樣、怎麼操作）；harness 放流程（skill、agent、MCP server、script、範本）**與判斷**（怎麼判、
+怎樣算通過）。user（2026-10-19）：「tdp 應該就是單純規範，至於判斷應該在 harness 這邊，如果判斷都在 tdp 了，那乾脆整個 harness
+都搬去那邊，因為這是 harness 的核心」。harness 不替 tdp 補 app 的規定：judge 判到規範沒寫、寫得模糊的地方，回報成 tdp 的缺漏。
 
 ## harness 的全貌（user 2026-10-18，在 harness 的 session）
 

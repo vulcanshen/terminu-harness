@@ -65,9 +65,32 @@ func TestRun(t *testing.T) {
 		t.Errorf("summary %q", sum)
 	}
 	report, _ := os.ReadFile(filepath.Join(r.Dir, ReportFile))
-	for _, want := range []string{"**tdp-0.7.4 0 gene**", "| K1-1 | 違反 | 按 `j\\|k` 沒動 |", "一個 tdp 沒有的 widget", "| 合計 | 4 |", "判不了（含沒判到的 2 條） | 2"} {
+	for _, want := range []string{"**不通過**　tdp-0.7.4 0 gene", "沒列進 fix 文件的違反（1）：K1-1", "| K1-1 | 違反 | 按 `j\\|k` 沒動 |", "一個 tdp 沒有的 widget", "| 合計 | 4 |", "判不了（含沒判到的 2 條） | 2"} {
 		if !strings.Contains(string(report), want) {
 			t.Errorf("report misses %q", want)
 		}
+	}
+}
+
+func TestOutcome(t *testing.T) {
+	repo := t.TempDir()
+	r, err := Start(t.TempDir(), "demo", repo, "v0.7.4", []byte(items), 1)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got, _ := r.Outcome(nil); got != Passed {
+		t.Errorf("no violation: %s", got)
+	}
+	if got, unlisted := r.Outcome([]string{"K1-1"}); got != Failed || len(unlisted) != 1 {
+		t.Errorf("no fix file: %s %v", got, unlisted)
+	}
+	os.MkdirAll(filepath.Join(repo, "docs"), 0o755)
+	os.WriteFile(filepath.Join(repo, "docs", "demo-terminu-fix.md"), []byte("## tdp K1-1 a thing\n## tdp K1-30 another\n"), 0o644)
+	if got, unlisted := r.Outcome([]string{"K1-1"}); got != Pending || unlisted != nil {
+		t.Errorf("listed: %s %v", got, unlisted)
+	}
+	// K1-3 is not K1-30.
+	if got, unlisted := r.Outcome([]string{"K1-1", "K1-3"}); got != Failed || len(unlisted) != 1 || unlisted[0] != "K1-3" {
+		t.Errorf("one unlisted: %s %v", got, unlisted)
 	}
 }

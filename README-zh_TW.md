@@ -12,7 +12,7 @@
 
 - **做一個新的 app**：一次問一題，弄清楚 app 要做什麼，寫一份規格給你確認，再照 tdp 的 project 範本用 [terminu-go](https://github.com/vulcanshen/terminu-go) 一塊一塊做出來，每做完一塊就跑給你看。遇到 tdp 沒規範、或 terminu-go 還做不到的地方，它會跟你說明，替 tdp 或 terminu-go 寫好 issue 草稿，你同意了才發；等的期間先用暫時的做法，它們更新後再回來改。做完自動檢查，給你成績單。
 - **繼續做到一半的 app**：從上次停的地方接著做，看在等的 issue 有沒有回應，tdp 或 terminu-go 出新版就升級。
-- **判一個 app**：在自己帶的終端機裡打開 app，照清單每一條的驗法按鍵、看畫面，有 repo 就讀程式，寫一份成績單：每一條的判定（符合、偏離、違反、不適用、判不了）與看到的證據、寫成 `tdp-0.7.4 860 gene` 的 gene 數、app 做了但 tdp 還沒規範的東西。任何 TUI app 都能判，不一定是 terminu 家族的成員，拿不拿得到程式碼都行。
+- **判一個 app**：在自己帶的終端機裡打開 app，照清單每一條的驗法按鍵、看畫面，有 repo 就讀程式，寫一份成績單：app **通過**（沒有違反）、**待修**（違反都列在它的 `docs/<app>-terminu-fix.md`，在等 tdp 或 terminu-go）還是**不通過**（有違反沒列進去）；每一條的判定（符合、偏離、違反、不適用、判不了）與看到的證據；寫成 `tdp-0.7.4 860 gene` 的 gene 數，看 app 的進度；app 做了但 tdp 還沒規範的東西。任何 TUI app 都能判，不一定是 terminu 家族的成員，拿不拿得到程式碼都行。
 
 不需要 tmux 或圖形介面；會離開你這台機器的事（issue、GitHub repo、發版）都先問你；判 app 時不動 app 的 repo。
 
