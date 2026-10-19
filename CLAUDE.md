@@ -123,6 +123,16 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
   下載 release 的 binary，發版時跟 user 定。
 - **時間的暫時判法**照 HN1、HN2 的「暫時」寫在 judge agent 裡，tdp 定案後改。
 
+## 已定（user 2026-10-19，在 harness 的 session）
+
+- **判斷線在 harness**（見上面的「界線」）：通過＝沒有違反；待修＝違反都列在 app 的 `docs/<app>-terminu-fix.md`；不通過＝有違反沒
+  列進去。成績單第一行寫結果，gene 數量看進度。`terminu-harness report <run>` 照目前的判法重寫成績單。
+- **只重判有改到的，粗分**（user 選 A）：記 commit 與 terminu-go 版本；改到程式重判「讀檔案」以外的條目，改到其他檔重判「讀檔案」
+  的條目，其他沿用上一份成績單；terminu-go 換版、沒有上一份就全部判。
+- **判一次太久，按程式碼分**（user 的想法，還沒做）：有原始碼時掃程式，知道哪些功能用 terminu-go 做、哪些是 app 自己寫的；沒有的
+  功能直接判不適用，tgo 做的直接判，app 自己的先看適不適用。
+- **new-app 只問需求**：設計由 harness 決定（user：「這個應該要 harness 自己決定，使用者只是提出需求」）。
+
 ## 還沒定
 
 - 發布：GitHub repo、tag、release 的 binary 怎麼給使用者（見上一節最後）。
