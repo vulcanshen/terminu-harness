@@ -5,6 +5,7 @@ package scan
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"sort"
@@ -34,7 +35,7 @@ var features = map[string]string{
 	"panel filter":    `Filterable:\s*true`,
 	"串流內容":            `Stream:\s*true|Follow:\s*true`,
 	"loading":         `\bLoading\b`,
-	"模式":              `terminu\.Mode\b`,
+	"模式（在 panel 上）":   `terminu\.Mode\b|\.EnterMode\(`,
 	"停用":              `\bDisabled:`,
 	"長時間工作":           `\.Progress\b|SubmitLong`,
 	"PTY":             `terminu\.Terminal\b`,
@@ -117,17 +118,43 @@ func Scan(repo, tgo string) (*Result, error) {
 			r.Evidence[f] = where(locs[0][0])
 		}
 	}
-	// A finder is a finder or one of its kinds; an input, any input.
-	r.Has["finder"] = r.Has["select"] || r.Has["checkbox"] || r.Has["file-picker"] || regexp.MustCompile(`terminu\.Finder\b`).MatchString(text)
+	// A finder is a finder or one of its kinds; an input, any input. A plain
+	// finder and a file-picker show a preview, maybe of files; select and
+	// checkbox popups none.
+	finder := regexp.MustCompile(`terminu\.Finder\b`).MatchString(text)
+	r.Has["finder"] = r.Has["select"] || r.Has["checkbox"] || r.Has["file-picker"] || finder
+	r.Has["有預覽的 finder"] = r.Has["file-picker"] || finder
+	r.Has["有檔案預覽"] = r.Has["有預覽的 finder"]
 	r.Has["input"] = false
 	for _, f := range []string{"text", "password", "number", "select", "checkbox", "slider", "textarea", "color picker", "datetime picker", "file-picker", "reorder"} {
 		r.Has["input"] = r.Has["input"] || r.Has[f]
 	}
+	// Modes (Rules K11): the app's own on a panel, and those components
+	// bring: a terminal's history and selection, wherever it is; a viewer's
+	// selection and a reorder's Drag in a popup.
+	r.Has["模式（在 panel 上）"] = r.Has["模式（在 panel 上）"] || r.Has["PTY"]
+	r.Has["模式（在 popup 裡）"] = r.Has["viewer"] || r.Has["reorder"] || r.Has["PTY"] || r.Has["terminal popup"]
+	r.Has["模式"] = r.Has["模式（在 panel 上）"] || r.Has["模式（在 popup 裡）"]
 	if b, err := os.ReadFile(filepath.Join(repo, ".goreleaser.yaml")); err == nil {
 		r.Has["出 Windows 版"] = regexp.MustCompile(`(?m)^\s*-\s*windows\b`).Match(b)
 	}
+	// Released means a tag and a GitHub release: no tag, surely not.
+	if out, err := exec.Command("git", "-C", repo, "tag", "--list").Output(); err == nil {
+		r.Has["發過版"] = strings.TrimSpace(string(out)) != ""
+	}
 	sort.Strings(r.Custom)
 	return r, nil
+}
+
+// Why says how the scan knows the app lacks feature f.
+func Why(f string) string {
+	switch f {
+	case "發過版":
+		return "repo 沒有 tag"
+	case "出 Windows 版":
+		return ".goreleaser.yaml 沒有 windows"
+	}
+	return "原始碼沒用到 terminu-go 做它的元件"
 }
 
 // NotApplicable reports an item whose 適用 names only features the scan is

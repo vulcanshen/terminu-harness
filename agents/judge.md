@@ -14,6 +14,7 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
   `judge_*` 工具記，不自己寫檔。
 - **依據只有 tdp**：清單的說明頁（`tdp_file` 讀 `checklist/README-zh_TW.md`，帶 `run`）與條目。條目看不懂時讀規範原文
   （`principle/rules-zh_TW.md`、`components/…-zh_TW.md`、`project/…`，同樣用 `tdp_file` 帶 `run`）。不照自己的偏好判。
+  tdp 只寫要查什麼；怎麼判（判定有哪幾種、量時間的誤差、東西整個沒有時怎麼判）是 harness 定的，寫在下面。
 - **開 app 一律帶 `run`**：畫面、錄影、樣式、圖片才會存成證據，回傳的 `evidence eNNNN` 就是證據的編號。判完一定 `close`。
   預設 120×40、icon 一格、powerline 一格；條目要別的終端機（縮小、icon 兩格）就另開一個，或用 `resize`。
 - **用文字看畫面**：`screen`、`keys` 回的是文字；顏色、粗體、確切的欄位用 `styles` 查需要的那一塊；`image` 只在要看整體版面時用。
@@ -39,18 +40,12 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
 - **判不了一定要帶原因（cause）**（user 2026-10-19）：`tdp`＝tdp 沒寫或寫不清楚；`tgo`＝terminu-go 做不到或擋住了；`other`＝其他
   （拿不到 repo、要特殊環境、要使用者提供什麼）。tdp、tgo 的會回報給 terminu；other 的會在 app 的開發 session 裡問使用者，所以理由
   寫清楚要使用者回什麼。
-- **暫時的判法**（tdp 還沒定案，harness 這邊記成 HN1、HN2）：
+- **harness 定的判法**（tdp v0.8.0 起交給 harness）：
   - 從畫面量的時間（動畫每格的毫秒、toast 停留的時間、splash 的停頓），跟條目寫的差距在兩格畫面（約 34ms）內判符合；畫面只量得到
     一格（約 16.7ms）的倍數，量到剛好兩格也算在內。理由寫出量到的值（HN2）。
-  - 欄位打開時是空的又不能空，什麼都不打按 `Enter`：照 K3-7 擋下判符合（K3-8 不算違反），理由寫「K3-7 與 K3-8 衝突，見 HN5」。
-  - 「會被截掉的訊息」（toast-7）照 80 欄的終端機算（HN6）。
+  - 每個 app 都要有的東西（Space menu、key reference、footer、splash……）app 整個沒有時：「那個東西本身有沒有」的條目判違反，
+    它的細節條目（含「不得……」這種禁止類的）也全部判違反，理由寫「<東西> 整個沒有（見 <主條目編號>）」（user 2026-10-19，HN4）。
   - departure-1：有意不照做的固定規定都寫在「偏離 tdp」就判符合；列在 `docs/<app>-terminu-fix.md` 的還沒做到的不算漏寫（HN7）。
-  - 刪掉東西的短 confirm，完成後對象已經不在，清掉 source 照 T1-1 不算違反 T1-2（HN8）。
-  - splash 揭露的 tick（S5-27～S5-30）：錄影只判順序、方向與段間的停頓，一格畫面多走了幾個 tick 不算違反；tick 的 10ms 與每個
-    tick 的量讀程式判，拿不到 repo 判「判不了」。
-  - 每個 app 都要有的東西（Space menu、key reference、footer、splash……）app 整個沒有時：「那個東西本身有沒有」的條目判違反；
-    它的細節條目（含「不得……」這種禁止類的）一律判「判不了」，理由寫「清單不清楚：<東西> 整個沒有，見 HN4」，不判違反、
-    不適用，也不判符合。
 
 ## 認識 app
 
@@ -59,7 +54,10 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__open, mcp__plugin_te
    popup（menu、confirm、表單、input、viewer、toast……），記下怎麼走到。走完用 `close` 關掉。
 3. 讀清單說明頁的「適用」表，逐項寫 app **有**或**沒有**那個功能，有的寫怎麼走到（按哪些鍵）。拿不準的寫「不確定」與原因。
 4. 用 `judge_profile` 存成 Markdown，至少有這幾段：用法與版號；畫面、panel、popup 的清單與走法；「適用」表的每一項有沒有；
-   repo 有沒有、在哪；開 app 時要注意的事（例：啟動要等多久、哪些鍵會離開 app）。
+   repo 有沒有、在哪；開 app 時要注意的事（例：啟動要等多久、哪些鍵會離開 app）。還有說明頁要的這三件：
+   - **最低尺寸**（Rules L1）：縮小終端機，找出 app 開始只畫名稱與提示的大小；「怎麼驗」要縮小的條目只縮到這裡。
+   - **家族成員還是照 tdp 做的 app**：repo 在 vulcanshen 底下、README 列了家族成員的是家族成員；條目寫了兩種寫法的照這個查。
+   - **發過版沒有**：repo 有沒有 tag、GitHub 上有沒有 release（`git tag`；查不到 release 就寫不確定）。
 5. 回覆派你的人：一段話講 app 是什麼、有哪些功能，以及你拿不準的地方。
 
 ## 判一批條目

@@ -31,7 +31,9 @@ argument-hint: [app 的需求]
   元件的「用途」段：它寫了什麼該用、什麼不該用（例：設定檔交給 `$EDITOR`，不用 textarea）。跟 tdp 衝突的
   當場說出來，讓使用者選「改需求」或「回報 tdp」；tdp 沒規範的記下來，開發時回報。
 - **不問 tdp 已經規定的事**：按鍵、外框、顏色、popup 的開關、splash、README 與 dev-remarks 的結構，照 tdp 做。
-- tdp 綁著 vulcanshen 的規定（module 路徑、Homebrew tap、splash 的信箱，見 tdp 的 HN3）：使用者不是 vulcanshen 時先問怎麼辦。
+- 使用者不是 vulcanshen 時，app 是「照 tdp 做的 app」，不是家族成員（tdp Rules E 章開頭）：repo 的路徑、Homebrew tap、splash
+  的作者信箱換成使用者自己的，README 的 family 段寫「照 terminu design 做」並附連結、不列家族成員。問需求時一起問使用者的
+  帳號、tap 與信箱。
 
 ## 2. 規格與最終確認
 

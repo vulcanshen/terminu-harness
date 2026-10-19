@@ -5,8 +5,8 @@ terminu 的 harness：一個 Claude Code plugin，放進 marketplace，讓人照
 - repo：`terminu-harness`（本機 `~/Documents/sideproj/terminu-harness`，還沒有 GitHub repo）；plugin 名 `terminu`（skill 打
   `/terminu:judge` 這種）。
 - 授權：GPL-3.0（跟家族其他 repo 一樣；可以用 terminu-go 的程式）。
-- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.7.4**）。judge 的依據是 tdp 的條目清單
-  `checklist/`（`items-zh_TW.md`、`items.md`，1302 條）。
+- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.8.0**，2026-10-19 在本機打的
+  tag，還沒 push；GitHub 上最新的還是 v0.7.4）。judge 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1388 條）。
 
 上面這些都已經跟 user 定案，不要重提。
 
@@ -67,7 +67,7 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 
 ## 已定（user 2026-10-18，在 terminu 的 session）
 
-**分數是 gene 的數量**（tdp v0.7.3 起寫在 checklist 的說明頁）：
+**分數是 gene 的數量**（原本寫在 checklist 的說明頁；tdp v0.8.0 起判法都歸 harness，見「已定（user 2026-10-19）」）：
 
 - 清單的每一條就是一個 gene；app 判成「符合」的一條，就有一個 gene。
 - 只數有幾個、不算比例，寫成 `tdp-<版本> <數> gene`（例：`tdp-0.7.4 860 gene`），綁在判的那一版 tdp。
@@ -123,7 +123,7 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
   `verdicts.jsonl`、`gaps.jsonl`、`profile.md`、`evidence/`（畫面的文字、錄影、樣式、圖片，編號 `eNNNN`）、`batches/`、清單的
   副本。gene 由程式數。理由：user 多半在 app 的 repo 裡打 `/terminu:judge`，寫在工作目錄就動到 app 的 repo。
 - **分工**：一個 judge 先認識 app、存 profile；清單照章切成 10 批（不拆章），每批一個 judge 同時判；`judge_status` 補沒判到的
-  一次；`judge_finish` 寫成績單，還是沒判到的算判不了。理由：一個 agent 判不完 1302 條。
+  一次；`judge_finish` 寫成績單，還是沒判到的算判不了。理由：一個 agent 判不完一千多條。
 - **judge agent 不給 Write、Edit**：判定、profile、tdp 沒規範的東西都用 MCP 工具記；Bash 只准看東西的指令（寫在 agent 裡）。
 - **MCP 工具**：`open`、`keys`、`screen`、`styles`、`image`、`resize`、`overflow`、`close`、`tdp_file`、`judge_start`、
   `judge_profile`、`judge_verdicts`、`judge_gap`、`judge_status`、`judge_finish`（server 名 `harness`）。Go 寫，用
@@ -131,7 +131,7 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 - **repo 自己的 Makefile**（build、test、check、clean），不套 `family.mk`。plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（2026-10-19 從根目錄的 `.mcp.json` 搬過去）：有
   `.local/bin/terminu-harness` 就用，沒有就用 Go 從原始碼建到 `~/.terminu-harness/bin/`，所以現在使用者要有 Go。發版要不要改成
   下載 release 的 binary，發版時跟 user 定。
-- **時間的暫時判法**照 HN1、HN2 的「暫時」寫在 judge agent 裡，tdp 定案後改。
+- **時間的暫時判法**照 HN1、HN2 的「暫時」寫在 judge agent 裡，tdp 定案後改（tdp v0.8.0 定了，見下一節）。
 
 ## 已定（user 2026-10-19，在 harness 的 session）
 
@@ -145,6 +145,10 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 - **判一次太久，按程式碼分**（user 的想法，2026-10-19 做了 `judge_scan`）：有原始碼時掃程式，知道哪些功能用 terminu-go 做、哪些是 app 自己寫的；沒有的
   功能直接判不適用，tgo 做的直接判，app 自己的先看適不適用。
 - **new-app 只問需求**：設計由 harness 決定（user：「這個應該要 harness 自己決定，使用者只是提出需求」）。
+- **tdp v0.8.0 把判法交給 harness**（user 在 terminu 的 session 選 A，S60）：tdp 只留條目與說明頁的「適用」表；五種判定、gene 怎麼數、
+  判斷線、不適用要有根據、判不了要寫原因，以及 HN2（量時間的誤差）、HN4（東西整個沒有時細節怎麼判）、HN7（departure-1 與 fix
+  文件）都是 harness 的，寫在 `agents/judge.md` 與 README 的「成績單怎麼看」。HN2、HN7 照原本的暫時判法定下來；**HN4 user 選細節
+  全部判違反**（跟「都要的缺了判違反」一致）。HN1、HN5、HN6、HN8 tdp 自己定了，judge 的暫時判法拿掉。
 
 ## 還沒定
 
@@ -166,7 +170,7 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 ### HN<n> <一句話標題>
 - 狀態：待定
 - 種類：清單（條目寫錯、漏拆、適用不對）／規範（盲點）
-- 出處：<清單編號> 或 <檔案> 的 <段落>（tdp v0.7.4）
+- 出處：<清單編號> 或 <檔案> 的 <段落>（tdp v<版本>）
 - 卡在：judge 需要知道什麼才能判
 - 可能：A …；B …（各附一句後果）
 - 暫時：判「判不了」，或暫時照 A 判

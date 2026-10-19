@@ -1,6 +1,6 @@
 # terminu-harness 開發者備忘
 
-terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用 terminu-go 做 TUI app，做完照 tdp 的清單檢查。harness 只放流程，不寫規定；規定一律在 tdp。
+terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用 terminu-go 做 TUI app，做完照 tdp 的清單檢查。harness 放流程與判法（怎麼判、怎樣算通過），不寫 app 的規定；規定一律在 tdp。
 
 ## 運作方式
 
@@ -41,7 +41,7 @@ judge 的流程：
   有，所以不適用留著；但只有 app 真的沒有、tdp 也沒要求要有才算，理由要寫怎麼知道沒有；「都要」的條目、tdp 要求某種情況必須有的，
   缺了判違反。寫在 `agents/judge.md`。
 - **只重判有改到的**（user 2026-10-19，粗分）：開 run 時記下 app 的 commit 與 terminu-go 版本；找同一個 app、同一版 tdp、判完的上一份成績單（同一版 terminu-go、有記 commit），看兩個 commit 之間（加上還沒 commit 的）改了哪些檔：改到程式（`.go`、`go.mod`、`cmd/`、`internal/`）就重判「讀檔案」以外的條目，改到其他檔就重判「讀檔案」的條目，其他沿用，理由前面標「沿用 <commit>」、證據連回上一份成績單。細分（只重判改動碰到的功能）不做：改到共用的程式時會漏判。
-- **按程式碼分（`judge_scan`）**（user 2026-10-19）：有 repo、用 terminu-go 寫的 app，掃非測試的 `.go`，看用了哪些 terminu-go 元件（`terminu.DatePicker`、`OpenTerminal(`、`Details:`……），對到清單「適用」表的功能；「適用」寫的功能全部確定沒有的條目直接判不適用、理由寫出來。掃描看不出來的功能（多 panel、存設定……）與「都要」不判；app 有自己畫的 body 或 popup 時一律不判（它可能用自己的方式做了那個功能）。hostu 試過：1302 條裡 493 條。
+- **按程式碼分（`judge_scan`）**（user 2026-10-19）：有 repo、用 terminu-go 寫的 app，掃非測試的 `.go`，看用了哪些 terminu-go 元件（`terminu.DatePicker`、`OpenTerminal(`、`Details:`……），對到清單「適用」表的功能；「適用」寫的功能全部確定沒有的條目直接判不適用、理由寫出來。掃描看不出來的功能（多 panel、存設定……）與「都要」不判；app 有自己畫的 body 或 popup 時一律不判（它可能用自己的方式做了那個功能）。hostu 試過：1302 條裡 493 條。tdp v0.8.0 加的：模式分成 panel 上（`terminu.Mode`、`EnterMode(`，與 PTY）與 popup 裡（viewer 的選取、reorder 的 Drag、terminal 的歷史與選取，元件自己帶的）；有預覽的 finder、有檔案預覽看一般 finder 與 file-picker；發過版看 repo 有沒有 tag（沒有 tag 就一定沒發過）。位置列、zoom、工作清單沒有對應的 terminu-go API，不判。不適用的理由照功能寫怎麼知道的（`scan.Why`）。
 - **`terminu-harness report <run>`**：用目前這版 harness 的判法重寫一個 run 的成績單，不用重判。
 
 - **模擬器複製 terminu-go 的 `vt.go`**（GPL，檔頭註明出處與 commit），不用 charmbracelet 的 x/vt：icon 與 powerline 各佔幾格是
@@ -54,9 +54,9 @@ judge 的流程：
 - **judge agent 沒有 Write、Edit**：判定、profile 都經 MCP 工具記，agent 從頭到尾只讀。
 - **環境變數**：開 app 時拿掉真終端機的 `TERM`、`*__ICON_WIDTH`、`*__POWERLINE_WIDTH`，app 才會探測 harness 這個終端機；judge 要測
   E5-5 這種條目時自己用 `env` 設。
-- **清單不清楚時的暫時判法**寫在 `agents/judge.md`，對應 tdp 那邊的 HN1、HN2、HN4～HN6（時間差在兩格畫面內、splash 的 tick
-  只看順序、缺了整個東西時細節判「判不了」、K3-7 優先於 K3-8、toast-7 照 80 欄）。不寫的話，十批 judge 各判各的（用測試程式
-  跑完整流程時看到過）。tdp 定案後照定案改。
+- **harness 定的判法**寫在 `agents/judge.md`：時間差在兩格畫面內（HN2）、每個 app 都要有的東西整個沒有時細節也全部判違反
+  （HN4，user 2026-10-19 選的）、列在 fix 文件的不算漏寫偏離（HN7）。不寫的話，十批 judge 各判各的（用測試程式跑完整流程時看到
+  過）。原本還有 HN1、HN5、HN6、HN8 的暫時判法，tdp v0.8.0 自己定了，拿掉。
 - **會寫系統檔的 app 用包裝指令判**：judge 會在 app 裡按會寫檔的鍵。判 hostu 時給 judge 一個包裝指令：每次啟動在暫存資料夾開新的
   `HOME` 與 hosts 檔（系統檔的複本），使用者的 `XDG_CONFIG_HOME` 指向真的家目錄時拿掉；judge skill 把使用者的這段補充原樣轉給
   每個 judge。new-app 也照這樣交代。
@@ -68,7 +68,7 @@ judge 的流程：
 - Bubble Tea v1 一秒最多畫 60 格，tick 比一格短的動畫從畫面上看不出每個 tick（HN1）。
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回來打 `/terminu` 選「繼續」。
-- 判一次很貴：1302 條、11 個 agent。測試程式（幾乎沒有功能）約 22 美元；hostu 約 74 美元、30 分鐘。
+- 判一次很貴：一千三百多條、11 個 agent。測試程式（幾乎沒有功能）約 22 美元；hostu 約 74 美元、30 分鐘。
 - 還沒做：align（tdp 新版時重判、列出要修的）；judge 找到的 tdp 沒規範的東西，judge skill 會問要不要交給 report-gap，還沒有自動
   轉成草稿。
 
@@ -88,7 +88,7 @@ new-app 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；�
 ## 建置與開發
 
 - `make build`：建到 `.local/bin/terminu-harness`，`scripts/mcp.sh` 優先用它。
-- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗真的清單（v0.7.4 要是 1302 條）。
+- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗真的清單（v0.8.0 要是 1388 條）。
 - server 的測試開 `internal/server/testdata/fixture`（測試時才建的小程式，不靠外部套件）代替真的 app：它照家族 app 的方式探測
   icon 寬度、顯示收到的鍵、按 `a` 播 5 格動畫、按 `w` 印超過邊界、按 `q` 結束。驗 MCP 工具用它，不拿家族成員來試。
 - `make check`：gofmt、go vet、測試、`claude plugin validate`。

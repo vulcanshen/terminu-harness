@@ -2,6 +2,7 @@ package scan
 
 import (
 	"os"
+	"os/exec"
 	"path/filepath"
 	"testing"
 )
@@ -42,6 +43,7 @@ func TestScan(t *testing.T) {
 	for f, want := range map[string]bool{
 		"明細 panel": true, "text": true, "confirm": true, "toast": true, "input": true,
 		"多畫面": false, "datetime picker": false, "finder": false, "表單": false, "viewer": false,
+		"模式": false, "模式（在 popup 裡）": false, "有預覽的 finder": false,
 	} {
 		if r.Has[f] != want {
 			t.Errorf("%s: %v, want %v", f, r.Has[f], want)
@@ -61,6 +63,8 @@ func TestScan(t *testing.T) {
 		{"多 panel", false},  // the scan can't tell
 		{"text＋表單", true},   // no form
 		{"confirm＋datetime picker", true},
+		{"模式（在 panel 上）", true},
+		{"發過版", false}, // not a git repo: the scan can't tell
 	} {
 		if got, _ := r.NotApplicable(c.applies); got != c.na {
 			t.Errorf("%q: %v, want %v", c.applies, got, c.na)
@@ -78,5 +82,35 @@ func TestCustomCodeMakesItUnsure(t *testing.T) {
 	}), "v0.1.13")
 	if got, _ := r.NotApplicable("datetime picker"); got {
 		t.Error("an app with a body of its own was judged not applicable")
+	}
+}
+
+func TestModesPreviewsAndReleases(t *testing.T) {
+	dir := repo(t, map[string]string{"ui.go": "package ui\nvar v = &terminu.Viewer{}\nvar f = &terminu.FilePicker{}\n"})
+	git := func(args ...string) {
+		t.Helper()
+		cmd := exec.Command("git", append([]string{"-C", dir, "-c", "user.name=t", "-c", "user.email=t@t", "-c", "commit.gpgsign=false"}, args...)...)
+		if out, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("git %v: %v\n%s", args, err, out)
+		}
+	}
+	git("init", "-q")
+	git("add", ".")
+	git("commit", "-qm", "start")
+	r, _ := Scan(dir, "v0.1.13")
+	for f, want := range map[string]bool{
+		"模式（在 popup 裡）": true, "模式": true, "模式（在 panel 上）": false,
+		"有預覽的 finder": true, "有檔案預覽": true, "發過版": false,
+	} {
+		if r.Has[f] != want {
+			t.Errorf("%s: %v, want %v", f, r.Has[f], want)
+		}
+	}
+	if na, missing := r.NotApplicable("發過版"); !na || Why(missing[0]) != "repo 沒有 tag" {
+		t.Errorf("an app with no tag: %v %v", na, missing)
+	}
+	git("tag", "v0.1.0")
+	if r, _ = Scan(dir, "v0.1.13"); !r.Has["發過版"] {
+		t.Error("an app with a tag was taken as never released")
 	}
 }

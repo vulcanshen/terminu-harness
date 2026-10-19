@@ -45,8 +45,12 @@ func (sv *Server) judgeScan(_ context.Context, req mcp.CallToolRequest) (*mcp.Ca
 			continue
 		}
 		if na, missing := res.NotApplicable(it.Applies); na {
+			var why []string
+			for _, f := range missing {
+				why = append(why, "「"+f+"」（"+scan.Why(f)+"）")
+			}
 			vs = append(vs, run.Verdict{ID: it.ID, Verdict: run.NotApply,
-				Reason: "程式掃描：app 沒有「" + strings.Join(missing, "」「") + "」：原始碼沒用到 terminu-go 做它的元件，也沒有自己寫的 panel 或 popup"})
+				Reason: "程式掃描：app 沒有" + strings.Join(why, "") + "，也沒有自己寫的 panel 或 popup"})
 		}
 	}
 	kept, problems := r.AddVerdicts(vs)
