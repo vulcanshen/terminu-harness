@@ -16,7 +16,8 @@ argument-hint: [app 的需求]
   `components/README-zh_TW.md`、`project/README-zh_TW.md`、`checklist/README-zh_TW.md`（「適用」表就是功能的清單）。用到哪個元件
   再讀那個元件的檔（`components/layout/panel-zh_TW.md`、`components/input/textarea-zh_TW.md`……）。
 - **terminu-go**：最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`），讀它那一版的 README 與 examples；
-  README 的「測試 app」一節（`tdptest`）與「計時器：`App.Tick`」一定要讀。
+  `README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、
+  「App Log」（背景做的事記進去）、「讀不了自己的檔時」、「設定」、「測試 app」（`tdptest`）、「計時器：`App.Tick`」。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -70,7 +71,8 @@ spec 的重點，使用者看了成品再提要改的。
   ```
 
   app 會讀寫系統檔或家目錄以外的檔（例：hosts 檔）時，加 `Env: func(home string) map[string]string { … }` 把 app 自己的環境
-  變數指到沙盒裡，`Seed` 放初始的檔。`make check` 的 `go test` 就會跑它。
+  變數指到沙盒裡，`Seed` 放初始的檔；`Seed` 放的資料裡有 `tdptest.Tricky` 的值時設 `Tricky: true`（README「測試 app」）。
+  `make check` 的 `go test` 就會跑它。
 - `git init`，第一個 commit（不加 Claude 署名）。**建 GitHub repo、push 先問使用者。**
 
 ## 4. 一塊一塊寫
