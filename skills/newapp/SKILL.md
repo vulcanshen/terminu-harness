@@ -1,6 +1,6 @@
 ---
 name: newapp
-description: 照 terminu design（tdp）用 terminu-go 做一個 TUI app：問需求、寫規格給使用者確認、照 tdp 的 project 範本開 repo、一塊一塊寫、卡住就回報 tdp 或 terminu-go、做完自動 judge 並報告。也用來繼續做到一半的 app。由 /terminu 帶進來，或 user 要做一個 terminu 家族的 app 時使用。
+description: 照 terminu design（tdp）用 terminu-go 做一個 TUI app：問需求、寫規格就開始做、照 tdp 的 project 範本開 repo、一塊一塊寫、卡住就回報 tdp 或 terminu-go、做完給使用者看。也用來繼續做到一半的 app。由 /terminu 帶進來，或 user 要做一個 terminu 家族的 app 時使用。
 argument-hint: [app 的需求]
 ---
 
@@ -35,7 +35,7 @@ argument-hint: [app 的需求]
   的作者信箱換成使用者自己的，README 的 family 段寫「照 terminu design 做」並附連結、不列家族成員。問需求時一起問使用者的
   帳號、tap 與信箱。
 
-## 2. 規格與最終確認
+## 2. 規格
 
 寫 `docs/spec.md`（繁中），至少有：
 
@@ -47,7 +47,8 @@ argument-hint: [app 的需求]
 - tdp 沒規範、要回報的地方
 - 里程碑：一塊一塊、每塊做完看得到東西
 
-給使用者看，問「照這份開始做嗎？」，改到使用者確認。**確認前不寫程式。**
+寫完就開始做，不停下來等使用者確認（user 2026-10-19：「不應該問我，你應該先做出來，然後我們在來看結果」）：跟使用者講一遍
+spec 的重點，使用者看了成品再提要改的。
 
 ## 3. 開 repo
 
@@ -78,24 +79,23 @@ argument-hint: [app 的需求]
 
 - 分三種：tdp 沒規範或寫不清楚 → 回報 tdp；terminu-go 做不到或有 bug → 回報 terminu-go；app 自己的錯 → 自己修。
 - 跟使用者說明卡在哪、暫時打算怎麼做，用 Skill 叫 `terminu:reportgap` 寫 issue，使用者同意才發。
-- **其他部分照做**：卡住的地方先用暫時的做法，程式裡標 `TODO(tdp #N)` 或 `TODO(tgo #N)`，記進 progress.md；tdp 或 terminu-go
-  更新後回來改掉。
+- **其他部分照做**：卡住的地方先用暫時的做法，程式裡標 `TODO(tdp #N)` 或 `TODO(tgo #N)`，記進 progress.md 與
+  `docs/<app>-terminu-fix.md`（tdp E7）；tdp 或 terminu-go 更新後回來改掉。
 
 ## 6. 繼續
 
 1. 讀 `.local/terminu/progress.md` 與 `docs/spec.md`。
-2. 「回報」裡的每一張：照當初送的方式看有沒有回應（GitHub issue 用 `gh issue view <網址>`；在本機送給別的 session 的，看那邊的
-   回覆或紀錄）。tdp 或 terminu-go 出了新 tag：terminu-go 用 `go get` 升級；tdp 新版先讀
-   它的 CHANGELOG 看改了什麼。把對應的 `TODO(tdp #N)`、`TODO(tgo #N)` 改掉，記進 progress.md。
-3. 接著做沒做完的里程碑（回到 4）。
+2. 先查在等的事，不用使用者開口：
+   - 「回報」裡的每一張：照當初送的方式看有沒有回應（GitHub issue 用 `gh issue view <網址>`；在本機送給別的 session 的，看那邊的
+     回覆或紀錄）。
+   - tdp 或 terminu-go 有沒有出新 tag：terminu-go 用 `go get` 升級；tdp 新版先讀它的 CHANGELOG 看改了什麼。
+   - 程式裡還剩哪些 `TODO(tdp #N)`、`TODO(tgo #N)`（`grep -rn 'TODO(t' --include='*.go' .`）。
+3. 把查到的講給使用者聽；能改掉的 TODO 改掉，記進 progress.md 與 `docs/<app>-terminu-fix.md`。
+4. 接著做沒做完的里程碑（回到 4）。
 
 ## 7. 完成
 
-- 里程碑都做完、`make check` 過、剩下的 TODO 都在等 issue → 用 Skill 叫 `terminu:judge`，app 指令是建好的執行檔，repo 是這個
-  repo。app 會寫系統檔或使用者的檔案時，給 judge 一個包裝指令：每次啟動開一個新的暫存目錄，把 `HOME` 與 app 的環境變數指進去，
-  並在補充裡寫明（judge 會轉給每個 judge agent）。
-- 報告給使用者：gene 數、違反的條目、判不了的原因、tdp 沒規範的東西、還在等的 issue。
-- 有任何違反就是不通過：app 自己能修的修掉；terminu-go 做不到、tdp 沒寫清楚的，用 `terminu:reportgap` 回報給 terminu，先用暫時的
-  做法（`TODO(tdp #N)`、`TODO(tgo #N)`），列進 `docs/<app>-terminu-fix.md`；修完再判一次，直到通過。
-- 判不了的照原因：tdp、tgo 的回報給 terminu；其他的（例：要一台 Windows 才驗得了）在這個 session 裡問使用者。
+- 里程碑都做完、`make check` 過、剩下的 TODO 都在等回報 → 把成品給使用者看：做了什麼、怎麼開、還在等的回報與 TODO。
+- 刻意不照 tdp 做、寫得出理由的地方，寫進 `docs/dev-remarks.md` 的「偏離 tdp」。
+- 驗不了的（例：要一台 Windows 才驗得了）在這個 session 裡問使用者。
 - 打 tag、發布、Homebrew 都先問使用者。

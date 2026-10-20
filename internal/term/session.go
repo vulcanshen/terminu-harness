@@ -1,7 +1,7 @@
 //go:build unix
 
 // Package term runs a program in a PTY on a screen of the harness's own, so
-// the judge can press keys and read what it drew.
+// the agent can press keys and read what it drew.
 package term
 
 import (
@@ -91,7 +91,7 @@ func Start(o Options) (*Session, error) {
 }
 
 // Environ is the harness's environment without what describes the terminal
-// it runs in, with the judge's terminal and env over it. Widths of icons set
+// it runs in, with the harness terminal and env over it. Widths of icons set
 // for the real terminal (<APP>__ICON_WIDTH, TERMINU__ICON_WIDTH, the powerline
 // ones) are left out, so the program measures this one, unless env sets them.
 func Environ(env []string) []string {

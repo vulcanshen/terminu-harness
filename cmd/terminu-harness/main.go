@@ -1,5 +1,5 @@
-// Command terminu-harness is the harness's MCP server: the terminal the judge
-// runs an app in, tdp's files and the runs that keep the verdicts.
+// Command terminu-harness is the harness's MCP server: the terminal the agent
+// runs the app it writes in, and tdp's files.
 package main
 
 import (
@@ -7,7 +7,6 @@ import (
 	"os"
 
 	mcpserver "github.com/mark3labs/mcp-go/server"
-	"github.com/vulcanshen/terminu-harness/internal/run"
 	"github.com/vulcanshen/terminu-harness/internal/server"
 )
 
@@ -18,7 +17,6 @@ const usage = `terminu-harness: the terminu harness's MCP server
 
 Usage:
   terminu-harness mcp           serve MCP on stdin and stdout (Claude Code starts it)
-  terminu-harness report <run>  write a run's report card again, as this version judges
   terminu-harness version       print the version (-v, --version)
   terminu-harness help          print this help (-h, --help)
 `
@@ -33,22 +31,6 @@ func main() {
 		sv := server.New()
 		err := mcpserver.ServeStdio(sv.MCP(version))
 		sv.Close()
-		if err != nil {
-			fmt.Fprintln(os.Stderr, err)
-			os.Exit(1)
-		}
-	case "report":
-		if len(os.Args) != 3 {
-			fmt.Fprint(os.Stderr, usage)
-			os.Exit(2)
-		}
-		r, err := run.Open(os.Args[2])
-		if err == nil {
-			var sum string
-			if sum, err = r.Finish(); err == nil {
-				fmt.Print(sum)
-			}
-		}
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
 			os.Exit(1)

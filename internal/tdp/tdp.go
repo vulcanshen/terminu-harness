@@ -1,4 +1,4 @@
-// Package tdp gets a version of terminu design (tdp) and reads its checklist.
+// Package tdp gets the files of a version of terminu design (tdp).
 package tdp
 
 import (
@@ -16,9 +16,6 @@ import (
 
 // GitHub is where tdp lives.
 const GitHub = "vulcanshen/terminu"
-
-// ItemsPath is the checklist's items, in Traditional Chinese, the original.
-const ItemsPath = "checklist/items-zh_TW.md"
 
 // Source gets tdp's files at a tag: from a local clone of terminu when Repo is
 // set, from GitHub otherwise; Cache keeps what it got.

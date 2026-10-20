@@ -1,6 +1,6 @@
 ---
 name: reportgap
-description: 把 tdp 沒規範、寫不清楚，或 terminu-go 做不到的地方寫成 issue，給使用者看過、同意後發到 GitHub（vulcanshen/terminu 或 vulcanshen/terminu-go）。newapp 開發卡住、judge 找到 tdp 沒規範的東西、使用者要回報 tdp 時使用。
+description: 把 tdp 沒規範、寫不清楚，或 terminu-go 做不到的地方寫成 issue，給使用者看過、同意後發到 GitHub（vulcanshen/terminu 或 vulcanshen/terminu-go）。newapp 開發卡住、使用者要回報 tdp 或 terminu-go 時使用。
 argument-hint: [卡在哪]
 ---
 

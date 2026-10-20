@@ -1,13 +1,12 @@
 //go:build unix
 
-// Package server is the harness's MCP server: a terminal the judge runs an
-// app in, tdp's files, and the run that keeps the verdicts.
+// Package server is the harness's MCP server: a terminal the agent runs the
+// app it writes in, to see it, and tdp's files.
 package server
 
 import (
 	"context"
 	"encoding/base64"
-	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -20,7 +19,6 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 	"github.com/vulcanshen/terminu-harness/internal/render"
-	"github.com/vulcanshen/terminu-harness/internal/run"
 	"github.com/vulcanshen/terminu-harness/internal/tdp"
 	"github.com/vulcanshen/terminu-harness/internal/term"
 	"github.com/vulcanshen/terminu-harness/internal/vt"
@@ -29,30 +27,23 @@ import (
 // The environment the harness reads (named the way tdp E2 names an app's).
 const (
 	EnvHome    = "TERMINU_HARNESS__HOME"     // where the harness keeps its things: ~/.terminu-harness
-	EnvOut     = "TERMINU_HARNESS__OUT"      // where runs go: <home>/judge
 	EnvTDPRepo = "TERMINU_HARNESS__TDP_REPO" // a local clone of terminu to read tdp from, rather than GitHub
 )
-
-// batches is how many judges share the checklist.
-const batches = 10
 
 type entry struct {
 	s                 *term.Session
 	name              string
-	run               *run.Run
 	wraps, scrolls    int
 	cols, rows        int
 	iconW, powerlineW int
 }
 
-// Server holds the open sessions and runs.
+// Server holds the open sessions.
 type Server struct {
 	mu       sync.Mutex
 	sessions map[string]*entry
-	runs     map[string]*run.Run
 	next     int
 	src      tdp.Source
-	home     string
 }
 
 // Home is where the harness keeps its things.
@@ -69,12 +60,9 @@ func Home() string {
 
 // New is a server with nothing open.
 func New() *Server {
-	home := Home()
 	return &Server{
 		sessions: map[string]*entry{},
-		runs:     map[string]*run.Run{},
-		src:      tdp.Source{Repo: os.Getenv(EnvTDPRepo), Cache: filepath.Join(home, "cache", "tdp")},
-		home:     home,
+		src:      tdp.Source{Repo: os.Getenv(EnvTDPRepo), Cache: filepath.Join(Home(), "cache", "tdp")},
 	}
 }
 
@@ -92,7 +80,6 @@ func (sv *Server) Close() {
 func (sv *Server) MCP(version string) *server.MCPServer {
 	s := server.NewMCPServer("terminu-harness", version, server.WithToolCapabilities(false))
 	session := mcp.WithString("session", mcp.Required(), mcp.Description("The session id open returned, e.g. s1."))
-	runDir := mcp.WithString("run", mcp.Required(), mcp.Description("The run directory judge_start returned."))
 
 	s.AddTool(mcp.NewTool("open",
 		mcp.WithDescription("Start an app in a new terminal of the harness's own (a PTY and an emulator; no tmux, no desktop) and return its first screen. "+
@@ -107,7 +94,6 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 		mcp.WithNumber("icon_width", mcp.Description("Cells a Nerd Font icon takes on this terminal: 1 (default) or 2.")),
 		mcp.WithNumber("powerline_width", mcp.Description("Cells a powerline symbol (U+E0A0–U+E0D7) takes: 1 (default) or 2.")),
 		mcp.WithArray("env", mcp.WithStringItems(), mcp.Description("Extra environment, KEY=VALUE each.")),
-		mcp.WithString("run", mcp.Description("A run directory from judge_start: every screen, recording and image of this session is kept there as evidence.")),
 		mcp.WithNumber("wait_ms", mcp.Description("How long at most to wait for the screen to settle before returning it, 5000 when left out.")),
 	), sv.open)
 
@@ -173,69 +159,8 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 		mcp.WithDescription("A file of terminu design (tdp) at a version, e.g. principle/rules-zh_TW.md, components/layout/popup-zh_TW.md, "+
 			"project/family.mk, principle/icon.svg, checklist/README-zh_TW.md. Traditional Chinese is the original."),
 		mcp.WithString("path", mcp.Required(), mcp.Description("The path in the terminu repo.")),
-		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4; the run's version with run, the newest tag otherwise.")),
-		mcp.WithString("run", mcp.Description("A run directory: use the version it judges by.")),
+		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4, the newest tag when left out.")),
 	), sv.tdpFile)
-
-	s.AddTool(mcp.NewTool("judge_start",
-		mcp.WithDescription("Start judging an app against a version of tdp: makes the run directory, keeps the checklist in it and cuts the "+
-			"items into batches, one file each, for the judges. Returns the run directory and the batches."),
-		mcp.WithString("app_command", mcp.Required(), mcp.Description("How the app is started, e.g. demou or ./demou.")),
-		mcp.WithString("repo", mcp.Description("The app's repo, when there is one: items to check by reading code or files need it.")),
-		mcp.WithString("tdp_version", mcp.Description("The tdp version to judge by, the newest tag when left out.")),
-		mcp.WithString("out_dir", mcp.Description("Where runs go, ~/.terminu-harness/judge when left out.")),
-	), sv.judgeStart)
-
-	s.AddTool(mcp.NewTool("judge_scan",
-		mcp.WithDescription("Read the app's Go source (the run's repo) for the terminu-go components it uses, keep it as scan.json in the run, "+
-			"and judge 不適用 every item whose 適用 names only features the source shows the app has none of. Nothing when there is no "+
-			"repo, the app is not written with terminu-go, or it draws bodies or popups of its own. Call it right after judge_start."),
-		runDir,
-	), sv.judgeScan)
-
-	s.AddTool(mcp.NewTool("judge_profile",
-		mcp.WithDescription("Keep what the judge learned about the app (profile.md in the run): its help and version, screens, panels, popups, "+
-			"the features the checklist's 適用 column names and which the app has, and how to reach each surface. Replaces the earlier one."),
-		runDir,
-		mcp.WithString("text", mcp.Required(), mcp.Description("The profile, in Markdown.")),
-	), sv.judgeProfile)
-
-	s.AddTool(mcp.NewTool("judge_verdicts",
-		mcp.WithDescription("Keep verdicts on items. verdict is one of 符合 偏離 違反 不適用 判不了; reason says why in Traditional Chinese "+
-			"(for 判不了 what is missing); for 判不了, cause says why: tdp (tdp says nothing clear), tgo (terminu-go can't), other "+
-			"(no repo, a special environment); evidence lists evidence ids the terminal tools returned. A later verdict on an item replaces an "+
-			"earlier one. Returns how many were kept and what was wrong with the rest."),
-		runDir,
-		mcp.WithArray("verdicts", mcp.Required(), mcp.Items(map[string]any{
-			"type": "object",
-			"properties": map[string]any{
-				"id":       map[string]any{"type": "string", "description": "The item number, e.g. K4-2."},
-				"verdict":  map[string]any{"type": "string", "enum": run.Verdicts},
-				"reason":   map[string]any{"type": "string"},
-				"cause":    map[string]any{"type": "string", "enum": run.Causes},
-				"evidence": map[string]any{"type": "array", "items": map[string]any{"type": "string"}},
-			},
-			"required": []string{"id", "verdict", "reason"},
-		}), mcp.Description("The verdicts.")),
-	), sv.judgeVerdicts)
-
-	s.AddTool(mcp.NewTool("judge_gap",
-		mcp.WithDescription("Keep one thing the app does that tdp does not cover yet: no gene, no penalty, reported back to tdp."),
-		runDir,
-		mcp.WithString("what", mcp.Required(), mcp.Description("What the app does, in Traditional Chinese.")),
-		mcp.WithString("where", mcp.Description("Where in the app.")),
-		mcp.WithArray("evidence", mcp.WithStringItems(), mcp.Description("Evidence ids.")),
-	), sv.judgeGap)
-
-	s.AddTool(mcp.NewTool("judge_status",
-		mcp.WithDescription("How far the run has come: how many items have each verdict, and batch by batch the items no one has judged yet."),
-		runDir,
-	), sv.judgeStatus)
-
-	s.AddTool(mcp.NewTool("judge_finish",
-		mcp.WithDescription("Write the report card (report.md in the run) and return its summary with the gene count. Items no one judged count as 判不了."),
-		runDir,
-	), sv.judgeFinish)
 	return s
 }
 
@@ -254,24 +179,6 @@ func (sv *Server) entry(req mcp.CallToolRequest) (string, *entry, error) {
 	return id, e, nil
 }
 
-func (sv *Server) openRun(dir string) (*run.Run, error) {
-	if dir == "" {
-		return nil, nil
-	}
-	dir = filepath.Clean(dir)
-	sv.mu.Lock()
-	defer sv.mu.Unlock()
-	if r, ok := sv.runs[dir]; ok {
-		return r, nil
-	}
-	r, err := run.Open(dir)
-	if err != nil {
-		return nil, err
-	}
-	sv.runs[dir] = r
-	return r, nil
-}
-
 func ms(req mcp.CallToolRequest, key string, def int) time.Duration {
 	return time.Duration(req.GetInt(key, def)) * time.Millisecond
 }
@@ -284,10 +191,6 @@ func (sv *Server) open(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToo
 			f := strings.Fields(command)
 			command, args = f[0], f[1:]
 		}
-	}
-	r, err := sv.openRun(req.GetString("run", ""))
-	if err != nil {
-		return fail("%v", err)
 	}
 	cols, rows := req.GetInt("cols", 120), req.GetInt("rows", 40)
 	if cols < 1 || rows < 1 || cols > 1000 || rows > 1000 {
@@ -308,7 +211,7 @@ func (sv *Server) open(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToo
 	sv.mu.Lock()
 	sv.next++
 	id := "s" + strconv.Itoa(sv.next)
-	e := &entry{s: s, name: filepath.Base(command), run: r, cols: cols, rows: rows, iconW: iconW, powerlineW: plW}
+	e := &entry{s: s, name: filepath.Base(command), cols: cols, rows: rows, iconW: iconW, powerlineW: plW}
 	sv.sessions[id] = e
 	sv.mu.Unlock()
 	// A slow start draws nothing for a while: wait for the first change, then
@@ -369,8 +272,7 @@ func framesText(frames []term.Frame, d time.Duration) string {
 	return b.String()
 }
 
-// screenText is the screen with a header, kept as evidence when the session
-// belongs to a run; before goes above it (a recording).
+// screenText is the screen with a header; before goes above it (a recording).
 func (sv *Server) screenText(id string, e *entry, before string) string {
 	var body strings.Builder
 	e.s.View(func(scr *vt.Screen) {
@@ -395,15 +297,9 @@ func (sv *Server) screenText(id string, e *entry, before string) string {
 		}
 	})
 	out := before + body.String()
-	if e.run != nil {
-		eid, path := e.run.NewEvidence(".txt")
-		if err := os.WriteFile(path, []byte(out), 0o644); err == nil {
-			out = "evidence " + eid + "\n" + out
-		}
-	}
 	const most = 60000
 	if len(out) > most {
-		out = out[:most] + "\n… cut here; the whole of it is in the evidence file\n"
+		out = out[:most] + "\n… cut here\n"
 	}
 	return out
 }
@@ -444,14 +340,7 @@ func (sv *Server) styles(_ context.Context, req mcp.CallToolRequest) (*mcp.CallT
 	if bad != nil {
 		return fail("%v", bad)
 	}
-	out := b.String()
-	if e.run != nil {
-		eid, path := e.run.NewEvidence(".txt")
-		if os.WriteFile(path, []byte(out), 0o644) == nil {
-			out = "evidence " + eid + "\n" + out
-		}
-	}
-	return mcp.NewToolResultText(out), nil
+	return mcp.NewToolResultText(b.String()), nil
 }
 
 // writeRuns writes the cells [from, to) of a row as runs drawn alike.
@@ -513,14 +402,7 @@ func (sv *Server) image(_ context.Context, req mcp.CallToolRequest) (*mcp.CallTo
 	if err != nil {
 		return fail("draw: %v", err)
 	}
-	text := id + " screen"
-	if e.run != nil {
-		eid, path := e.run.NewEvidence(".png")
-		if os.WriteFile(path, png, 0o644) == nil {
-			text = "evidence " + eid + "\n" + text
-		}
-	}
-	return mcp.NewToolResultImage(text, base64.StdEncoding.EncodeToString(png), "image/png"), nil
+	return mcp.NewToolResultImage(id+" screen", base64.StdEncoding.EncodeToString(png), "image/png"), nil
 }
 
 func (sv *Server) resize(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
@@ -571,13 +453,6 @@ func (sv *Server) close(_ context.Context, req mcp.CallToolRequest) (*mcp.CallTo
 
 func (sv *Server) tdpFile(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
 	version := req.GetString("version", "")
-	if version == "" && req.GetString("run", "") != "" {
-		r, err := sv.openRun(req.GetString("run", ""))
-		if err != nil {
-			return fail("%v", err)
-		}
-		version = r.Meta.TDP
-	}
 	if version == "" {
 		v, err := sv.src.Latest()
 		if err != nil {
@@ -590,125 +465,4 @@ func (sv *Server) tdpFile(_ context.Context, req mcp.CallToolRequest) (*mcp.Call
 		return fail("%v", err)
 	}
 	return mcp.NewToolResultText(fmt.Sprintf("tdp %s %s\n\n%s", tdp.Tag(version), req.GetString("path", ""), b)), nil
-}
-
-func (sv *Server) judgeStart(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	command := strings.TrimSpace(req.GetString("app_command", ""))
-	if command == "" {
-		return fail("app_command is empty")
-	}
-	tag := tdp.Tag(req.GetString("tdp_version", ""))
-	if tag == "" {
-		v, err := sv.src.Latest()
-		if err != nil {
-			return fail("the newest tdp: %v", err)
-		}
-		tag = v
-	}
-	md, err := sv.src.File(tag, tdp.ItemsPath)
-	if err != nil {
-		return fail("the checklist of tdp %s: %v", tag, err)
-	}
-	base := req.GetString("out_dir", "")
-	if base == "" {
-		base = os.Getenv(EnvOut)
-	}
-	if base == "" {
-		base = filepath.Join(sv.home, "judge")
-	}
-	repo := req.GetString("repo", "")
-	if repo != "" {
-		if abs, err := filepath.Abs(repo); err == nil {
-			repo = abs
-		}
-	}
-	r, err := run.Start(base, command, repo, tag, md, batches)
-	if err != nil {
-		return fail("%v", err)
-	}
-	sv.mu.Lock()
-	sv.runs[r.Dir] = r
-	sv.mu.Unlock()
-	carried, err := carryOver(r, base, repo, tag)
-	if err != nil {
-		return fail("%v", err)
-	}
-	var b strings.Builder
-	fmt.Fprintf(&b, "run %s\ntdp %s, %d items, %d batches:\n", r.Dir, tag, r.Total(), len(r.Meta.Batches))
-	if carried != "" {
-		b.WriteString(carried)
-	}
-	for _, bt := range r.Meta.Batches {
-		fmt.Fprintf(&b, "  %s %d items: %s — %s\n", bt.ID, bt.Count, filepath.Join(r.Dir, bt.File), strings.Join(bt.Sections, "、"))
-	}
-	fmt.Fprintf(&b, "checklist README: tdp_file checklist/README-zh_TW.md with run\n")
-	return mcp.NewToolResultText(b.String()), nil
-}
-
-func (sv *Server) judgeProfile(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	r, err := sv.openRun(req.GetString("run", ""))
-	if err != nil || r == nil {
-		return fail("run: %v", err)
-	}
-	if err := r.SetProfile(req.GetString("text", "")); err != nil {
-		return fail("%v", err)
-	}
-	return mcp.NewToolResultText("kept " + filepath.Join(r.Dir, "profile.md")), nil
-}
-
-func (sv *Server) judgeVerdicts(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	r, err := sv.openRun(req.GetString("run", ""))
-	if err != nil || r == nil {
-		return fail("run: %v", err)
-	}
-	raw, err := json.Marshal(req.GetArguments()["verdicts"])
-	if err != nil {
-		return fail("verdicts: %v", err)
-	}
-	var vs []run.Verdict
-	if err := json.Unmarshal(raw, &vs); err != nil {
-		return fail("verdicts: %v", err)
-	}
-	kept, problems := r.AddVerdicts(vs)
-	out := fmt.Sprintf("kept %d of %d", kept, len(vs))
-	if len(problems) > 0 {
-		out += "\n" + strings.Join(problems, "\n")
-	}
-	return mcp.NewToolResultText(out), nil
-}
-
-func (sv *Server) judgeGap(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	r, err := sv.openRun(req.GetString("run", ""))
-	if err != nil || r == nil {
-		return fail("run: %v", err)
-	}
-	g := run.Gap{What: req.GetString("what", ""), Where: req.GetString("where", ""), Evidence: req.GetStringSlice("evidence", nil)}
-	if err := r.AddGap(g); err != nil {
-		return fail("%v", err)
-	}
-	return mcp.NewToolResultText("kept"), nil
-}
-
-func (sv *Server) judgeStatus(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	r, err := sv.openRun(req.GetString("run", ""))
-	if err != nil || r == nil {
-		return fail("run: %v", err)
-	}
-	s, err := r.Status()
-	if err != nil {
-		return fail("%v", err)
-	}
-	return mcp.NewToolResultText(s), nil
-}
-
-func (sv *Server) judgeFinish(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
-	r, err := sv.openRun(req.GetString("run", ""))
-	if err != nil || r == nil {
-		return fail("run: %v", err)
-	}
-	s, err := r.Finish()
-	if err != nil {
-		return fail("%v", err)
-	}
-	return mcp.NewToolResultText(s), nil
 }
