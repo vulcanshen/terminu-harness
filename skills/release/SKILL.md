@@ -11,7 +11,8 @@ argument-hint: [版號，例：v0.3.0]
 
 1. **工作目錄乾淨**：`git status --porcelain` 沒有輸出，而且在預設 branch 上。不乾淨就停，問使用者要先 commit 還是先收起來。
 2. **`make check` 過**；有 `release-check` target 就也跑（tdp 寫了哪一種警告不算失敗）。
-3. **review**：範圍是上一個 tag 到 HEAD（`git describe --tags --abbrev=0`；沒有 tag 就是整個 repo）。照 `/terminu:review` 的
+3. **review**：範圍是上一個 tag 到 HEAD（`git describe --tags --abbrev=0`）；沒有 tag 就是整個 repo，從空 tree 起算、包含第一個
+   commit（`$(git hash-object -t tree /dev/null)..HEAD`）。照 `/terminu:review` 的
    2、3 做：用 Skill 叫 `terminu:review`，參數給範圍（例：`v0.2.0..HEAD`）。修了東西就 commit（不加 Claude 署名），回到 2。
    **還有問題就不往下走。**
 4. **版號**：使用者給了就用；沒給就照 `## Unreleased` 的改動提一個（有新功能升 minor，只有修正升 patch），問使用者確認。

@@ -41,7 +41,7 @@ tools: Read, Grep, Glob, Bash, mcp__plugin_terminu_harness__tdp_file
 
 **問題**（擋發版）：每一個寫
 
-- 位置：`檔案:行`
+- 位置：`檔案:行`。行號是檔案裡的行號，不是 diff 輸出的行號：寫之前用 Read 打開那個檔確認（範圍大、diff 很長時特別容易拿錯）
 - 什麼問題：一句話
 - 出處：tdp 條目編號（例 `toast-18`）與原文；或 spec 的哪一節、哪一句
 - 怎麼改：一句話

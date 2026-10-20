@@ -9,8 +9,11 @@ argument-hint: [範圍，例：main..HEAD、v0.2.0..HEAD]
 ## 1. 範圍
 
 - `$ARGUMENTS` 給了範圍就用它：`git diff <範圍>`。
-- 沒給：還沒 commit 的改動（`git diff HEAD`，加上 `git status --porcelain` 裡沒追蹤的新檔），加上這個 branch 還沒 push 的 commit
-  （`git diff @{upstream}...HEAD`；沒有 upstream 就從最新的 tag 起算，沒有 tag 就從第一個 commit）。
+- 沒給：還沒 commit 的改動（`git diff HEAD`，加上 `git status --porcelain` 裡沒追蹤的新檔），加上這個 branch 還沒 push 的 commit：
+  - 有 upstream：`git diff @{upstream}...HEAD`；
+  - 沒有 upstream、有 tag：從最新的 tag 起算，`git diff <tag>..HEAD`；
+  - 都沒有：還沒發過版，整個 repo 都要看，從空 tree 起算（包含第一個 commit）：
+    `git diff $(git hash-object -t tree /dev/null)..HEAD`。
 - 範圍是空的：說「沒有要看的改動」，結束。
 
 ## 2. 派 reviewer
