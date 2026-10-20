@@ -98,4 +98,4 @@ spec 的重點，使用者看了成品再提要改的。
 - 里程碑都做完、`make check` 過、剩下的 TODO 都在等回報 → 把成品給使用者看：做了什麼、怎麼開、還在等的回報與 TODO。
 - 刻意不照 tdp 做、寫得出理由的地方，寫進 `docs/dev-remarks.md` 的「偏離 tdp」。
 - 驗不了的（例：要一台 Windows 才驗得了）在這個 session 裡問使用者。
-- 打 tag、發布、Homebrew 都先問使用者。
+- 要發版時用 Skill 叫 `terminu:release`：它先 review 上一版之後的改動，打 tag、push 前問使用者。Homebrew 也先問使用者。

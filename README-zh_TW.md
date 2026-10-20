@@ -12,6 +12,8 @@
 
 - **做一個新的 app**：一次問一題，弄清楚 app 要做什麼（只問需求；畫面、按鍵、檔案格式由它照 tdp 決定），寫成規格就開始做：照 tdp 的 project 範本用 terminu-go 一塊一塊做出來，每一塊都跑測試、在它自己帶的終端機裡打開來看，做完給你看。遇到 tdp 沒規範、或 terminu-go 還做不到的地方，它會跟你說明，替 tdp 或 terminu-go 寫好 issue 草稿，你同意了才發；等的期間先用暫時的做法，它們更新後再回來改。
 - **繼續做到一半的 app**：在 app 的資料夾打 `/terminu`，它先查在等的 issue 有沒有回應、tdp 或 terminu-go 有沒有新版、程式裡還剩哪些暫時的做法，講給你聽，再從上次停的地方接著做。
+- **review 改動**：另一個只讀的 reviewer 照 tdp 與 app 的規格看一段改動，每個問題都附出處（tdp 的條目或規格的哪一句），有問題就修了再看一次。
+- **發版**：跑測試、review 上一版之後的改動、照 tdp 整理 CHANGELOG，問過你才打 tag、push。
 - **回報 tdp 或 terminu-go**：替 tdp 或 terminu-go 寫 issue 草稿，你同意了才發。
 
 不需要 tmux 或圖形介面；會離開你這台機器的事（issue、GitHub repo、發版）都先問你。
@@ -47,6 +49,8 @@
 | 指令 | 做什麼 |
 |---|---|
 | `/terminu:newapp [app 要做什麼]` | 做新的 app，或繼續做這個資料夾裡的 app |
+| `/terminu:review [範圍]` | review 一段改動；沒給範圍就看還沒 commit 的改動與還沒 push 的 commit |
+| `/terminu:release [版號]` | 發版：測試、review 上一版之後的改動、整理 CHANGELOG，問過你才打 tag、push |
 | `/terminu:reportgap [缺了什麼]` | 替 tdp 或 terminu-go 寫 issue 草稿，你同意後發出去 |
 
 ## 存放位置

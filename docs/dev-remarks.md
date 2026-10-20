@@ -4,8 +4,10 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 
 ## 運作方式
 
-- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：目前目錄有 `.local/terminu/progress.md` 就直接叫 `terminu:newapp` 接著做；沒有就問要做新 app 還是回報，再叫 `terminu:newapp` 或 `terminu:reportgap`。
+- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：目前目錄有 `.local/terminu/progress.md` 就直接叫 `terminu:newapp` 接著做；沒有就問要做新 app、review、發版還是回報，再叫對應的 skill。
 - **newapp**（`skills/newapp`，主 session 照著做）：準備（讀 tdp、terminu-go 最新 tag）→ 一次一題問需求 → 寫 `docs/spec.md` 就開始做（不等確認）→ 照 tdp project 範本開 repo → 照里程碑一塊一塊寫，每塊 `make check`、用 harness 的終端機開起來看、給使用者看、commit → 卡住叫 `terminu:reportgap` 寫 issue（同意才發），程式標 `TODO(tdp #N)`／`TODO(tgo #N)` 先用暫時的做法 → 做完給使用者看。進度在 app repo 的 `.local/terminu/progress.md`；「繼續」先查回報有沒有回應、新 tag、程式裡剩下的 TODO。
+- **review**（`skills/review`）：派 `terminu:reviewer`（`agents/reviewer.md`，只讀，工具只有 Read、Grep、Glob、看東西的 Bash 與 `tdp_file`）看一段 diff；問題要附出處（tdp 條目或 spec 的哪一句），沒出處的只是建議。主 session 修、再派一次看修的那一段，最多兩次；剩下的問使用者：修掉、寫成「偏離 tdp」、回報 tdp。
+- **release**（`skills/release`）：照 tdp `project/` 的「發布」：工作目錄乾淨、`make check`、review 上一個 tag 到 HEAD、`## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`、問使用者才 tag 與 push。
 - **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`。
 - **MCP server**（`cmd/terminu-harness`，子指令 `mcp`）：plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（不放根目錄的 `.mcp.json`：在這個 repo 裡開 Claude Code 時它會被當成專案的 MCP 設定，`${CLAUDE_PLUGIN_ROOT}` 是空的就啟動失敗），server 名 `harness`，工具在
   Claude Code 裡叫 `mcp__plugin_terminu_harness__<工具>`：`open`、`keys`、`screen`、`styles`、`image`、`resize`、`overflow`、`close`、`tdp_file`。
@@ -19,6 +21,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 
 ## 設計決定
 
+- **reviewer 跟寫程式的一方分開**：agent 從乾淨的 context 開始，看得到的只有 repo 與 tdp。不另外記「駁回過的問題」：不照做的寫成「偏離 tdp」（tdp departure-1），tdp 不清楚的進 fix 文件，都留在 repo，reviewer 下次讀得到。
 - **寫程式時就做對，不做完才判**（user 2026-10-20）：原本的 judge（做完才判、一千三百多條、11 個 agent 看畫面）拿掉了。程式判得
   了的檢查放在 terminu-go 的測試 package，app 用哪一版 tgo 就跑哪一版的檢查；要判斷的交給 reviewer（發版前與手動叫）。harness 提
   要 tgo 做哪些檢查與「刁鑽的值」。judge 的程式與文件在 `fb89ad1` 還找得到。
@@ -39,7 +42,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - 終端機不送滑鼠事件。
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回到 app 的資料夾打 `/terminu`。
-- 還沒做：reviewer（發版前與手動叫）；terminu-go 的測試 package 出來之後，newapp 的專案骨架加 `tdp_test.go`。
+- 還沒做：terminu-go 的測試 package（tdptest，預計 v0.3.0）出來之後，newapp 的專案骨架加 `tdp_test.go`、`make check` 跑它；reviewer 讀 terminu-go 標了清單編號的涵蓋清單。
 
 ## 用 hostu 試整套流程（2026-10-18～19）
 

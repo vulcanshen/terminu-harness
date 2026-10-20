@@ -48,7 +48,21 @@ user：「我們應該是想辦法把東西作對，而不是做完以後花大�
   - reportgap：開發者與 reviewer 共用這一個。
   - MCP 終端機：讓 agent 開發時看得到自己寫的畫面，不再拿來判。
 - **reviewer 什麼時候跑**（user 2026-10-20）：「應該不管是不是 newapp, 有兩種方式可以叫 reviewer, 1 個是 app 發版前， 1 個是
-  手動呼叫」。不在 newapp 每寫完一塊就自動跑。
+  手動呼叫」。不在 newapp 每寫完一塊就自動跑。怎麼接上（user 選 A）：harness 加 `/terminu:release`，先叫 reviewer 看上一個 tag
+  到現在的 diff，有附出處的問題就停下來修（同一塊最多來回兩次），沒有才問使用者要不要打 tag、push；手動叫用 `/terminu:review`，
+  預設看還沒 commit 的改動加上這個 branch 還沒 push 的 commit，也可以指定範圍。理由：打 tag 本來就先問使用者，範本檔不用改、不靠
+  CI。兩個都在 app 自己的 session 裡打（plugin 本來就是這樣用：誰打 `/terminu`，就由那個 session 走流程）。
+- **reviewer 的做法**（我提的，user 看過沒有異議）：兩個 skill 派 `terminu:reviewer` agent，只讀、從乾淨的 context 開始，跟寫程式的
+  一方分開。讀 diff、`docs/spec.md`、dev-remarks 的「偏離 tdp」、`docs/<app>-terminu-fix.md`、diff 碰到的元件的 tdp 檔與清單條目；
+  tgo 有了涵蓋清單之後也讀它，tgo 保證的條目跳過。每個問題寫哪個檔哪一行、什麼問題、出處（tdp 條目或 spec 的哪一句）、怎麼改；
+  沒出處的只是建議。主 session 修掉再叫它看修的那一段，最多兩次；還不同意的問使用者：修掉、寫成「偏離 tdp」（附理由）、或回報 tdp。
+  不另外記「駁回過」：定過的都留在 repo（spec、偏離 tdp、fix 文件），reviewer 下次讀得到。
+- **試整套流程時在 app 自己的 session**（user 選 A）：在 app 的資料夾開新的 session、只帶 plugin（例
+  `claude --plugin-dir ~/Documents/sideproj/terminu-harness`），從 `/terminu` 開始走；harness 的 session 只改 harness，看那邊卡在
+  哪裡再回來修 skill。理由：harness 的 session 知道太多（CLAUDE.md、tdp 的細節、user 講過的話），會不自覺替 skill 寫不清楚的地方
+  補上，測不出來。取代 2026-10-18 的「過程中不會開啟新的 session，由你直接進行整個流程」。
+- **`/terminu:release` 包整個發版**（user 選 A）：工作目錄乾淨、`make check`、reviewer、CHANGELOG 的 `## Unreleased` 改成
+  `## vX.Y.Z — tdp <版本>`（tdp project-29），問使用者版號與要不要打 tag，同意才 tag、push（push 觸發 `release.yml`）。
 - **三個環**：內環（寫一塊 → `make check`、看畫面 → 有錯就改，全過就 commit；reviewer 在發版前與手動叫時跑）；外環（回報 → tdp、tgo 發版 → harness
   跟上 → app 回來拿掉 TODO）；學習環（同一種錯出現第二次 → 做成 tdptest 的檢查，或請 tgo 改 API 讓錯的寫法寫不出來）。
 - **reviewer 不跟開發無限來回**（我提的，user 沒有異議）：只看這次的 diff；每個問題要指出 tdp 條目或 spec 的哪一句，指不出來的
@@ -238,7 +252,6 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
 ## 還沒定
 
 - 發布：GitHub repo、tag、release 的 binary 怎麼給使用者（見上一節最後）。
-- reviewer 的 agent 怎麼寫、發版前怎麼接上（範本檔只能改允許的地方）、手動怎麼叫、各看哪一段 diff。
 
 ## 規範與清單是唯一的依據
 

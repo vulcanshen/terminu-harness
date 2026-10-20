@@ -13,5 +13,8 @@ terminu harness 照 terminu design（tdp）用 terminu-go 做 TUI app。這裡�
 2. `$ARGUMENTS` 說了要做什麼，就直接走那個流程，把使用者的原話一起帶過去。
 3. 都沒有的話，問一題（AskUserQuestion）：「要做什麼？」
    - **做一個新的 app**：問需求、開發，做完給你看
+   - **review 目前的改動**：照 tdp 與 spec 看還沒 commit、還沒 push 的改動
+   - **發版**：review 上一版之後的改動、整理 CHANGELOG，問過你才打 tag
    - **回報 tdp 或 terminu-go**：tdp 沒規範、寫不清楚，或 terminu-go 做不到的地方
-4. 做新 app、繼續做 → 用 Skill 工具叫 `terminu:newapp`；回報 → 用 Skill 工具叫 `terminu:reportgap`。
+4. 用 Skill 工具叫對應的 skill：做新 app、繼續做 → `terminu:newapp`；review → `terminu:review`；發版 → `terminu:release`；
+   回報 → `terminu:reportgap`。
