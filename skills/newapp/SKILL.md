@@ -1,5 +1,5 @@
 ---
-name: new-app
+name: newapp
 description: 照 terminu design（tdp）用 terminu-go 做一個 TUI app：問需求、寫規格給使用者確認、照 tdp 的 project 範本開 repo、一塊一塊寫、卡住就回報 tdp 或 terminu-go、做完自動 judge 並報告。也用來繼續做到一半的 app。由 /terminu 帶進來，或 user 要做一個 terminu 家族的 app 時使用。
 argument-hint: [app 的需求]
 ---
@@ -77,7 +77,7 @@ argument-hint: [app 的需求]
 ## 5. 卡住
 
 - 分三種：tdp 沒規範或寫不清楚 → 回報 tdp；terminu-go 做不到或有 bug → 回報 terminu-go；app 自己的錯 → 自己修。
-- 跟使用者說明卡在哪、暫時打算怎麼做，用 Skill 叫 `terminu:report-gap` 寫 issue，使用者同意才發。
+- 跟使用者說明卡在哪、暫時打算怎麼做，用 Skill 叫 `terminu:reportgap` 寫 issue，使用者同意才發。
 - **其他部分照做**：卡住的地方先用暫時的做法，程式裡標 `TODO(tdp #N)` 或 `TODO(tgo #N)`，記進 progress.md；tdp 或 terminu-go
   更新後回來改掉。
 
@@ -95,7 +95,7 @@ argument-hint: [app 的需求]
   repo。app 會寫系統檔或使用者的檔案時，給 judge 一個包裝指令：每次啟動開一個新的暫存目錄，把 `HOME` 與 app 的環境變數指進去，
   並在補充裡寫明（judge 會轉給每個 judge agent）。
 - 報告給使用者：gene 數、違反的條目、判不了的原因、tdp 沒規範的東西、還在等的 issue。
-- 有任何違反就是不通過：app 自己能修的修掉；terminu-go 做不到、tdp 沒寫清楚的，用 `terminu:report-gap` 回報給 terminu，先用暫時的
+- 有任何違反就是不通過：app 自己能修的修掉；terminu-go 做不到、tdp 沒寫清楚的，用 `terminu:reportgap` 回報給 terminu，先用暫時的
   做法（`TODO(tdp #N)`、`TODO(tgo #N)`），列進 `docs/<app>-terminu-fix.md`；修完再判一次，直到通過。
 - 判不了的照原因：tdp、tgo 的回報給 terminu；其他的（例：要一台 Windows 才驗得了）在這個 session 裡問使用者。
 - 打 tag、發布、Homebrew 都先問使用者。

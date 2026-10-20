@@ -4,9 +4,9 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 
 ## 運作方式
 
-- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：只問要做新 app、繼續做、還是判 app，再用 Skill 叫 `terminu:new-app` 或 `terminu:judge`。
-- **new-app**（`skills/new-app`，主 session 照著做）：準備（讀 tdp、terminu-go 最新 tag）→ 一次一題問需求 → `docs/spec.md` 給使用者確認 → 照 tdp project 範本開 repo → 照里程碑一塊一塊寫，每塊 `make check`、用 harness 的終端機開起來看、給使用者看、commit → 卡住叫 `terminu:report-gap` 寫 issue（同意才發），程式標 `TODO(tdp #N)`／`TODO(tgo #N)` 先用暫時的做法 → 做完叫 `terminu:judge`。進度在 app repo 的 `.local/terminu/progress.md`，「繼續」從它接著做，並查 issue 與新 tag。
-- **report-gap**（`skills/report-gap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`。
+- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：只問要做新 app、繼續做、還是判 app，再用 Skill 叫 `terminu:newapp` 或 `terminu:judge`。
+- **newapp**（`skills/newapp`，主 session 照著做）：準備（讀 tdp、terminu-go 最新 tag）→ 一次一題問需求 → `docs/spec.md` 給使用者確認 → 照 tdp project 範本開 repo → 照里程碑一塊一塊寫，每塊 `make check`、用 harness 的終端機開起來看、給使用者看、commit → 卡住叫 `terminu:reportgap` 寫 issue（同意才發），程式標 `TODO(tdp #N)`／`TODO(tgo #N)` 先用暫時的做法 → 做完叫 `terminu:judge`。進度在 app repo 的 `.local/terminu/progress.md`，「繼續」從它接著做，並查 issue 與新 tag。
+- **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`。
 
 judge 的流程：
 
@@ -59,7 +59,7 @@ judge 的流程：
   過）。原本還有 HN1、HN5、HN6、HN8 的暫時判法，tdp v0.8.0 自己定了，拿掉。
 - **會寫系統檔的 app 用包裝指令判**：judge 會在 app 裡按會寫檔的鍵。判 hostu 時給 judge 一個包裝指令：每次啟動在暫存資料夾開新的
   `HOME` 與 hosts 檔（系統檔的複本），使用者的 `XDG_CONFIG_HOME` 指向真的家目錄時拿掉；judge skill 把使用者的這段補充原樣轉給
-  每個 judge。new-app 也照這樣交代。
+  每個 judge。newapp 也照這樣交代。
 
 ## 已知的牆與未做
 
@@ -69,19 +69,19 @@ judge 的流程：
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回來打 `/terminu` 選「繼續」。
 - 判一次很貴：一千三百多條、11 個 agent。測試程式（幾乎沒有功能）約 22 美元；hostu 約 74 美元、30 分鐘。
-- 還沒做：align（tdp 新版時重判、列出要修的）；judge 找到的 tdp 沒規範的東西，judge skill 會問要不要交給 report-gap，還沒有自動
+- 還沒做：align（tdp 新版時重判、列出要修的）；judge 找到的 tdp 沒規範的東西，judge skill 會問要不要交給 reportgap，還沒有自動
   轉成草稿。
 
 ## 用 hostu 試整套流程（2026-10-18）
 
-new-app 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；三次 judge 的成績單還在 `~/.terminu-harness/judge/hostu/`）。學到的：
+newapp 照 user 給的需求做了 hostu（只在本機，2026-10-19 移除；三次 judge 的成績單還在 `~/.terminu-harness/judge/hostu/`）。學到的：
 
-- judge 抓得到 new-app 自己寫錯的地方：spec 的 D5 原本用 textarea 編 hosts 檔，judge 照 tdp textarea-1 判違反（設定檔要交給
-  `$EDITOR`），改了。new-app 問需求時要先讀用到的元件的「用途」段，不只看「長相」。
+- judge 抓得到 newapp 自己寫錯的地方：spec 的 D5 原本用 textarea 編 hosts 檔，judge 照 tdp textarea-1 判違反（設定檔要交給
+  `$EDITOR`），改了。newapp 問需求時要先讀用到的元件的「用途」段，不只看「長相」。
 - 開發中用 harness 的終端機開 app，抓到 L4 違反（Pager 照原樣畫 Tab），畫面測試量不出來（`terminu.Width` 把 `\t` 算 0 格）。
 - 卡在 terminu-go 的條目多（第一次 judge 的 20 條違反裡 8 條），照流程標 TODO、列進 app 的 `docs/<app>-terminu-fix.md`、回報。
 - 第一版直接編 hosts 檔，user 要的是 TUI 的做法：app 有自己的格式存設定（`profiles.yaml`，一個 domain 一筆、可以有多個位址），
-  啟用時才匯出成系統檔，也能把現有的系統檔解析回來。new-app 決定設計時，管理某種檔案的 app 先想「自己的格式＋匯出」。
+  啟用時才匯出成系統檔，也能把現有的系統檔解析回來。newapp 決定設計時，管理某種檔案的 app 先想「自己的格式＋匯出」。
 - 試流程的 app 不要一路跟著改：hostu 做了兩版、判了三次，中間 tdp 的判法與 harness 都改過，最後的樣子是一路修出來的，測不出
   「從需求做到通過」的整套流程（user：「現在 hostu 已經有形狀了，這種流程不太對了」）。規範或 harness 大改之後，從需求重做一次。
 

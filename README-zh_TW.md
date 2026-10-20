@@ -46,9 +46,9 @@
 
 | 指令 | 做什麼 |
 |---|---|
-| `/terminu:new-app [app 要做什麼]` | 做新的 app，或繼續做這個資料夾裡的 app |
+| `/terminu:newapp [app 要做什麼]` | 做新的 app，或繼續做這個資料夾裡的 app |
 | `/terminu:judge <app 怎麼啟動> [app 的 repo] [tdp 版本]` | 判一個 app；沒給 repo，要讀程式的條目判「判不了」；沒給版本，照最新的 tdp |
-| `/terminu:report-gap [缺了什麼]` | 替 tdp 或 terminu-go 寫 issue 草稿，你同意後發出去 |
+| `/terminu:reportgap [缺了什麼]` | 替 tdp 或 terminu-go 寫 issue 草稿，你同意後發出去 |
 
 判一次會把清單分給十個 judge 同時判，要一段時間，也用掉不少 token。
 

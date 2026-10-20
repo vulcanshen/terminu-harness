@@ -13,5 +13,5 @@ terminu harness 照 terminu design（tdp）用 terminu-go 做 TUI app，做完�
    - **做一個新的 app**：問需求、確認、開發、完成後檢查
    - **繼續做到一半的 app**：目前目錄有 `.local/terminu/progress.md` 時，把這個排第一個並標成推薦
    - **判一個 app**：數一個現成的 TUI app 有多少 terminu gene
-3. 做新 app、繼續做 → 用 Skill 工具叫 `terminu:new-app`。
+3. 做新 app、繼續做 → 用 Skill 工具叫 `terminu:newapp`。
 4. 判 app → 用 Skill 工具叫 `terminu:judge`。

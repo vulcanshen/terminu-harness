@@ -46,9 +46,9 @@ It asks what you want to do. You can say it right away: `/terminu make an app th
 
 | Command | What it does |
 |---|---|
-| `/terminu:new-app [what the app is for]` | make a new app, or carry on with the one in this folder |
+| `/terminu:newapp [what the app is for]` | make a new app, or carry on with the one in this folder |
 | `/terminu:judge <how the app starts> [the app's repo] [tdp version]` | judge an app; without a repo, items that need the source are "can't tell"; without a version, the newest tdp |
-| `/terminu:report-gap [what is missing]` | draft an issue for tdp or terminu-go and file it once you agree |
+| `/terminu:reportgap [what is missing]` | draft an issue for tdp or terminu-go and file it once you agree |
 
 A whole judging run splits the checklist among ten judges working at the same time; it takes a while and uses many tokens.
 
