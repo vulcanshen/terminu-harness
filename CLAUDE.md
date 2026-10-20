@@ -6,7 +6,7 @@ tdp 做。
 - repo：`terminu-harness`（本機 `~/Documents/sideproj/terminu-harness`，還沒有 GitHub repo）；plugin 名 `terminu`（skill 打
   `/terminu:newapp` 這種）；skill 名不帶連字號（user 2026-10-20：`new-app` → `newapp`、`report-gap` → `reportgap`）。
 - 授權：GPL-3.0（跟家族其他 repo 一樣；可以用 terminu-go 的程式）。
-- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.8.3**；terminu-go 最新是 v0.2.2）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1395 條）。
+- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.9.0**，2026-10-20 發的；terminu-go 最新是 v0.3.0，有 tdptest、對應 tdp v0.8.3，v0.9.0 的 lib 部分 terminu 已經交給它）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1418 條）。
 
 上面這些都已經跟 user 定案，不要重提。
 
@@ -91,6 +91,10 @@ user：「我們應該是想辦法把東西作對，而不是做完以後花大�
     harness 不另外驗 tgo（驗 lib 不是 harness 的事，就像做網站的 harness 不驗 React），只讀這份清單，讓 reviewer 只看剩下的。
   - 不在測試裡重算版面（border 幾格、label 幾格）：那是重寫一份 tgo 的計算，只驗得出 tgo 跟自己一致；只量畫出來的結果（每一列的
     寬度、某個位置的字、某一格的顏色）。driver 在記憶體裡跑 `Update`、`Frame()`，不開終端機。
+  - **現況**：terminu-go v0.3.0（2026-10-20）發了 tdptest 第一版：driver（`Start`、`Press`、`Type`、`Advance`……）、
+    `EachIconWidth`、`Check`、`Tricky`／`Sizes`／`Mashes`。跟 harness 提的不同處：`Env` 是 `func(home string) map[string]string`；
+    檔案檢查（`CheckRepo`）與標了清單編號的涵蓋清單排在下一版。app 自己的計時器要用 `App.Tick` 測試才推得動（README 的
+    「計時器：`App.Tick`」）。做的時候抓到 3 個 lib bug（含 hostu 踩過的「打 `Home` 被當成 Home 鍵」：KeyName 把一串字當鍵名）。
 - **跟 terminu-go 直接講**（user 2026-10-20：「tgo 那邊你可以直接跟他 session 溝通」）：給 terminu-go 的需求與回報，在本機直接
   用 SendMessage 跟 terminu-go 的 session 談，不用先給 user 看草稿。tdp（terminu 的 session）照舊先給 user 看。
 - **拿掉 judge**（user 選 A；2026-10-20：「judge 現在就可以拆了」）：成績單、十批 judge agent、`judge_*` 工具都不要了。要看一個現成的 tgo app：跑 tdptest，再讓

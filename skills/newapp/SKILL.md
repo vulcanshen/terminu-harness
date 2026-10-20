@@ -15,7 +15,8 @@ argument-hint: [app 的需求]
 - **tdp**：用 `tdp_file`（不給版本就是最新 tag）讀 `principle/README-zh_TW.md`、`principle/rules-zh_TW.md`、
   `components/README-zh_TW.md`、`project/README-zh_TW.md`、`checklist/README-zh_TW.md`（「適用」表就是功能的清單）。用到哪個元件
   再讀那個元件的檔（`components/layout/panel-zh_TW.md`、`components/input/textarea-zh_TW.md`……）。
-- **terminu-go**：最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`），讀它那一版的 README 與 examples。
+- **terminu-go**：最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`），讀它那一版的 README 與 examples；
+  README 的「測試 app」一節（`tdptest`）與「計時器：`App.Tick`」一定要讀。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -59,13 +60,30 @@ spec 的重點，使用者看了成品再提要改的。
   「設計文件導讀」指到 `docs/spec.md`；`docs/icon.svg` 照 Rules S5（U 框照 tdp 的 `principle/icon.svg`，金色的字拼 app 的名字）；
   `LICENSE`。
 - `go mod init github.com/vulcanshen/<app>`，`go get github.com/vulcanshen/terminu-go@<最新 tag>`，不用 `go.work`。
+- 把建 app 的程式寫成 `newApp() *terminu.App`（main 裡 `Run` 以外的全部，位置照使用者啟動時一樣從環境變數讀），在它所在的
+  package 放 `tdp_test.go`：
+
+  ```go
+  func TestFirstLaunch(t *testing.T) {
+  	tdptest.Check(t, tdptest.App{Name: "<app>", New: newApp})
+  }
+  ```
+
+  app 會讀寫系統檔或家目錄以外的檔（例：hosts 檔）時，加 `Env: func(home string) map[string]string { … }` 把 app 自己的環境
+  變數指到沙盒裡，`Seed` 放初始的檔。`make check` 的 `go test` 就會跑它。
 - `git init`，第一個 commit（不加 Claude 署名）。**建 GitHub repo、push 先問使用者。**
 
 ## 4. 一塊一塊寫
 
 照 spec 的里程碑，每一塊：
 
-1. 寫程式與測試（tdp 要的測試：L4 跨尺寸、E5 兩種寬度、E6-5 splash 與 `docs/icon.svg` 一致）。
+1. 寫程式與測試。測試一律用 terminu-go 的 `tdptest`，不自己寫 driver：
+   - 流程測試用 `tdptest.Start`（每一格畫面它都自動量 L4）；要驗 E5 的包在 `tdptest.EachIconWidth` 裡。app 自己會開的 popup、
+     toast、terminal popup 都要有流程測試走到（tdp E6-4、E5-11）。
+   - 使用者給的資料（名稱、路徑、設定裡的字串）用 `tdptest.Tricky` 餵一次。
+   - 第一次啟動的掃描是 `tdp_test.go` 的 `Check`。
+   - E6-5（splash 與 `docs/icon.svg` 一致）的測試還是自己寫。
+   - app 自己的計時器用 `App.Tick`，不用 `tea.Tick`，測試才推得動它。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這一塊相關的清單條目自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。

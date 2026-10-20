@@ -42,7 +42,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - 終端機不送滑鼠事件。
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回到 app 的資料夾打 `/terminu`。
-- 還沒做：terminu-go 的測試 package（tdptest，預計 v0.3.0）出來之後，newapp 的專案骨架加 `tdp_test.go`、`make check` 跑它；reviewer 讀 terminu-go 標了清單編號的涵蓋清單。
+- 還沒做：terminu-go 下一版有了 `CheckRepo` 與標了清單編號的涵蓋清單之後，newapp 的骨架改用 `CheckRepo`（E6-5 不用 app 自己寫）、reviewer 讀涵蓋清單。
 
 ## 用 hostu 試整套流程（2026-10-18～19）
 
