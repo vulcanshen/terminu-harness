@@ -4,13 +4,33 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 
 ## 運作方式
 
-- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：目前目錄有 `.local/terminu/progress.md` 就直接叫 `terminu:newapp` 接著做；沒有就問要做新 app、review、發版還是回報，再叫對應的 skill。
-- **newapp**（`skills/newapp`，主 session 照著做）：準備（讀 tdp、terminu-go 最新 tag）→ 一次一題問需求 → 寫 `docs/spec.md` 就開始做（不等確認）→ 照 tdp project 範本開 repo → 照里程碑一塊一塊寫，每塊 `make check`、用 harness 的終端機開起來看、給使用者看、commit → 卡住叫 `terminu:reportgap` 寫 issue（同意才發），程式標 `TODO(tdp #N)`／`TODO(tgo #N)` 先用暫時的做法 → 做完給使用者看。進度在 app repo 的 `.local/terminu/progress.md`；「繼續」先查回報有沒有回應、新 tag、程式裡剩下的 TODO。
-- **review**（`skills/review`）：派 `terminu:reviewer`（`agents/reviewer.md`，只讀，工具只有 Read、Grep、Glob、看東西的 Bash 與 `tdp_file`）看一段 diff；問題要附出處（tdp 條目或 spec 的哪一句），沒出處的只是建議。主 session 修、再派一次看修的那一段，最多兩次；剩下的問使用者：修掉、寫成「偏離 tdp」、回報 tdp。
-- **release**（`skills/release`）：照 tdp `project/` 的「發布」：工作目錄乾淨、`make check`、review 上一個 tag 到 HEAD、`## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`、問使用者才 tag 與 push。
-- **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`。
+- **紀錄**：harness 管的 app 在 repo 頂層放 `harness-assets/`：`idea.md`（使用者的需求）、`spec.yaml`（每個需求對到的 tdp、設計
+  決定；idea.md 或 tdp 改了 id 加一）、`work.yaml`（怎麼做的、哪些測試作保）、`review.yaml`（最近一次 review）。格式的唯一一份在
+  `skills/newapp/harness-assets.md`，其他 skill 都指到它。
+- **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：有
+  `harness-assets/spec.yaml` 就叫 `terminu:newapp` 接著做；是 terminu-go 的 app 但沒有 harness-assets，問要不要接手（genwork）；
+  都不是就問要做新 app、review、發版還是回報。
+- **newapp**（`skills/newapp`，主 session 照著做）：讀 app 的 tgo 對到的那一版 tdp → 一次一題問需求，寫進 idea.md → 對 tdp 寫 spec.yaml
+  就開始做（不等確認）→ 照 tdp project 範本開 repo（新 app 多放 `.claude/rules/terminu.md`）→ 一個 task 一個 task 寫，每個 `make check`、
+  用 harness 的終端機開起來看、記進 work.yaml、跑 `check`、給使用者看、commit → 卡住叫 `terminu:reportgap`，remark 記 issue，程式標
+  `TODO(tdp #N)`。「繼續」先查 tgo 新版（要升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
+- **genwork**（`skills/genwork`）：接手先用 tdp 與 tgo 做的 app，從 README、CHANGELOG、開發文件與 git history 產生 harness-assets，
+  不讀程式碼；找不到的寫「不知道」；把開發文件搬進去後刪掉（只刪開發者文件）。
+- **review**（`skills/review`）：`check` → 使用者重新確認 `user` 作保 → 派 `terminu:reviewer`（`agents/reviewer.md`，只讀 harness-assets
+  與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的一項一項問使用者。
+- **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
+  `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`、問使用者才 tag 與 push。
+- **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
+  spec.yaml 那個 task 的 remark。
+- **檢查**（`internal/assets`，MCP 工具 `check`、命令列 `terminu-harness check`）：四個檔彼此對不對得上；app 照的 tdp 版本從 go.mod 的
+  terminu-go 讀它 CHANGELOG 的 `## vX — tdp vY` 推（每一版 tdp 都有一版 tgo 對到它），spec.yaml 的 tdp 編號拿那一版 tdp 標題裡的編號對；
+  work.yaml 的測試拿 `go test -list` 對、commit 拿 git 對。另外列出待做。
+- **commit hook**（`hooks/hooks.json` → `scripts/hook-commit.sh` → `terminu-harness hook-commit`，`internal/hook`）：PreToolUse 掛在
+  Bash 上。shell 先濾掉不提到 commit 的指令；harness 管的 repo 裡，commit 改了程式、work.yaml 沒改、訊息沒有 `Terminu-Work: unchanged`
+  就 exit 2 擋下並說明。
 - **MCP server**（`cmd/terminu-harness`，子指令 `mcp`）：plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（不放根目錄的 `.mcp.json`：在這個 repo 裡開 Claude Code 時它會被當成專案的 MCP 設定，`${CLAUDE_PLUGIN_ROOT}` 是空的就啟動失敗），server 名 `harness`，工具在
-  Claude Code 裡叫 `mcp__plugin_terminu_harness__<工具>`：`open`、`keys`、`screen`、`styles`、`image`、`resize`、`overflow`、`close`、`tdp_file`。
+  Claude Code 裡叫 `mcp__plugin_terminu_harness__<工具>`：`open`、`keys`、`screen`、`styles`、`image`、`resize`、`overflow`、`close`、`tdp_file`、
+  `tdp_section`（照編號回那一節的原文與「出處」是它的清單條目）、`check`。
 - **終端機**（`internal/term`、`internal/vt`）：`creack/pty` 開 app，`vt` 是從 terminu-go 複製的模擬器。讀 PTY 與處理畫面分兩個
   goroutine：一個只管讀（app 寫 PTY 不會被卡住），一個把讀到的全部一次餵給畫面，再用每一列的 checksum 找出變了哪幾列。錄影記的
   就是這些變化，時間取那一批第一塊輸出讀到的時刻；6ms 內的變化併成一格。
@@ -21,7 +41,14 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 
 ## 設計決定
 
-- **reviewer 跟寫程式的一方分開**：agent 從乾淨的 context 開始，看得到的只有 repo 與 tdp。不另外記「駁回過的問題」：不照做的寫成「偏離 tdp」（tdp departure-1），tdp 不清楚的進 fix 文件，都留在 repo，reviewer 下次讀得到。
+- **harness 是封閉的，tdp 是宇集**（user 2026-10-25）：app 的每個決定都要在 tdp 找得到根據，或在 tdp 明文寫「app 可以自行決定」的
+  範圍裡；找不到、不清楚、矛盾只能回報 tdp。tdp v0.10.0 照這個拿掉了「偏離」、開發者文件的規定，每一節都給了編號。
+- **review 不讀程式碼，拿 tdp 對紀錄**（user 2026-10-25）：用 tgo 做的 app 元件本身一定照 tdp，讀程式碼找問題是白工；harness 要管的
+  是 app 的機制有沒有違反 tdp。程式對不對交給測試（work.yaml 的作保）。代價：work.yaml 沒寫的 review 看不到，harness 不保證。
+- **reviewer 跟寫程式的一方分開**：agent 從乾淨的 context 開始，看得到的只有紀錄與 tdp。不另外記「駁回過的問題」：使用者選了先不處理
+  的留在 review.yaml，下一次照樣列出來。
+- **app 照的 tdp 版本不另外存**：從 go.mod 的 terminu-go 推。tdp 只多一句放行的小版本也要有自己的 tgo 版本（user 選 A，2026-10-26），
+  因為放行本身就是 review 的根據。
 - **寫程式時就做對，不做完才判**（user 2026-10-20）：原本的 judge（做完才判、一千三百多條、11 個 agent 看畫面）拿掉了。程式判得
   了的檢查放在 terminu-go 的測試 package，app 用哪一版 tgo 就跑哪一版的檢查；要判斷的交給 reviewer（發版前與手動叫）。harness 提
   要 tgo 做哪些檢查與「刁鑽的值」。judge 的程式與文件在 `fb89ad1` 還找得到。
@@ -42,7 +69,10 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - 終端機不送滑鼠事件。
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回到 app 的資料夾打 `/terminu`。
-- 還沒做：terminu-go 下一版有了 `CheckRepo` 與標了清單編號的涵蓋清單之後，newapp 的骨架改用 `CheckRepo`（E6-5 不用 app 自己寫）、reviewer 讀涵蓋清單。
+- 使用者在終端機自己打的 commit 不經過 hook，下一次 review 才看得到。
+- app 的 rule（`.claude/rules/terminu.md`）只有 newapp 做的新 app 有；既有成員的要放哪（寫進成員的 `.claude/` 還是由 plugin 在
+  SessionStart 帶進去）等 user 定。
+- 還沒做：terminu-go 下一版有了 `CheckRepo` 之後，newapp 的骨架改用 `CheckRepo`（E6 的 splash 測試不用 app 自己寫）。
 
 ## 用 hostu 試整套流程（2026-10-18～19）
 
