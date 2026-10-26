@@ -55,7 +55,14 @@ harness 的流程 review、加需求、發版。格式照 newapp 的 `harness-as
 
 tdp v0.10.0 起不管開發者文件（tdp P5），成員的開發文件搬進 harness-assets 後刪掉（user 在 terminu 定的）：
 
-- 刪 `docs/dev-remarks.md` 與 2. 讀過的設計文件。`docs/icon.svg`、README 用的 gif 留著。
+- **只刪開發者文件**：`docs/dev-remarks.md`，與 2. 讀過、內容已經搬進 harness-assets 的設計文件（例：`ui.md`、`ux.md`、
+  `function.md`、`<app>-ui-design.md`、以前 harness 寫的 `docs/spec.md`）。
+- **給使用者看的、程式會用到的都留著**：
+  - `docs/icon.svg`（splash 的正本，tdp E6）、README 用的 gif、`social-preview.png` 一定留著。
+  - README 連到的檔都留著（dev-remarks 除外）。例：README 連到的範例資料夾是給使用者的。
+  - Makefile 或程式會產生、會讀的檔留著。刪之前用 `grep -rn '<檔名>' Makefile *.mk cmd internal` 看有沒有提到它（只找檔名，不讀
+    程式）；有提到就不刪。
+  - 拿不準是不是開發者文件的，不刪，5. 跟使用者說。
 - README 兩份裡連到刪掉的檔的連結拿掉（tdp E7：README 第 10 段只連 CHANGELOG）。
 - 「建置與開發」「發布」裡沒有地方放、又值得留的（例：發布踩過的坑），寫進相關 task 的 remark；真的沒有對應的 task，就留在 5. 跟
   使用者說。刪掉的內容 git history 都找得到。
@@ -68,5 +75,5 @@ tdp v0.10.0 起不管開發者文件（tdp P5），成員的開發文件搬進 h
 3. 告訴使用者：
    - harness-assets 產生了，之後 review 會拿它判；要改內容就跟 harness 說。
    - 幾個 task、幾個取消的、寫了「不知道」的有哪幾個、沒有作保的有哪幾個。
-   - 刪了哪些檔，沒有地方放的內容。
+   - 刪了哪些檔、拿不準所以留著的檔，與沒有地方放的內容。
 4. 接著用 Skill 叫 `terminu:review`（從 /terminu 進來接手的，或是 review 叫你的，都回到 review）。

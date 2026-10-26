@@ -1,0 +1,16 @@
+{
+  "description": "Block a commit that changes a terminu app's code without harness-assets/work.yaml, unless its message says Terminu-Work: unchanged",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"${CLAUDE_PLUGIN_ROOT}/scripts/hook-commit.sh\""
+          }
+        ]
+      }
+    ]
+  }
+}

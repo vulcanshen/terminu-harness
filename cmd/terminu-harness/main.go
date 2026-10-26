@@ -8,6 +8,7 @@ import (
 
 	mcpserver "github.com/mark3labs/mcp-go/server"
 	"github.com/vulcanshen/terminu-harness/internal/assets"
+	"github.com/vulcanshen/terminu-harness/internal/hook"
 	"github.com/vulcanshen/terminu-harness/internal/server"
 )
 
@@ -19,6 +20,8 @@ const usage = `terminu-harness: the terminu harness's MCP server
 Usage:
   terminu-harness mcp           serve MCP on stdin and stdout (Claude Code starts it)
   terminu-harness check [repo]  check the app's harness-assets/ (the current directory when left out)
+  terminu-harness hook-commit   the PreToolUse hook on Bash: block a commit that changes the app's code
+                                without harness-assets/work.yaml (reads the hook's JSON on stdin)
   terminu-harness version       print the version (-v, --version)
   terminu-harness help          print this help (-h, --help)
 `
@@ -47,6 +50,8 @@ func main() {
 		if len(r.Problems) > 0 {
 			os.Exit(1)
 		}
+	case "hook-commit":
+		os.Exit(hook.Run(os.Stdin, os.Stderr))
 	case "version", "-v", "--version":
 		fmt.Println(version)
 	case "help", "-h", "--help":
