@@ -16,7 +16,10 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   `TODO(tdp #N)`。「繼續」先查 tgo 新版（要升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
 - **analysis**（`skills/analysis`）：接手先用 tdp 與 tgo 做的 app。從 README 寫 idea.md 與 spec.yaml，從 git commit history 寫
   work.yaml（測試名字從 `go test -list` 拿，用 `git log -S'func TestX('` 找加進它的 commit，對回 task），不讀程式碼也不讀舊的開發者
-  文件；找不到的寫「不知道」。放 `.claude/rules/terminu.md`，刪掉舊的開發者文件（只刪開發者文件），接著 review。
+  文件；找不到的寫「不知道」。放 `.claude/rules/terminu.md`，刪掉舊的開發者文件（只刪開發者文件），接著 review。tgo 不是最新版時
+  先升：統整舊版到新版 tdp 的 CHANGELOG，`make check` 修到過，測試蓋不到的條目一條一條套進 app（只有這一步讀程式）。理由：hostu
+  試用時只做 go get 與 `make check`，family.mk 少了 tdp v0.9.4 的 `make dev` 沒人抓到；tdptest 抓得到範本，抓不到 app 給的字與
+  README（terminu 2026-10-26 提的）。
 - **review**（`skills/review`）：`check` → 使用者重新確認 `user` 作保 → 派 `terminu:reviewer`（`agents/reviewer.md`，只讀 harness-assets
   與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的一項一項問使用者。
 - **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、

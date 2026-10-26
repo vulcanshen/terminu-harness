@@ -1,6 +1,6 @@
 ---
 name: analysis
-description: 接手一個還沒用 harness 管過的 terminu-go app：從 README 寫 idea.md 與 spec.yaml、從 git commit history 寫 work.yaml，讓 review 有依據，之後照 harness 的流程走。不讀程式碼；刪掉舊的開發者文件，放上 app 的規則檔，做完告訴使用者。/terminu 問了要接手、或 /terminu:review 找不到 harness-assets 時使用。
+description: 接手一個還沒用 harness 管過的 terminu-go app：從 README 寫 idea.md 與 spec.yaml、從 git commit history 寫 work.yaml，讓 review 有依據，之後照 harness 的流程走。寫紀錄不讀程式碼（terminu-go 不是最新版時先升，那一段要改程式）；刪掉舊的開發者文件，放上 app 的規則檔，做完告訴使用者。/terminu 問了要接手、或 /terminu:review 找不到 harness-assets 時使用。
 ---
 
 # 接手一個現成的 terminu app
@@ -9,7 +9,8 @@ description: 接手一個還沒用 harness 管過的 terminu-go app：從 README
 怎麼做的、哪些測試作保從 git commit history 來。有了紀錄，review 就有依據，之後照 harness 的流程 review、加需求、發版。格式照
 newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harness-assets.md`），動手前先讀它。
 
-- **來源只有 README 與 git history**（加上 `go test -list` 列出的測試名字）。不讀程式碼，也不讀舊的開發者文件：接手時的 spec
+- **來源只有 README 與 git history**（加上 `go test -list` 列出的測試名字）。寫紀錄不讀程式碼（先升 terminu-go 時例外：那一段要
+  改程式），也不讀舊的開發者文件：接手時的 spec
   只要寫出現在有哪些功能，每個做法的根據是引的 tdp 編號，不是文件裡寫的理由。兩樣都找不到的寫「不知道」，review 會列出來，之後
   寫程式的人補。
 - **不停下來確認**：產生完再告訴使用者，使用者要改就跟 harness 說。
@@ -23,9 +24,15 @@ newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harn
   `go list -m -f {{.Dir}} github.com/vulcanshen/terminu-go` 那個目錄）。之後讀 tdp 一律指定這一版。
 - **先升 terminu-go**：go.mod 的版本不是最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）時，問使用者要不要
   先升（AskUserQuestion，推薦升）：spec 照哪一版 tdp 寫，就要引那一版的編號，照舊版寫完馬上升版等於做兩次。tdp 早於 v0.10.0、或
-  CHANGELOG 沒寫對到哪一版 tdp 的，一定要先升：那時 components 的節還沒有編號，spec 引不了。升：
-  `go get github.com/vulcanshen/terminu-go@<最新的 tag>`、`go mod tidy`、`make check` 過（不過就照 terminu-go 的 CHANGELOG 修到過，
-  這一步要動程式），commit。使用者不升而 tdp 早於 v0.10.0：跟使用者說接手不了，結束。
+  CHANGELOG 沒寫對到哪一版 tdp 的，一定要先升：那時 components 的節還沒有編號，spec 引不了。使用者不升而 tdp 早於 v0.10.0：跟
+  使用者說接手不了，結束。升（這一段要改程式，analysis 只有這裡讀程式）：
+  1. `go get github.com/vulcanshen/terminu-go@<最新的 tag>`、`go mod tidy`。
+  2. 用 `tdp_file` 讀新版 tdp 的 `CHANGELOG.md`，把舊版之後到新版的每一版統整成一份，照 newapp 的「升版」2.（`../newapp/SKILL.md`）：
+     同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改 terminu-go 畫法、app 不用動的拿掉。
+  3. `make check` 過：不過就照 terminu-go 的 CHANGELOG 與失敗訊息修到過。
+  4. 統整剩下的是測試蓋不到、app 自己要改的事（app 給的字、README、CHANGELOG、project 的檔、app 自己的 popup 與流程）：一條一條
+     讀相關的程式與檔案，沒照新版的就改，改完再跑一次 `make check`。改不了的、tdp 寫不清楚的記下來，6. 跟使用者說。
+  5. commit（不加 Claude 署名），訊息寫升到哪一版，列出 4. 改了哪幾條。
 
 ## 2. 從 README 寫 idea.md 與 spec.yaml
 
@@ -83,6 +90,7 @@ tdp v0.10.0 起不管開發者文件（tdp P5），harness 管的 app 改用 har
 1. 跑 MCP 工具 `check`。格式、id、tdp 編號的問題改到沒有；測試相關的問題留著，交給 review；「沒有 tdp 根據」留到回報了 tdp。
 2. commit（不加 Claude 署名），harness-assets、規則檔、刪掉的文件一起，訊息寫「Take the app over with the terminu harness」這類。
 3. 告訴使用者：
+   - 先升了 terminu-go 的：升到哪一版、為了新版 tdp 改了哪幾條；改不了的、tdp 寫不清楚的，問要不要用 `terminu:reportgap` 回報。
    - harness-assets 產生了，之後 review 會拿它判；要改內容就跟 harness 說。
    - 幾個 task；寫了「不知道」的有哪幾個；沒有作保的有哪幾個。
    - tdp 找不到根據的有哪幾個：問要不要用 `terminu:reportgap` 回報 tdp（使用者同意才發），發了把 issue 補進那個 task 的 remark。

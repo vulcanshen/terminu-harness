@@ -61,7 +61,7 @@ tgo）在 `e36d757` 的 CLAUDE.md。
   決定同時更新 spec.yaml 與 work.yaml → review 覆蓋 review.yaml → 發版前跑 review，還有 accepted false 就問使用者「照樣發版還是
   繼續打磨」，不擋。在這幾步之間循環。打 `/terminu` 時先查 tgo 有沒有新版，使用者同意就升。
 - **升版**（user）：把 spec 的 `to` 到新版之間 tdp 各版的 CHANGELOG 先統整（同一節以最新的為主、只改 tgo 畫法的拿掉），再跟紀錄比對，
-  開新一份 spec。
+  開新一份 spec。對不到任何 task 的（project 的檔、README、CHANGELOG 的寫法）直接改（terminu 2026-10-26 提的）。
 - **review 不讀程式碼**（user 2026-10-25）：`terminu:reviewer` agent 從乾淨的 context 開始，只讀 harness-assets 與 tdp（`tdp_section`
   照編號讀），判紀錄寫的做法合不合 tdp。用 tgo 做的 app 元件本身一定照 tdp，讀程式碼找問題是白工。**只判紀錄寫了的**：程式做了、
   work.yaml 沒寫的，harness 不保證（user 選 A，寫進 README 與 app 的規則檔）。review 不拿 spec 判需求有沒有做到；發版時列出還沒做的
@@ -76,7 +76,8 @@ tgo）在 `e36d757` 的 CLAUDE.md。
   生成 work.yaml，這樣 review 的基礎就有了，接下來就可以回到 harness 的流程中」）：idea.md 也從 README 寫；測試名字從
   `go test -list` 拿，用 git history 找加進它的 commit 對回 task；不讀程式碼，也不讀舊的開發者文件。原本叫 genwork，也讀 CHANGELOG
   與開發者文件。接手後刪掉舊的開發者文件（tdp 不再管開發者文件，成員的開發者文件在接手時刪掉，user 在 terminu 定的；給使用者看的、
-  程式會用到的、拿不準的留著）。
+  程式會用到的、拿不準的留著）。tgo 不是最新版時先升：統整舊版到新版 tdp 的 CHANGELOG，`make check` 修到過，測試蓋不到的條目
+  套進 app，只有這一步讀程式（terminu 2026-10-26 提的：hostu 試用時 family.mk 少了 `make dev` 沒人抓到）。
 - **app 的規則檔放 app 自己的 `.claude/rules/terminu.md`**（user 2026-10-26，在 terminu 定的），不由 plugin 在 SessionStart 帶進去：
   newapp 開 repo 時放、analysis 接手時放。家族成員的接手在成員自己的 session 裡跑，算成員自己改 `.claude/`。
 - **tdptest 全部放在 terminu-go**（user 選 A）。user：「既然 lib 是 tgo, 那 tgo 自己作一個檢測 api, 應該更簡單? harness 直接使用就好，

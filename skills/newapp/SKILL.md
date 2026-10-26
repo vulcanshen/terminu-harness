@@ -128,7 +128,8 @@ spec 的重點，使用者看了成品再提要改的。
 2. 把 spec 的 `to` 到新版之間 tdp 每一版的 CHANGELOG 統整成一份：同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改
    terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。
 3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節、或做的事被新的規定
-   管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。
+   管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（project
+   的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。
 4. 回到 4，把 `spec` 改了的 task 照新版做一次。
 
 **使用者加需求、改需求**：寫進 idea.md，照「升版」的 3. 開新一份 spec（`from`、`to` 不變），新增或修改 task，回到 4。
