@@ -20,8 +20,12 @@ newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harn
 - 已經有 `harness-assets/`：不用接手，改叫 `terminu:review`。
 - 工作目錄不乾淨（`git status --porcelain` 有輸出）：停下來，問使用者要先 commit 還是先收起來。
 - **版本**：terminu-go 是 go.mod 裡的版本；tdp 是那一版 terminu-go 的 CHANGELOG 標題寫的（`## vX.Y.Z — tdp vA.B.C`；CHANGELOG 在
-  `go list -m -f {{.Dir}} github.com/vulcanshen/terminu-go` 那個目錄）。之後讀 tdp 一律指定這一版。CHANGELOG 沒寫這一版對到哪個
-  tdp（terminu-go v0.5.0 以前的舊版可能沒有）：跟使用者說，問要不要先升 terminu-go（`go get github.com/vulcanshen/terminu-go@latest`）。
+  `go list -m -f {{.Dir}} github.com/vulcanshen/terminu-go` 那個目錄）。之後讀 tdp 一律指定這一版。
+- **先升 terminu-go**：go.mod 的版本不是最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）時，問使用者要不要
+  先升（AskUserQuestion，推薦升）：spec 照哪一版 tdp 寫，就要引那一版的編號，照舊版寫完馬上升版等於做兩次。tdp 早於 v0.10.0、或
+  CHANGELOG 沒寫對到哪一版 tdp 的，一定要先升：那時 components 的節還沒有編號，spec 引不了。升：
+  `go get github.com/vulcanshen/terminu-go@<最新的 tag>`、`go mod tidy`、`make check` 過（不過就照 terminu-go 的 CHANGELOG 修到過，
+  這一步要動程式），commit。使用者不升而 tdp 早於 v0.10.0：跟使用者說接手不了，結束。
 
 ## 2. 從 README 寫 idea.md 與 spec.yaml
 
