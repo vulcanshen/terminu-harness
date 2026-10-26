@@ -15,102 +15,94 @@ tdp 做。
 user 要把 terminu 做成 harness（2026-10-17～18 在 ideas 與 terminu 的 session 談的；摘要在
 `~/Documents/sideproj/terminu/.local/harness/ideas-discussion-2026-10-18.md`）：一般人裝了 plugin，skill 問需求、照 tdp 用 terminu-go
 做出家族 app；做不到的開 issue 回 tdp，user 審核後更新。harness 分四層：說明（tdp、skill）、限制（terminu-go）、回饋（issue → tdp
-→ terminu-go）、**檢查** —— 前三層已經有，缺的是檢查。這個 repo 第一步就是做檢查：judge。2026-10-20 改了方向（見「方向」）：
-檢查不再是做完才跑的 judge，改成寫程式時就跑的 tdptest 與只看 diff 的 reviewer。
+→ terminu-go）、**檢查** —— 前三層已經有，缺的是檢查。這個 repo 第一步就是做檢查：judge。2026-10-20 改了方向、2026-10-25 改了
+架構（見「方向」）：不再做完才 judge；harness 替 app 記紀錄（`harness-assets/`），review 拿 tdp 對紀錄、不讀程式碼，程式對不對
+交給測試。
 
 **界線**：tdp 只放規範（app 該長什麼樣、怎麼操作）；harness 放流程（skill、agent、MCP server、script、範本）**與判斷**（怎麼判、
 怎樣算通過）。user（2026-10-19）：「tdp 應該就是單純規範，至於判斷應該在 harness 這邊，如果判斷都在 tdp 了，那乾脆整個 harness
-都搬去那邊，因為這是 harness 的核心」。harness 不替 tdp 補 app 的規定：開發時、tdptest 或 reviewer 遇到規範沒寫、寫得模糊的地方，回報成 tdp 的缺漏。2026-10-20 起，
-程式判得了的檢查放在 terminu-go（見「方向」）；harness 留下流程、專案骨架、reviewer、reportgap、MCP 終端機，以及決定要 tgo 做哪些
-檢查、提哪些刁鑽的值。
+都搬去那邊，因為這是 harness 的核心」。harness 不替 tdp 補 app 的規定：開發時或 review 遇到規範沒寫、寫得模糊的地方，回報成 tdp
+的缺漏。2026-10-20 起，程式判得了的檢查放在 terminu-go（見「方向」）；harness 留下流程、專案骨架、紀錄與它的檢查（`check`、commit
+hook）、reviewer、reportgap、MCP 終端機，以及決定要 tgo 做哪些檢查、提哪些刁鑽的值。
 
-## 方向（user 2026-10-20，在 harness 的 session）
+## 方向（user 2026-10-20 定方向、2026-10-25 定架構，在 harness 的 session）
 
-user：「我們應該是想辦法把東西作對，而不是做完以後花大把力氣 judge」。之前主力都放在 judge（做完才判、一千多條、十批 agent 看
-畫面），偏離了原本的目的：**用這個 plugin，簡單做出符合 tdp 的 TUI 工具**。對照 harness engineering（模型以外的一切：說明、限制、
-回饋；讓 agent 一開始就做對、做錯當場知道），驗證該是寫程式時一直跑、便宜、結果固定的檢查，不是做完之後的大考。user 對 judge：
-「如果要評價 tdp 適用性，那不如多寫一個 tdp 測試工具，直接對 app 跑那個工具就好，不需要用 ai 去圖像檢查」。**這一節取代下面各節
-跟 judge 有關的決定。**
+2026-10-20，user：「我們應該是想辦法把東西作對，而不是做完以後花大把力氣 judge」。對照 harness engineering（模型以外的一切：說明、
+限制、回饋；讓 agent 一開始就做對、做錯當場知道），驗證該是寫程式時一直跑、便宜、結果固定的檢查，不是做完之後的大考。
+
+2026-10-25，user 從頭重想了架構（「我想要重新思考我們這個 harness 的架構」），流程與檔案結構是 user 自己寫定的：**用這個 plugin
+很快做出符合 tdp 的 terminu app，使用者只管功能**，UI/UX 交給 terminu。harness 只做兩件事：「創建 terminu 成員」與「檢查 app 的
+機制有沒有違反 tdp」；程式對不對是測試的事。
+
+**這一節取代下面各節跟 judge 有關的決定。** 2026-10-20 版的細節（reviewer 看 diff、progress.md、「偏離 tdp」、tdptest 怎麼提給
+tgo）在 `e36d757` 的 CLAUDE.md。
 
 - **只管用 terminu-go 做的 app**（user 選 A：「terminu harness 當然只看 tdp 家族就好, 就是用 tgo 做的東西」）。取代 2026-10-18 的
   「能判任何 TUI app」。
-- **條目照誰保證分三層**（我提的，user 沒有異議）：terminu-go 直接保證的（用了元件就對，不在每個 app 重測）；程式檢查得了的
-  （tdptest）；要判斷的（元件選得對不對、哪些動作要 confirm、措辭、UX 合不合需求，交給 reviewer）。tgo 的 bug 回報 terminu-go，
-  app 先用暫時的做法標 `TODO(tgo #N)`，harness 不處理。user 問「如果 app 有問題，那也是 tgo 的問題」：tgo 只保證元件怎麼動，
-  用哪個、什麼時候用、app 給的字、專案檔是 app 的事（hostu 第一次 judge 的 12 條違反，tgo 的只有 2 條）。
-- **plugin 的產出**：
-  - `/terminu` 與 newapp：從需求到完成的流程。
-  - 專案骨架：範本、README、dev-remarks、`tdp_test.go`，開 repo 時一次產生。
-  - **tdptest**：Go 的測試 package，app 的 `go test`（所以 `make check`）會跑；每個檢查標清單編號，失敗時指出是哪一條。原本定
-    分兩層（user 選 A：terminu-go 提供測試用的 driver，在測試裡開 app、送鍵、拿畫面，像 `httptest`；harness 的 tdptest 建在它上面），
-    後來改成全部放在 tgo（見下面「tdptest 全部放在 terminu-go」）。plugin 交出去的是骨架裡的 `tdp_test.go`。
-  - **reviewer**（agent）：只看這次的 diff，判 tgo 的用法與程式判不了的事。
-  - reportgap：開發者與 reviewer 共用這一個。
-  - MCP 終端機：讓 agent 開發時看得到自己寫的畫面，不再拿來判。
+- **harness 是封閉的，tdp 是宇集**（user 2026-10-25）：app 的每個決定都要在 tdp 找得到根據，或在 tdp 明文寫「app 可以自行決定」的
+  範圍裡（範圍內 app 自己處理 UI/UX，甚至可以不用 tgo）。找不到、不清楚、矛盾只能回報 tdp；比較差但合 tdp 的暫時做法照樣回報，
+  連暫時做法都沒有，就只有那個功能等。**不再有「偏離」**（user：「連放行的地方都要是明文放行，就是明確寫『app 可以自行決定』」）。
+  harness 照這個回報了 tdp：tdp v0.10.0 拿掉了「偏離」與開發者文件的規定，P5 改成明文放行，每一節都給了編號（引用寫 `tdp K4`、
+  `tdp panel.5`、整個檔 `tdp confirm`；v0.10.2 加了範本路徑 `tdp project/install.sh` 與清單條目 `tdp K9-6`）。
+- **紀錄放 app 的 `harness-assets/`**（user 2026-10-25 定的結構；格式的唯一一份在 `skills/newapp/harness-assets.md`）：
+  - `idea.md`：使用者的需求，跟著互動一直更新。
+  - `spec.yaml`：需求與 tdp 的對照。`id` 在 idea.md 或 tdp 任一個改了時加一（同時改只加一次；user：兩者是「或」）；`from`、`to`
+    是 tdp 版本（第一份 `from: 0`）；`tasks` 每筆有 `id`（整個 app 不重複使用）、`spec`（最後新增或修改它的那份 spec）、`request`、
+    `tdp`、`canceled`（原因）、`remark`。只新增、更新，反映現況。開發中的決定（設計、remark、做不到而取消）不加 id。
+  - `work.yaml`：spec 的每個 task 一筆，`id`、`spec`（照第幾份 spec 做的）、`implementation`、`test`、`canceled`。只新增、更新。
+  - `review.yaml`：最近一次 review，`spec` 與每個 task 的 `accepted`、`reason`，每次覆蓋。
+  - 做到哪：spec 有、work 沒有 → 要做；task 的 `spec` 比 work 的大 → 需求改過，要重做。不要 progress.md。
+  - **app 照的版本不另外存**：tgo 看 go.mod，tdp 從那一版 tgo 的 CHANGELOG 推（`## v0.5.2 — tdp v0.10.2`）。每一版 tdp 都有一版
+    tgo 對到它（user 選 A，2026-10-26），不加「只多放行的小版本當成前一版」的後備規則：放行本身就是 review 的根據。
+- **我提的預設**（user 沒有異議）：implementation 寫觸發、經過、讀寫、用到的 tgo 元件與畫面上的字，一個入口一行；test 寫測試名字
+  （`check` 拿 `go test -list` 對），寫不成測試的記 `user: {date, how}`、每次 review 請使用者重新確認，再不行才指出 `commit:`；
+  review 每次全部重判；reason 開頭標「違反」「沒有測試」「tdp 不清楚」。
+- **流程**（user 2026-10-25）：`/terminu` 描述需求 → 記進 idea.md → 依 idea.md 與 tdp 產生、更新 spec.yaml → 照 spec 建置，互動中的
+  決定同時更新 spec.yaml 與 work.yaml → review 覆蓋 review.yaml → 發版前跑 review，還有 accepted false 就問使用者「照樣發版還是
+  繼續打磨」，不擋。在這幾步之間循環。打 `/terminu` 時先查 tgo 有沒有新版，使用者同意就升。
+- **升版**（user）：把 spec 的 `to` 到新版之間 tdp 各版的 CHANGELOG 先統整（同一節以最新的為主、只改 tgo 畫法的拿掉），再跟紀錄比對，
+  開新一份 spec。
+- **review 不讀程式碼**（user 2026-10-25）：`terminu:reviewer` agent 從乾淨的 context 開始，只讀 harness-assets 與 tdp（`tdp_section`
+  照編號讀），判紀錄寫的做法合不合 tdp。用 tgo 做的 app 元件本身一定照 tdp，讀程式碼找問題是白工。**只判紀錄寫了的**：程式做了、
+  work.yaml 沒寫的，harness 不保證（user 選 A，寫進 README 與 app 的規則檔）。review 不拿 spec 判需求有沒有做到；發版時列出還沒做的
+  需求，不擋。
 - **reviewer 什麼時候跑**（user 2026-10-20）：「應該不管是不是 newapp, 有兩種方式可以叫 reviewer, 1 個是 app 發版前， 1 個是
-  手動呼叫」。不在 newapp 每寫完一塊就自動跑。怎麼接上（user 選 A）：harness 加 `/terminu:release`，先叫 reviewer 看上一個 tag
-  到現在的 diff，有附出處的問題就停下來修（同一塊最多來回兩次），沒有才問使用者要不要打 tag、push；手動叫用 `/terminu:review`，
-  預設看還沒 commit 的改動加上這個 branch 還沒 push 的 commit，也可以指定範圍。理由：打 tag 本來就先問使用者，範本檔不用改、不靠
-  CI。兩個都在 app 自己的 session 裡打（plugin 本來就是這樣用：誰打 `/terminu`，就由那個 session 走流程）。
-- **reviewer 的做法**（我提的，user 看過沒有異議）：兩個 skill 派 `terminu:reviewer` agent，只讀、從乾淨的 context 開始，跟寫程式的
-  一方分開。讀 diff、`docs/spec.md`、dev-remarks 的「偏離 tdp」、`docs/<app>-terminu-fix.md`、diff 碰到的元件的 tdp 檔與清單條目；
-  tgo 有了涵蓋清單之後也讀它，tgo 保證的條目跳過。每個問題寫哪個檔哪一行、什麼問題、出處（tdp 條目或 spec 的哪一句）、怎麼改；
-  沒出處的只是建議。主 session 修掉再叫它看修的那一段，最多兩次；還不同意的問使用者：修掉、寫成「偏離 tdp」（附理由）、或回報 tdp。
-  不另外記「駁回過」：定過的都留在 repo（spec、偏離 tdp、fix 文件），reviewer 下次讀得到。
+  手動呼叫」：`/terminu:release` 與 `/terminu:review`，都在 app 自己的 session 裡打。
+- **`/terminu:release` 包整個發版**（user 選 A）：照 tdp project.6、project.7：工作目錄乾淨、`make check`、review、CHANGELOG 的
+  `## Unreleased` 改成 `## vX.Y.Z — tdp <版本>`，問使用者版號與要不要打 tag，同意才 tag、push。
+- **commit hook**（user 同意）：harness 管的 app 裡，commit 改了程式、`harness-assets/work.yaml` 沒改就擋；行為沒變的在 commit 訊息
+  最後加一行 `Terminu-Work: unchanged`。
+- **接手現成的 app：`/terminu:analysis`**（user 2026-10-26：「依照專案的 readme.md 生成 spec.yaml，然後依照 git commit history，
+  生成 work.yaml，這樣 review 的基礎就有了，接下來就可以回到 harness 的流程中」）：idea.md 也從 README 寫；測試名字從
+  `go test -list` 拿，用 git history 找加進它的 commit 對回 task；不讀程式碼，也不讀舊的開發者文件。原本叫 genwork，也讀 CHANGELOG
+  與開發者文件。接手後刪掉舊的開發者文件（tdp 不再管開發者文件，成員的開發者文件在接手時刪掉，user 在 terminu 定的；給使用者看的、
+  程式會用到的、拿不準的留著）。
+- **app 的規則檔放 app 自己的 `.claude/rules/terminu.md`**（user 2026-10-26，在 terminu 定的），不由 plugin 在 SessionStart 帶進去：
+  newapp 開 repo 時放、analysis 接手時放。家族成員的接手在成員自己的 session 裡跑，算成員自己改 `.claude/`。
+- **tdptest 全部放在 terminu-go**（user 選 A）。user：「既然 lib 是 tgo, 那 tgo 自己作一個檢測 api, 應該更簡單? harness 直接使用就好，
+  這樣 harness 也不用追版本，反正 app 用哪一版的 tgo, 就會跟著哪一版的 tgo test」。terminu-go v0.3.0 起有 `tdptest`（driver、
+  `EachIconWidth`、`Check`、`Tricky`／`Sizes`／`Mashes`），app 的測試一律用它；harness 不改 tgo，要加檢查就寫成回報、等 tgo 發版。
+  - **harness 提刁鑽的值**：開發 app 時踩到的值（控制字元、ESC 序列、寬字元、超長字串、空值、極小的終端機、一次一串按鍵）經
+    reportgap 交給 tgo 收進自己的測試資料；「該長什麼樣」由 tgo 照 tdp 判。user 問過由 harness 連期望結果一起給：那等於 harness
+    又在寫檢查，不做。
+  - **涵蓋清單**：tgo 的測試標清單編號，產生「哪些條目有測試」的清單；harness 不另外驗 tgo（驗 lib 不是 harness 的事，就像做網站
+    的 harness 不驗 React）。
+  - 不在測試裡重算版面（那只驗得出 tgo 跟自己一致），只量畫出來的結果。
+- **三個環**：內環（寫一個 task → `make check`、看畫面 → 更新 work.yaml、跑 `check` → commit；review 在發版前與手動叫時跑）；外環
+  （回報 → tdp、tgo 發版 → harness 跟上 → app 升版、拿掉 TODO）；學習環（同一種錯出現第二次 → 請 tgo 加進 tdptest，或改 API 讓錯的
+  寫法寫不出來）。
 - **試整套流程時在 app 自己的 session**（user 選 A）：在 app 的資料夾開新的 session、只帶 plugin（例
   `claude --plugin-dir ~/Documents/sideproj/terminu-harness`），從 `/terminu` 開始走；harness 的 session 只改 harness，看那邊卡在
   哪裡再回來修 skill。理由：harness 的 session 知道太多（CLAUDE.md、tdp 的細節、user 講過的話），會不自覺替 skill 寫不清楚的地方
   補上，測不出來。取代 2026-10-18 的「過程中不會開啟新的 session，由你直接進行整個流程」。
-- **`/terminu:release` 包整個發版**（user 選 A）：工作目錄乾淨、`make check`、reviewer、CHANGELOG 的 `## Unreleased` 改成
-  `## vX.Y.Z — tdp <版本>`（tdp project-29），問使用者版號與要不要打 tag，同意才 tag、push（push 觸發 `release.yml`）。
-- **三個環**：內環（寫一塊 → `make check`、看畫面 → 有錯就改，全過就 commit；reviewer 在發版前與手動叫時跑）；外環（回報 → tdp、tgo 發版 → harness
-  跟上 → app 回來拿掉 TODO）；學習環（同一種錯出現第二次 → 做成 tdptest 的檢查，或請 tgo 改 API 讓錯的寫法寫不出來）。
-- **reviewer 不跟開發無限來回**（我提的，user 沒有異議）：只看這次的 diff；每個問題要指出 tdp 條目或 spec 的哪一句，指不出來的
-  只是建議、不擋；判斷不下來的（tdp 沒寫清楚）發 issue、標 TODO、往下做；寫進 spec 或 dev-remarks「偏離 tdp」的不再提；同一塊
-  最多來回兩次，還沒解就問使用者。
-- **tdptest 第一版**（user 選 A）：driver（每次畫面更新都自動檢查 L4；一個 helper 讓整段測試照三種 icon 寬度各跑一次，E5）、
-  檔案檢查（範本 diff、README 的 12 段、dev-remarks 的 8 節、`tdp` 前綴、splash 與 `docs/icon.svg` 一致）、第一次啟動的掃描（五種
-  尺寸下走過每個 panel 的 Space menu、global operation popup、`?`，再縮到比最低尺寸小，L1）。掃壞檔（把設定目錄的檔改壞再開）、
-  自動打開每個動作放第二版。依據：hostu 第一次 judge 自己的 10 條違反，references-1 靠檔案檢查、E6-4 與 E5-11 靠 driver 量每一格、
-  panel-77 與 78 靠掃壞檔；popup-69、note-69、toast-18 歸 reviewer；L2-1 該請 tgo 把 statusbar 改成固定寬度的欄位。
-- **app 怎麼交給 tdptest**（user 選 A）：app 給一個不帶參數的建構函式 `func() *terminu.App`，位置照使用者啟動時一樣從環境變數讀；
-  tdptest 先把 `HOME`、`<APP>__CONFIG`、`<APP>__DATA`（名稱從 `App.Name` 推）指到暫存目錄再呼叫，順便驗了 E3 的覆寫。app 自己的
-  系統檔用 `Env`（環境變數 → 沙盒裡的路徑）與 `Seed`（放初始的檔）補。`tdptest.Check(t, tdptest.App{Repo, New, Env, Seed})` 跑
-  檔案檢查與掃描；`tdptest.Start`、`tdptest.EachIconWidth` 給 app 自己的流程測試用。
-- **tdptest 全部放在 terminu-go**（user 選 A，取代上面的「分兩層」）：driver、畫面檢查、專案檔檢查都在 tgo（例
-  `github.com/vulcanshen/terminu-go/tdptest`）。user：「既然 lib 是 tgo, 那 tgo 自己作一個檢測 api, 應該更簡單? harness 直接使用就好，
-  這樣 harness 也不用追版本，反正 app 用哪一版的 tgo, 就會跟著哪一版的 tgo test」。好處：檢查跟著 tgo 對應的那一版 tdp、不用另外
-  發給 app（harness 還沒上 GitHub 也沒關係）、不用為了檢查開放 tgo 的內部、學習環的兩條路都在 tgo。代價：harness 不改 tgo，要加
-  檢查就寫成回報、等 tgo 發版；檢查與實作是同一方寫的，tgo 讀錯 tdp 的地方，檢查也會跟著錯。上面「tdptest 第一版」「app 怎麼交給
-  tdptest」照舊，變成 harness 向 tgo 提的需求。
-  - **harness 提刁鑽的值**：開發 app 時踩到的值（控制字元、ESC 序列、Tab、寬字元、超長字串、空值、極小的終端機、一次送一串按鍵）
-    整理成一份，經 reportgap 交給 tgo 收進自己的測試資料，每個元件都跑一遍；踩到新的再補（學習環）。依據：hostu 回報的 HU1～HU12
-    有一半是這種（HU2、HU4、HU8、HU10、HU11、HU12）。「該長什麼樣」照舊由 tgo 照 tdp 判，所以值抓得到漏掉（HU11），抓不到讀錯
-    （HU12），讀錯靠 reviewer 與回報 tdp。user 問過由 harness 連期望結果一起給：那等於 harness 又在寫檢查，要約定格式、追版本，不做。
-  - **涵蓋清單**：tgo 的測試標清單編號，產生一份「哪些條目有測試」的清單（放進 tgo 自己的 `make check`），漏測的一看就知道。
-    harness 不另外驗 tgo（驗 lib 不是 harness 的事，就像做網站的 harness 不驗 React），只讀這份清單，讓 reviewer 只看剩下的。
-  - 不在測試裡重算版面（border 幾格、label 幾格）：那是重寫一份 tgo 的計算，只驗得出 tgo 跟自己一致；只量畫出來的結果（每一列的
-    寬度、某個位置的字、某一格的顏色）。driver 在記憶體裡跑 `Update`、`Frame()`，不開終端機。
-  - **現況**：terminu-go v0.3.0（2026-10-20）發了 tdptest 第一版：driver（`Start`、`Press`、`Type`、`Advance`……）、
-    `EachIconWidth`、`Check`、`Tricky`／`Sizes`／`Mashes`。跟 harness 提的不同處：`Env` 是 `func(home string) map[string]string`；
-    檔案檢查（`CheckRepo`）與標了清單編號的涵蓋清單排在下一版。app 自己的計時器要用 `App.Tick` 測試才推得動（README 的
-    「計時器：`App.Tick`」）。做的時候抓到 3 個 lib bug（含 hostu 踩過的「打 `Home` 被當成 Home 鍵」：KeyName 把一串字當鍵名）。
 - **跟 terminu-go 直接講**（user 2026-10-20：「tgo 那邊你可以直接跟他 session 溝通」）：給 terminu-go 的需求與回報，在本機直接
   用 SendMessage 跟 terminu-go 的 session 談，不用先給 user 看草稿。tdp（terminu 的 session）照舊先給 user 看。
 - **terminu 的請求與通知直接照做**（user 2026-10-21：「可以接受 terminu 那邊的操作請求和通知」）：terminu 的 session 請 harness
   做的事（跟上新版、改 harness 的檔、commit）不用再問 user，做完回報 terminu。user 2026-10-26 確認範圍包括改 harness 自己的
   CLAUDE.md。建 GitHub repo、push、打 tag、發布照舊先問 user。
-- **拿掉 judge**（user 選 A；2026-10-20：「judge 現在就可以拆了」）：成績單、十批 judge agent、`judge_*` 工具都不要了。要看一個現成的 tgo app：跑 tdptest，再讓
-  reviewer 看整個 repo。2026-10-20 拆了：`skills/judge`、`agents/judge.md`、`internal/run`、`internal/scan`、`internal/appgit`、
-  清單解析、`judge_*` 工具、`terminu-harness report`；MCP 終端機與 `tdp_file` 留著。程式在 `fb89ad1` 還找得到；舊的成績單留在
-  `~/.terminu-harness/judge/`（hostu 的 progress.md 有引用）。
-- **不留 gene**（user 選 A）：app 只看通過或不通過 —— `make check` 全過，而且 reviewer 沒有附出處的問題。harness 可以另外記
-  tdptest 涵蓋了清單的幾條，量的是 harness 自己的進度，不是 app 的分數。
-- **外環怎麼接上**（user 選 A）：harness 在 terminu 通知發版時跟上（照舊）；app 那邊，目前目錄有 `progress.md` 時，每次打
-  `/terminu` 不用選「繼續」就先查：回報有沒有回應、tgo 有沒有新版（tdptest 跟著 tgo）、程式裡還剩哪些 `TODO(tdp #N)`、`TODO(tgo #N)`，
-  講給使用者聽再接著做。不排定時的 routine。
-- 2026-10-20 在本機告訴了 terminu 的 session（user 選 A），請它照這些更新
-  `~/Documents/sideproj/terminu/.local/harness/README.md`。
+- **拿掉 judge**（user 選 A；2026-10-20：「judge 現在就可以拆了」）：成績單、十批 judge agent、`judge_*` 工具都不要了；MCP 終端機與
+  `tdp_file` 留著。程式在 `fb89ad1` 還找得到；舊的成績單留在 `~/.terminu-harness/judge/`。
+- **不留 gene**（user 選 A）：app 不數分數，看 review.yaml 裡每個 task 合不合 tdp。
 
 ## harness 的全貌（user 2026-10-18，在 harness 的 session）
 
@@ -132,7 +124,8 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
   或 `terminu:judge`；開發由主 session 寫，judge 照舊是獨立的 agent；進度放 app repo 的 `.local/terminu/progress.md`（tdp 的
   gitignore 範本不收 `.local/`），規格放 `docs/spec.md`；issue 一律先給使用者看草稿、同意才發（`terminu:reportgap`）；完成後
   judge，違反的條目問使用者要不要修。等 issue 的方式：使用者回來打 `/terminu` 選「繼續」，harness 查 issue 與新 tag。
-  （2026-10-20 改：judge 拿掉；不用選「繼續」，打 `/terminu` 就先查，見「方向」。）
+  （2026-10-20 改：judge 拿掉；不用選「繼續」，打 `/terminu` 就先查，見「方向」。2026-10-25 起沒有 progress.md 與
+  `docs/spec.md`，紀錄在 `harness-assets/`。）
 
 ## 測試：用 harness 做 hostu（user 2026-10-18）
 
