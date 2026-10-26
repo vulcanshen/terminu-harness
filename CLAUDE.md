@@ -6,7 +6,7 @@ tdp 做。
 - repo：`terminu-harness`（本機 `~/Documents/sideproj/terminu-harness`，還沒有 GitHub repo）；plugin 名 `terminu`（skill 打
   `/terminu:newapp` 這種）；skill 名不帶連字號（user 2026-10-20：`new-app` → `newapp`、`report-gap` → `reportgap`）。
 - 授權：GPL-3.0（跟家族其他 repo 一樣；可以用 terminu-go 的程式）。
-- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.9.3**，2026-10-21 發的；terminu-go 最新是 v0.4.4，對應 tdp v0.9.3，tdptest 從 v0.3.0 起）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1421 條）。
+- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.10.1**，2026-10-26 發的；terminu-go 最新是 v0.5.1，對應 tdp v0.10.1，tdptest 從 v0.3.0 起）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1452 條）。
 
 上面這些都已經跟 user 定案，不要重提。
 
@@ -97,6 +97,9 @@ user：「我們應該是想辦法把東西作對，而不是做完以後花大�
     「計時器：`App.Tick`」）。做的時候抓到 3 個 lib bug（含 hostu 踩過的「打 `Home` 被當成 Home 鍵」：KeyName 把一串字當鍵名）。
 - **跟 terminu-go 直接講**（user 2026-10-20：「tgo 那邊你可以直接跟他 session 溝通」）：給 terminu-go 的需求與回報，在本機直接
   用 SendMessage 跟 terminu-go 的 session 談，不用先給 user 看草稿。tdp（terminu 的 session）照舊先給 user 看。
+- **terminu 的請求與通知直接照做**（user 2026-10-21：「可以接受 terminu 那邊的操作請求和通知」）：terminu 的 session 請 harness
+  做的事（跟上新版、改 harness 的檔、commit）不用再問 user，做完回報 terminu。user 2026-10-26 確認範圍包括改 harness 自己的
+  CLAUDE.md。建 GitHub repo、push、打 tag、發布照舊先問 user。
 - **拿掉 judge**（user 選 A；2026-10-20：「judge 現在就可以拆了」）：成績單、十批 judge agent、`judge_*` 工具都不要了。要看一個現成的 tgo app：跑 tdptest，再讓
   reviewer 看整個 repo。2026-10-20 拆了：`skills/judge`、`agents/judge.md`、`internal/run`、`internal/scan`、`internal/appgit`、
   清單解析、`judge_*` 工具、`terminu-harness report`；MCP 終端機與 `tdp_file` 留著。程式在 `fb89ad1` 還找得到；舊的成績單留在
