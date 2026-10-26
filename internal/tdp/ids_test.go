@@ -60,12 +60,13 @@ func TestIDsOfTDP(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, id := range []string{"K4", "P5", "terms.3", "panel.5", "confirm.2", "input.10", "project.3", "confirm", "input", "components", "project"} {
+	for _, id := range []string{"K4", "P5", "terms.3", "panel.5", "confirm.2", "input.10", "project.3", "confirm", "input", "components", "project",
+		"project/install.sh", "project/gitignore", "K9-6", "note-78", "color-picker-10"} {
 		if !ids.Has(id) {
 			t.Errorf("%s not in tdp v0.10.1", id)
 		}
 	}
-	for _, id := range []string{"panel.99", "rules", "principle", "items"} {
+	for _, id := range []string{"panel.99", "rules", "principle", "items", "project/README-zh_TW.md", "project/nothing.sh", "K9-99", "toast-20"} {
 		if ids.Has(id) {
 			t.Errorf("%s should not be citable", id)
 		}
@@ -163,5 +164,46 @@ func TestSectionsOfTDP(t *testing.T) {
 	}
 	if _, err := (Source{Repo: repo}).Sections("v0.10.1", []string{"panel.99"}); err == nil {
 		t.Error("panel.99 found")
+	}
+	secs, err = Source{Repo: repo}.Sections("v0.10.1", []string{"tdp K9-6", "K9", "project/install.sh"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got []string
+	for _, sec := range secs {
+		got = append(got, sec.ID)
+	}
+	if strings.Join(got, " ") != "K9-6 K9 project/install.sh" {
+		t.Errorf("an item, its source asked for again, a template: %v", got)
+	}
+	if !strings.HasPrefix(secs[0].Text, "| K9-6 | K9 |") || secs[0].Path != ItemsFile {
+		t.Errorf("K9-6: %q in %s", secs[0].Text, secs[0].Path)
+	}
+	if !strings.Contains(secs[2].Text, "tdp project/install.sh") {
+		t.Errorf("project/install.sh: %q", secs[2].Text[:60])
+	}
+}
+
+func TestItems(t *testing.T) {
+	got := items([]byte("| 編號 | 出處 | 檢查什麼 |\n|---|---|---|\n" +
+		"| K9-6 | K9 | 規則 |\n" +
+		"| color-picker-9 | color-picker.2（圖） | 圖 |\n" +
+		"| F3-1 | F3、K4 | 兩條 |\n" +
+		"| panel.5 | 不是條目 | x |\n"))
+	if len(got) != 3 || strings.Join(got["color-picker-9"], " ") != "color-picker.2" || strings.Join(got["F3-1"], " ") != "F3 K4" {
+		t.Errorf("items: %v", got)
+	}
+}
+
+func TestTemplate(t *testing.T) {
+	for p, want := range map[string]bool{
+		"project/install.sh":      true,
+		"project/gitignore":       true,
+		"project/README-zh_TW.md": false,
+		"principle/icon.svg":      false,
+	} {
+		if template(p) != want {
+			t.Errorf("template(%s) = %v", p, !want)
+		}
 	}
 }

@@ -20,7 +20,9 @@ type Section struct {
 }
 
 // Sections are the parts of tdp at the tag that ids cite: rules, principle,
-// terms and section IDs (K4, P5, terms.3, panel.5) or file names (confirm).
+// terms and section IDs (K4, P5, terms.3, panel.5), file names (confirm),
+// template paths (project/install.sh) or checklist items (K9-6). An item comes
+// as its row, followed by the sections it names as its source.
 func (s Source) Sections(tag string, ids []string) ([]Section, error) {
 	all, err := s.IDs(tag)
 	if err != nil {
@@ -31,8 +33,26 @@ func (s Source) Sections(tag string, ids []string) ([]Section, error) {
 		return nil, err
 	}
 	var out []Section
-	for _, id := range ids {
-		id = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(id), "tdp "))
+	seen := map[string]bool{}
+	for i := 0; i < len(ids); i++ {
+		id := strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(ids[i]), "tdp "))
+		if seen[id] {
+			continue
+		}
+		seen[id] = true
+		if srcs, ok := all.Items[id]; ok {
+			out = append(out, Section{ID: id, Path: ItemsFile, Text: itemRow(items, id)})
+			ids = append(ids, srcs...)
+			continue
+		}
+		if all.Templates[id] {
+			b, err := s.File(tag, id)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, Section{ID: id, Path: id, Text: string(b)})
+			continue
+		}
 		if p, ok := all.Files[id]; ok {
 			b, err := s.File(tag, p)
 			if err != nil {
@@ -117,6 +137,16 @@ func itemRows(items []byte, keep func(src string) bool) []string {
 		}
 	}
 	return rows
+}
+
+// itemRow is the checklist's table row of the item id.
+func itemRow(items []byte, id string) string {
+	for _, line := range strings.Split(string(items), "\n") {
+		if strings.HasPrefix(line, "| "+id+" |") {
+			return line
+		}
+	}
+	return ""
 }
 
 // sources are the sections a source column names: several are separated by

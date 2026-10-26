@@ -14,8 +14,10 @@ func fakeEnv() Env {
 		Versions: func(string) (string, string, error) { return "v0.5.1", "v0.10.1", nil },
 		IDs: func(string) (tdp.IDs, error) {
 			return tdp.IDs{
-				Sections: map[string]string{"K9": "", "P5": "", "panel.1": "", "panel.5": "", "form.4": ""},
-				Files:    map[string]string{"confirm": "", "form": ""},
+				Sections:  map[string]string{"K9": "", "P5": "", "panel.1": "", "panel.5": "", "form.4": ""},
+				Files:     map[string]string{"confirm": "", "form": ""},
+				Templates: map[string]bool{"project/install.sh": true},
+				Items:     map[string][]string{"K9-6": {"K9"}},
 			}, nil
 		},
 		Tests:  func(string) (map[string]bool, error) { return map[string]bool{"TestList": true, "TestQuit": true}, nil },
@@ -48,7 +50,7 @@ tasks:
   - id: 2
     spec: 2
     request: 按 q 離開，先問
-    tdp: [tdp K9, tdp confirm]
+    tdp: [tdp K9, tdp confirm, tdp K9-6, tdp project/install.sh]
     remark:
       - 離開前一律問，因為書只在記憶體裡
   - id: 3
@@ -120,7 +122,7 @@ tasks:
   - id: 1
     spec: 1
     request: 清單
-    tdp: [panel.5, tdp panel.99]
+    tdp: [panel.5, tdp panel.99, tdp K9-99, tdp project/README-zh_TW.md]
   - id: 2
     spec: 3
     request: 沒有根據
@@ -166,6 +168,8 @@ tasks:
 		"spec.yaml：to 是 \"v0.10.0\"，但 go.mod 的 terminu-go v0.5.1 對到 tdp v0.10.1",
 		"spec.yaml task 1：tdp 寫成 \"panel.5\"",
 		"spec.yaml task 1：\"tdp panel.99\" 在這一版 tdp 裡找不到",
+		"spec.yaml task 1：\"tdp K9-99\" 在這一版 tdp 裡找不到",
+		"spec.yaml task 1：\"tdp project/README-zh_TW.md\" 在這一版 tdp 裡找不到",
 		"spec.yaml task 2：spec 是 3",
 		"spec.yaml task 2：沒有 tdp 根據",
 		"spec.yaml task 2：id 重複",

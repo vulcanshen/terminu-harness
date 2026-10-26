@@ -196,7 +196,7 @@ func checkSpec(s *Spec, ids *tdp.IDs, add addFunc) {
 			id = strings.TrimSpace(id)
 			switch {
 			case !ok || id == "":
-				add(SpecFile, t.ID, "tdp 寫成 %q：一律用 tdp 加編號，例 \"tdp K4\"、\"tdp panel.5\"、\"tdp confirm\"", c)
+				add(SpecFile, t.ID, "tdp 寫成 %q：一律用 tdp 加編號，例 \"tdp K4\"、\"tdp panel.5\"、\"tdp confirm\"、\"tdp project/install.sh\"、\"tdp K9-6\"", c)
 			case ids != nil && !ids.Has(id):
 				add(SpecFile, t.ID, "%q 在這一版 tdp 裡找不到", c)
 			}

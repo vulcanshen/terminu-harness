@@ -170,9 +170,10 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 
 	s.AddTool(mcp.NewTool("tdp_section",
 		mcp.WithDescription("Parts of tdp by the IDs an app cites them with, as spec.yaml writes them: rules (K4), principle (P5), terms (terms.3), "+
-			"sections of components and project (panel.5, project.3, input.2), or a whole component or project file by name (confirm, form). "+
-			"Each comes with its text (a section runs from its heading to the next; the IDs of the sections under it are listed) and the "+
-			"checklist items whose source is it. Much smaller than reading whole files with tdp_file."),
+			"sections of components and project (panel.5, project.3, input.2), a whole component or project file by name (confirm, form), "+
+			"a project template by its path (project/install.sh), or a checklist item (K9-6), which comes as its row followed by the sections "+
+			"it names as its source. Each comes with its text (a section runs from its heading to the next; the IDs of the sections under it "+
+			"are listed) and the checklist items whose source is it. Much smaller than reading whole files with tdp_file."),
 		mcp.WithArray("ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("The IDs, with or without the tdp prefix: \"tdp K4\" or \"K4\".")),
 		mcp.WithString("version", mcp.Description("A tdp version like v0.10.1, the newest tag when left out.")),
 	), sv.tdpSection)

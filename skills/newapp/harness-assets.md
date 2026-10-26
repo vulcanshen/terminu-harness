@@ -53,6 +53,8 @@ tasks:
   - rules 用規則編號：`tdp K4`。principle 用 `tdp P5`，術語用 `tdp terms.3`。
   - components 與 project 用節編號：`tdp panel.5`、`tdp project.3`；README 用資料夾名：`tdp components.5`、`tdp input.2`。
   - 一個元件整個都用到時引整個檔：`tdp confirm`、`tdp form`。
+  - project 的範本檔寫路徑：`tdp project/install.sh`，等於那一份範本。
+  - 要比一整節精確時引清單的條目：`tdp K9-6`、`tdp note-78`，指的是那一條的出處，依據還是規範的文字。
   - 在 tdp「app 可以自行決定」的範圍裡做的，引那個放行（領域熱鍵、領域的符號與顏色、功能邏輯都是 `tdp P5`），範圍內還要守的規定
     也一起引（例：熱鍵還要引 `tdp M5`、`tdp K12`）。
   - 編號寫在 tdp 每一節的標題前面。

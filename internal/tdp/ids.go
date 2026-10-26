@@ -16,19 +16,25 @@ import (
 
 // IDs is what an app can cite in tdp at a version: every ID written in a
 // heading of principle, components and project (rules K4, principle P5, terms
-// terms.3, sections panel.5), and every component and project file by name
-// (confirm, input), which stands for the whole file.
+// terms.3, sections panel.5), every component and project file by name
+// (confirm, input), which stands for the whole file, every project template by
+// its path (project/install.sh), and every checklist item by its ID (K9-6),
+// which points at the item's source.
 type IDs struct {
-	Sections map[string]string // ID -> the heading's title
-	Paths    map[string]string // ID -> the path of the file it is in
-	Files    map[string]string // name -> the file's path
+	Sections  map[string]string   // ID -> the heading's title
+	Paths     map[string]string   // ID -> the path of the file it is in
+	Files     map[string]string   // name -> the file's path
+	Templates map[string]bool     // path of a project template
+	Items     map[string][]string // checklist item ID -> its sources
 }
 
-// Has reports whether id is a section or a file in tdp.
+// Has reports whether id is a section, a file, a template or a checklist item
+// in tdp.
 func (ids IDs) Has(id string) bool {
 	_, s := ids.Sections[id]
 	_, f := ids.Files[id]
-	return s || f
+	_, i := ids.Items[id]
+	return s || f || i || ids.Templates[id]
 }
 
 // Files lists the paths of every file in tdp at the tag.
@@ -84,8 +90,19 @@ func (s Source) IDs(tag string) (IDs, error) {
 	if err != nil {
 		return IDs{}, err
 	}
-	ids := IDs{Sections: map[string]string{}, Paths: map[string]string{}, Files: map[string]string{}}
+	ids := IDs{Sections: map[string]string{}, Paths: map[string]string{}, Files: map[string]string{},
+		Templates: map[string]bool{}, Items: map[string][]string{}}
 	for _, p := range paths {
+		if template(p) {
+			ids.Templates[p] = true
+		}
+		if p == ItemsFile {
+			b, err := s.File(tag, p)
+			if err != nil {
+				return IDs{}, err
+			}
+			ids.Items = items(b)
+		}
 		if !citable(p) {
 			continue
 		}
@@ -117,6 +134,11 @@ func citable(p string) bool {
 	return false
 }
 
+// template is a project template: a file of project other than its README.
+func template(p string) bool {
+	return strings.HasPrefix(p, "project/") && !strings.HasSuffix(p, ".md")
+}
+
 // fileName is the name a component or project file is cited by: the file's
 // own name, or its folder's for a README (components, input, project).
 func fileName(p string) string {
@@ -133,7 +155,19 @@ func fileName(p string) string {
 var (
 	headingRE = regexp.MustCompile(`^#{2,4} (\S+)\s+(.*)$`)
 	idRE      = regexp.MustCompile(`^(?:[A-Z][0-9]+|[a-z][a-z0-9-]*\.[0-9]+)$`)
+	itemRE    = regexp.MustCompile(`^\| ([A-Za-z][A-Za-z0-9-]*-[0-9]+) \|([^|]*)\|`)
 )
+
+// items are the checklist's item IDs and the sources each names.
+func items(b []byte) map[string][]string {
+	out := map[string][]string{}
+	for _, line := range strings.Split(string(b), "\n") {
+		if m := itemRE.FindStringSubmatch(line); m != nil {
+			out[m[1]] = sources(m[2])
+		}
+	}
+	return out
+}
 
 // headingIDs are the IDs at the start of the headings, outside code blocks.
 func headingIDs(b []byte) map[string]string {
