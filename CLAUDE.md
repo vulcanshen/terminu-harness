@@ -6,7 +6,7 @@ tdp 做。
 - repo：`terminu-harness`（本機 `~/Documents/sideproj/terminu-harness`，還沒有 GitHub repo）；plugin 名 `terminu`（skill 打
   `/terminu:newapp` 這種）；skill 名不帶連字號（user 2026-10-20：`new-app` → `newapp`、`report-gap` → `reportgap`）。
 - 授權：GPL-3.0（跟家族其他 repo 一樣；可以用 terminu-go 的程式）。
-- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.10.2**，2026-10-26 發的；terminu-go 最新是 v0.5.2，對應 tdp v0.10.2，tdptest 從 v0.3.0 起）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1453 條）。
+- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.10.3**，2026-10-26 發的；terminu-go 最新是 v0.5.3，對應 tdp v0.10.3，tdptest 從 v0.3.0 起）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1453 條）。
 
 上面這些都已經跟 user 定案，不要重提。
 
@@ -83,6 +83,8 @@ tgo）在 `e36d757` 的 CLAUDE.md。
 - **tdptest 全部放在 terminu-go**（user 選 A）。user：「既然 lib 是 tgo, 那 tgo 自己作一個檢測 api, 應該更簡單? harness 直接使用就好，
   這樣 harness 也不用追版本，反正 app 用哪一版的 tgo, 就會跟著哪一版的 tgo test」。terminu-go v0.3.0 起有 `tdptest`（driver、
   `EachIconWidth`、`Check`、`Tricky`／`Sizes`／`Mashes`），app 的測試一律用它；harness 不改 tgo，要加檢查就寫成回報、等 tgo 發版。
+  v0.5.3 起 `Check` 也查 app 的專案檔（project.2 的範本、project.3、project.5、project.6），app 的測試不用改（hostu 試用時
+  family.mk 少了 `make dev` 沒人抓到，harness 請 tgo 做的）。
   - **harness 提刁鑽的值**：開發 app 時踩到的值（控制字元、ESC 序列、寬字元、超長字串、空值、極小的終端機、一次一串按鍵）經
     reportgap 交給 tgo 收進自己的測試資料；「該長什麼樣」由 tgo 照 tdp 判。user 問過由 harness 連期望結果一起給：那等於 harness
     又在寫檢查，不做。
