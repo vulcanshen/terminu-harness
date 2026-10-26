@@ -13,12 +13,12 @@ terminu harness 照 terminu design（tdp）用 terminu-go 做 TUI app，紀錄�
    先查新版、回報、TODO，講給使用者聽，再接著做。
 3. 目前目錄是用 terminu-go 做的 app（`go.mod` 有 `github.com/vulcanshen/terminu-go`），但沒有 `harness-assets/`：問一題
    （AskUserQuestion）「這個 app 還沒用 harness 管過，要接手嗎？」
-   - **接手**（推薦）：從 README、CHANGELOG、開發文件與 git history 產生 harness-assets，之後照 tdp review、加需求、發版
+   - **接手**（推薦）：從 README 與 git history 產生 harness-assets，之後照 tdp review、加需求、發版
    - **做別的**：照 4. 問要做什麼
 4. 都沒有的話，問一題（AskUserQuestion）：「要做什麼？」
    - **做一個新的 app**：問需求、開發，做完給你看
    - **review**：照 tdp 判 app 的紀錄
    - **發版**：review、整理 CHANGELOG，問過你才打 tag
    - **回報 tdp 或 terminu-go**：tdp 沒寫、寫不清楚，或 terminu-go 做不到的地方
-5. 用 Skill 工具叫對應的 skill：做新 app、繼續做、加需求 → `terminu:newapp`；接手 → `terminu:genwork`，做完接著
+5. 用 Skill 工具叫對應的 skill：做新 app、繼續做、加需求 → `terminu:newapp`；接手 → `terminu:analysis`，做完接著
    `terminu:review`；review → `terminu:review`；發版 → `terminu:release`；回報 → `terminu:reportgap`。

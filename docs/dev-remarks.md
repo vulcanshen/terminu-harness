@@ -8,14 +8,15 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   決定；idea.md 或 tdp 改了 id 加一）、`work.yaml`（怎麼做的、哪些測試作保）、`review.yaml`（最近一次 review）。格式的唯一一份在
   `skills/newapp/harness-assets.md`，其他 skill 都指到它。
 - **入口** `/terminu`（`skills/terminu`，frontmatter `name: terminu`，所以裸的 `/terminu` 叫得到；實測過）：有
-  `harness-assets/spec.yaml` 就叫 `terminu:newapp` 接著做；是 terminu-go 的 app 但沒有 harness-assets，問要不要接手（genwork）；
+  `harness-assets/spec.yaml` 就叫 `terminu:newapp` 接著做；是 terminu-go 的 app 但沒有 harness-assets，問要不要接手（analysis）；
   都不是就問要做新 app、review、發版還是回報。
 - **newapp**（`skills/newapp`，主 session 照著做）：讀 app 的 tgo 對到的那一版 tdp → 一次一題問需求，寫進 idea.md → 對 tdp 寫 spec.yaml
-  就開始做（不等確認）→ 照 tdp project 範本開 repo（新 app 多放 `.claude/rules/terminu.md`）→ 一個 task 一個 task 寫，每個 `make check`、
+  就開始做（不等確認）→ 照 tdp project 範本開 repo（多放 `.claude/rules/terminu.md`，內容在 `skills/newapp/terminu-rule.md`）→ 一個 task 一個 task 寫，每個 `make check`、
   用 harness 的終端機開起來看、記進 work.yaml、跑 `check`、給使用者看、commit → 卡住叫 `terminu:reportgap`，remark 記 issue，程式標
   `TODO(tdp #N)`。「繼續」先查 tgo 新版（要升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
-- **genwork**（`skills/genwork`）：接手先用 tdp 與 tgo 做的 app，從 README、CHANGELOG、開發文件與 git history 產生 harness-assets，
-  不讀程式碼；找不到的寫「不知道」；把開發文件搬進去後刪掉（只刪開發者文件）。
+- **analysis**（`skills/analysis`）：接手先用 tdp 與 tgo 做的 app。從 README 寫 idea.md 與 spec.yaml，從 git commit history 寫
+  work.yaml（測試名字從 `go test -list` 拿，用 `git log -S'func TestX('` 找加進它的 commit，對回 task），不讀程式碼也不讀舊的開發者
+  文件；找不到的寫「不知道」。放 `.claude/rules/terminu.md`，刪掉舊的開發者文件（只刪開發者文件），接著 review。
 - **review**（`skills/review`）：`check` → 使用者重新確認 `user` 作保 → 派 `terminu:reviewer`（`agents/reviewer.md`，只讀 harness-assets
   與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的一項一項問使用者。
 - **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
@@ -49,6 +50,10 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   的留在 review.yaml，下一次照樣列出來。
 - **app 照的 tdp 版本不另外存**：從 go.mod 的 terminu-go 推。tdp 只多一句放行的小版本也要有自己的 tgo 版本（user 選 A，2026-10-26），
   因為放行本身就是 review 的根據。
+- **接手只看 README 與 git history**（user 2026-10-26）：接手時的 spec 只要寫出現在有哪些功能，那是 README 本來就寫的；做法的根據是
+  引的 tdp 編號，不是舊文件裡寫的理由，所以不讀 dev-remarks 與設計文件。原本叫 genwork、也讀那些文件，改成 analysis。
+- **app 的規則檔放 app 自己的 `.claude/rules/terminu.md`**（user 2026-10-26，在 terminu 定的），不由 plugin 在 SessionStart 帶進去：
+  newapp 開 repo 時放，analysis 接手時放。家族成員的接手在成員自己的 session 裡跑，算成員自己改 `.claude/`。
 - **寫程式時就做對，不做完才判**（user 2026-10-20）：原本的 judge（做完才判、一千三百多條、11 個 agent 看畫面）拿掉了。程式判得
   了的檢查放在 terminu-go 的測試 package，app 用哪一版 tgo 就跑哪一版的檢查；要判斷的交給 reviewer（發版前與手動叫）。harness 提
   要 tgo 做哪些檢查與「刁鑽的值」。judge 的程式與文件在 `fb89ad1` 還找得到。
@@ -70,8 +75,6 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - 使用者要有 Go：第一次啟動時 `scripts/mcp.sh` 從原始碼建 binary，可能超過 Claude Code 等 MCP server 的時間。
 - 等 issue 不是一直開著的 session：Claude Code 沒有可靠地等好幾天的方式（Monitor 每次最多 30 分鐘、`/loop` 要 session 開著、routine 沒有 issue 事件），所以靠使用者回到 app 的資料夾打 `/terminu`。
 - 使用者在終端機自己打的 commit 不經過 hook，下一次 review 才看得到。
-- app 的 rule（`.claude/rules/terminu.md`）只有 newapp 做的新 app 有；既有成員的要放哪（寫進成員的 `.claude/` 還是由 plugin 在
-  SessionStart 帶進去）等 user 定。
 - 還沒做：terminu-go 下一版有了 `CheckRepo` 之後，newapp 的骨架改用 `CheckRepo`（E6 的 splash 測試不用 app 自己寫）。
 
 ## 用 hostu 試整套流程（2026-10-18～19）

@@ -13,7 +13,7 @@ Type `/terminu` and say what you want to do:
 - **Make a new app**: it asks what the app is for, one question at a time (only what you need; screens, keys and file formats it decides by tdp), writes your words down, matches each request to tdp and gets going: it builds the app with terminu-go from the tdp project templates one request at a time, runs the tests, opens each in a terminal of its own, writes down how it was built and which tests back it, and shows you the app when it is done.
 - **When tdp has no answer, it does not make one up**: every decision the app makes has its ground in tdp, or lies where tdp says "the app may decide for itself". Where tdp says nothing, is unclear, or terminu-go can't do it yet, it tells you and drafts an issue for tdp or terminu-go; once you agree it files it, works around it in the meantime and comes back when they are updated.
 - **Carry on, add requests, follow new versions**: type `/terminu` in the app's folder; it first checks for a newer terminu-go (every tdp version has a terminu-go version of its own), answers to the issues it is waiting for and the workarounds left in the code, and tells you; upgrading and new requests carry on from there.
-- **Take over a terminu app made without it**: an app built with tdp and terminu-go before the plugin was added gets its records from its README, CHANGELOG, developer docs and git history, and goes the same way from then on.
+- **Take over a terminu app made without it**: an app built with tdp and terminu-go before the plugin was added gets its records from its README (what it does) and git history (how each part was built and which tests back it), and goes the same way from then on.
 - **Review**: a separate, read-only reviewer judges how each request was built, from the app's records, against tdp, without reading the code; the checks only you can do (say, ones that need a Windows machine) you confirm again each time. What does not follow tdp is shown to you one by one, and you decide to fix it, report it to tdp, or leave it for now.
 - **Release**: runs the checks, reviews, tells you what is still open and which requests are not built, writes the CHANGELOG the tdp way, and tags and pushes only once you agree.
 - **Report to tdp or terminu-go**: it drafts an issue for tdp or terminu-go and files it once you agree.
@@ -51,7 +51,7 @@ It asks what you want to do; in the folder of an app it keeps, it carries on wit
 | Command | What it does |
 |---|---|
 | `/terminu:newapp [what the app is for]` | make a new app, or carry on, add requests, follow new versions |
-| `/terminu:genwork` | take over a terminu app made without it: records from its docs |
+| `/terminu:analysis` | take over a terminu app made without it: records from its README and git history |
 | `/terminu:review [task IDs]` | judge the app's records against tdp; all of them without IDs |
 | `/terminu:release [version]` | release: checks, a review, the CHANGELOG, and a tag and push once you agree |
 | `/terminu:reportgap [what is missing]` | draft an issue for tdp or terminu-go and file it once you agree |
@@ -63,7 +63,7 @@ In an app it keeps, a commit that changes the code without updating the records 
 | What | Where |
 |---|---|
 | The app's records: your requests (`idea.md`), the tdp each follows (`spec.yaml`), how each was built and which tests back it (`work.yaml`), the last review (`review.yaml`) | `harness-assets/` in the app's repo |
-| The rules for Claude writing code in the repo (new apps) | `.claude/rules/terminu.md` in the app's repo |
+| The rules for Claude writing code in the repo | `.claude/rules/terminu.md` in the app's repo |
 | tdp files fetched | `~/.terminu-harness/cache/tdp/` |
 | The built terminal and checks | `~/.terminu-harness/bin/` |
 
