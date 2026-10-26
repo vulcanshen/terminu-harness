@@ -168,6 +168,15 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4, the newest tag when left out.")),
 	), sv.tdpFile)
 
+	s.AddTool(mcp.NewTool("tdp_section",
+		mcp.WithDescription("Parts of tdp by the IDs an app cites them with, as spec.yaml writes them: rules (K4), principle (P5), terms (terms.3), "+
+			"sections of components and project (panel.5, project.3, input.2), or a whole component or project file by name (confirm, form). "+
+			"Each comes with its text (a section runs from its heading to the next; the IDs of the sections under it are listed) and the "+
+			"checklist items whose source is it. Much smaller than reading whole files with tdp_file."),
+		mcp.WithArray("ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("The IDs, with or without the tdp prefix: \"tdp K4\" or \"K4\".")),
+		mcp.WithString("version", mcp.Description("A tdp version like v0.10.1, the newest tag when left out.")),
+	), sv.tdpSection)
+
 	s.AddTool(mcp.NewTool("check",
 		mcp.WithDescription("Check an app's harness-assets/ (idea.md, spec.yaml, work.yaml, review.yaml): the files against each other, spec.yaml's "+
 			"tdp citations against the tdp version the app's terminu-go follows (from go.mod and terminu-go's CHANGELOG), work.yaml's tests "+
@@ -479,6 +488,33 @@ func (sv *Server) tdpFile(_ context.Context, req mcp.CallToolRequest) (*mcp.Call
 		return fail("%v", err)
 	}
 	return mcp.NewToolResultText(fmt.Sprintf("tdp %s %s\n\n%s", tdp.Tag(version), req.GetString("path", ""), b)), nil
+}
+
+func (sv *Server) tdpSection(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	version := req.GetString("version", "")
+	if version == "" {
+		v, err := sv.src.Latest()
+		if err != nil {
+			return fail("the newest tdp: %v", err)
+		}
+		version = v
+	}
+	secs, err := sv.src.Sections(version, req.GetStringSlice("ids", nil))
+	if err != nil {
+		return fail("%v", err)
+	}
+	var b strings.Builder
+	fmt.Fprintf(&b, "tdp %s\n", tdp.Tag(version))
+	for _, sec := range secs {
+		fmt.Fprintf(&b, "\n=== tdp %s (%s)\n%s\n", sec.ID, sec.Path, sec.Text)
+		if len(sec.Children) > 0 {
+			fmt.Fprintf(&b, "\nSections under it: %s\n", strings.Join(sec.Children, ", "))
+		}
+		if len(sec.Items) > 0 {
+			fmt.Fprintf(&b, "\nChecklist items from it (ID | source | what to check | applies when | how to check):\n%s\n", strings.Join(sec.Items, "\n"))
+		}
+	}
+	return mcp.NewToolResultText(b.String()), nil
 }
 
 func (sv *Server) check(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {

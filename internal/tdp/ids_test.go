@@ -2,6 +2,7 @@ package tdp
 
 import (
 	"os"
+	"strings"
 	"testing"
 )
 
@@ -68,5 +69,75 @@ func TestIDsOfTDP(t *testing.T) {
 		if ids.Has(id) {
 			t.Errorf("%s should not be citable", id)
 		}
+	}
+}
+
+func TestSectionText(t *testing.T) {
+	md := []byte("# panel\n" +
+		"## panel.1 框\n" +
+		"框的規定\n" +
+		"```\n" +
+		"## not a heading\n" +
+		"```\n" +
+		"#### 例\n" +
+		"例子\n" +
+		"### panel.2 被指到的 panel\n" +
+		"被指到\n" +
+		"### panel.3 模式名\n" +
+		"## panel.4 膠囊串\n" +
+		"膠囊\n")
+	text, children := sectionText(md, "panel.1")
+	want := "## panel.1 框\n框的規定\n```\n## not a heading\n```\n#### 例\n例子"
+	if text != want {
+		t.Errorf("panel.1 text:\n%s\nwant:\n%s", text, want)
+	}
+	if strings.Join(children, " ") != "panel.2 panel.3" {
+		t.Errorf("children of panel.1: %v", children)
+	}
+	if text, _ := sectionText(md, "panel.2"); text != "### panel.2 被指到的 panel\n被指到" {
+		t.Errorf("panel.2 text: %q", text)
+	}
+	if text, _ := sectionText(md, "panel.4"); text != "## panel.4 膠囊串\n膠囊" {
+		t.Errorf("panel.4 text: %q", text)
+	}
+}
+
+func TestItemRows(t *testing.T) {
+	items := []byte("| 編號 | 出處 | 檢查什麼 |\n|---|---|---|\n| panel-47 | panel.5 | cursor |\n| panel-59 | panel.6 | 排序 |\n| K12-1 | K12 | 字母 |\n")
+	if got := itemRows(items, func(src string) bool { return src == "panel.5" }); len(got) != 1 || !strings.Contains(got[0], "panel-47") {
+		t.Errorf("rows of panel.5: %v", got)
+	}
+	if got := itemRows(items, func(src string) bool { return strings.HasPrefix(src, "panel.") }); len(got) != 2 {
+		t.Errorf("rows of panel: %v", got)
+	}
+}
+
+// TestSectionsOfTDP reads sections of a real tdp; it needs a clone of terminu.
+func TestSectionsOfTDP(t *testing.T) {
+	repo := os.Getenv("TERMINU_HARNESS__TDP_REPO")
+	if repo == "" {
+		t.Skip("no terminu clone (TERMINU_HARNESS__TDP_REPO)")
+	}
+	secs, err := Source{Repo: repo}.Sections("v0.10.1", []string{"tdp panel.5", "K12", "confirm"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(secs) != 3 {
+		t.Fatalf("%d sections", len(secs))
+	}
+	if !strings.HasPrefix(secs[0].Text, "## panel.5 一般清單") || strings.Contains(secs[0].Text, "### panel.6") || len(secs[0].Items) == 0 {
+		t.Errorf("panel.5: %d items, children %v, text starts %q", len(secs[0].Items), secs[0].Children, secs[0].Text[:40])
+	}
+	if !strings.Contains(strings.Join(secs[0].Children, " "), "panel.6") {
+		t.Errorf("children of panel.5: %v", secs[0].Children)
+	}
+	if !strings.HasPrefix(secs[1].Text, "### K12 ") || len(secs[1].Items) == 0 {
+		t.Errorf("K12: %d items", len(secs[1].Items))
+	}
+	if !strings.Contains(secs[2].Text, "## confirm.3 按鍵") || len(secs[2].Items) < 10 {
+		t.Errorf("confirm: %d items", len(secs[2].Items))
+	}
+	if _, err := (Source{Repo: repo}).Sections("v0.10.1", []string{"panel.99"}); err == nil {
+		t.Error("panel.99 found")
 	}
 }

@@ -20,6 +20,7 @@ import (
 // (confirm, input), which stands for the whole file.
 type IDs struct {
 	Sections map[string]string // ID -> the heading's title
+	Paths    map[string]string // ID -> the path of the file it is in
 	Files    map[string]string // name -> the file's path
 }
 
@@ -83,7 +84,7 @@ func (s Source) IDs(tag string) (IDs, error) {
 	if err != nil {
 		return IDs{}, err
 	}
-	ids := IDs{Sections: map[string]string{}, Files: map[string]string{}}
+	ids := IDs{Sections: map[string]string{}, Paths: map[string]string{}, Files: map[string]string{}}
 	for _, p := range paths {
 		if !citable(p) {
 			continue
@@ -94,6 +95,7 @@ func (s Source) IDs(tag string) (IDs, error) {
 		}
 		for id, title := range headingIDs(b) {
 			ids.Sections[id] = title
+			ids.Paths[id] = p
 		}
 		if name := fileName(p); name != "" {
 			ids.Files[name] = p

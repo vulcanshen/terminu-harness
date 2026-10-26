@@ -1,0 +1,114 @@
+package tdp
+
+import (
+	"fmt"
+	"strings"
+)
+
+// ItemsFile is the checklist, whose source column names the section an item
+// comes from.
+const ItemsFile = "checklist/items-zh_TW.md"
+
+// Section is a part of tdp an app cites: its text and the checklist items
+// that come from it.
+type Section struct {
+	ID       string
+	Path     string
+	Text     string   // from its heading to the next heading; the whole file for a file
+	Children []string // the IDs of the sections under it
+	Items    []string // checklist rows whose source is it (for a file, any of its sections)
+}
+
+// Sections are the parts of tdp at the tag that ids cite: rules, principle,
+// terms and section IDs (K4, P5, terms.3, panel.5) or file names (confirm).
+func (s Source) Sections(tag string, ids []string) ([]Section, error) {
+	all, err := s.IDs(tag)
+	if err != nil {
+		return nil, err
+	}
+	items, err := s.File(tag, ItemsFile)
+	if err != nil {
+		return nil, err
+	}
+	var out []Section
+	for _, id := range ids {
+		id = strings.TrimSpace(strings.TrimPrefix(strings.TrimSpace(id), "tdp "))
+		if p, ok := all.Files[id]; ok {
+			b, err := s.File(tag, p)
+			if err != nil {
+				return nil, err
+			}
+			out = append(out, Section{ID: id, Path: p, Text: string(b), Items: itemRows(items, func(src string) bool {
+				return strings.HasPrefix(src, id+".")
+			})})
+			continue
+		}
+		p, ok := all.Paths[id]
+		if !ok {
+			return nil, fmt.Errorf("%q is not in tdp %s", id, Tag(tag))
+		}
+		b, err := s.File(tag, p)
+		if err != nil {
+			return nil, err
+		}
+		text, children := sectionText(b, id)
+		out = append(out, Section{ID: id, Path: p, Text: text, Children: children, Items: itemRows(items, func(src string) bool {
+			return src == id
+		})})
+	}
+	return out, nil
+}
+
+// sectionText is the text from the heading of id to the next heading, and the
+// IDs of the headings under it before one at its level or above.
+func sectionText(b []byte, id string) (string, []string) {
+	lines := strings.Split(string(b), "\n")
+	start, level := -1, 0
+	inCode := false
+	var text []string
+	var children []string
+	for i, line := range lines {
+		if strings.HasPrefix(line, "```") {
+			inCode = !inCode
+		}
+		heading := !inCode && !strings.HasPrefix(line, "```") && headingRE.MatchString(line)
+		hl := 0
+		if heading {
+			hl = len(line) - len(strings.TrimLeft(line, "#"))
+		}
+		switch {
+		case start < 0:
+			if m := headingRE.FindStringSubmatch(line); heading && m[1] == id {
+				start, level = i, hl
+				text = append(text, line)
+			}
+		case heading && hl <= level:
+			return strings.TrimRight(strings.Join(text, "\n"), "\n"), children
+		case heading:
+			if m := headingRE.FindStringSubmatch(line); idRE.MatchString(m[1]) {
+				children = append(children, m[1])
+			}
+			if len(children) == 0 {
+				text = append(text, line)
+			}
+		case len(children) == 0:
+			text = append(text, line)
+		}
+	}
+	return strings.TrimRight(strings.Join(text, "\n"), "\n"), children
+}
+
+// itemRows are the checklist's table rows whose source column passes keep.
+func itemRows(items []byte, keep func(src string) bool) []string {
+	var rows []string
+	for _, line := range strings.Split(string(items), "\n") {
+		if !strings.HasPrefix(line, "| ") {
+			continue
+		}
+		cols := strings.Split(line, "|")
+		if len(cols) > 3 && keep(strings.TrimSpace(cols[2])) {
+			rows = append(rows, line)
+		}
+	}
+	return rows
+}
