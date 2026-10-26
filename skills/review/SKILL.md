@@ -16,7 +16,9 @@ work.yaml 沒寫的，review 看不到。格式見 newapp 的 `harness-assets.md
    - `go.mod` 讀不到 terminu-go：這不是 harness 管的 app，跟使用者說，結束。
    - 測試、commit、使用者確認的問題（「測試 X 不在 go test -list 裡」「沒有測試」……）：記下是哪些 task，3. 直接判 `沒有測試`。
    - 其他問題（格式、id、spec 對不上、tdp 編號找不到）：紀錄本身錯了，先改 harness-assets，再跑 `check`，到只剩上一條那種問題為止。
-3. 記下 `check` 第一行的 tdp 版本：這次照這一版判。
+3. work.yaml 的 implementation 寫了「不知道」的 task（genwork 從文件裡找不到的）：紀錄不完整，判不了，3. 直接判
+   `沒有測試：implementation 還有不知道的部分（<缺什麼>）`。
+4. 記下 `check` 第一行的 tdp 版本：這次照這一版判。
 
 ## 2. 請使用者重新確認
 
@@ -51,7 +53,7 @@ reviewer 說 spec.yaml 少引了哪些 tdp 的，補進那個 task 的 `tdp`（�
 | reason 開頭 | 選項 |
 |---|---|
 | 違反 | **修掉**（改程式、測試與 work.yaml）；**回報 tdp**（覺得 tdp 的規定不合用，用 Skill 叫 `terminu:reportgap`，remark 記 issue）；**先不處理** |
-| 沒有測試 | **補測試**；**改成使用者確認**（問使用者怎麼確認，記進 `user`）；**先不處理** |
+| 沒有測試 | **補測試**；**改成使用者確認**（問使用者怎麼確認，記進 `user`）；**補紀錄**（implementation 寫了不知道的：寫程式的一方看程式把 implementation 補完整）；**先不處理** |
 | tdp 不清楚 | **回報 tdp**（`terminu:reportgap`，remark 記 issue）；**先不處理** |
 
 - 選「先不處理」的留在 review.yaml，下一次 review 還是會列出來。

@@ -103,12 +103,36 @@ func TestSectionText(t *testing.T) {
 }
 
 func TestItemRows(t *testing.T) {
-	items := []byte("| 編號 | 出處 | 檢查什麼 |\n|---|---|---|\n| panel-47 | panel.5 | cursor |\n| panel-59 | panel.6 | 排序 |\n| K12-1 | K12 | 字母 |\n")
-	if got := itemRows(items, func(src string) bool { return src == "panel.5" }); len(got) != 1 || !strings.Contains(got[0], "panel-47") {
-		t.Errorf("rows of panel.5: %v", got)
+	items := []byte("| 編號 | 出處 | 檢查什麼 |\n|---|---|---|\n" +
+		"| panel-47 | panel.5 | cursor |\n" +
+		"| panel-59 | panel.6 | 排序 |\n" +
+		"| panel-90 | panel.5、panel.12 | 兩節 |\n" +
+		"| panel-91 | panel.5（圖） | 圖 |\n" +
+		"| dp-1 | datetime-picker.2（日期）（圖） | 日期 |\n" +
+		"| en-1 | panel.12 (diagram) | english |\n" +
+		"| K12-1 | K12 | 字母 |\n" +
+		"| F3-1 | F3、K4 | 規則 |\n")
+	rows := func(keep func(string) bool) string {
+		var ids []string
+		for _, r := range itemRows(items, keep) {
+			ids = append(ids, strings.TrimSpace(strings.Split(r, "|")[1]))
+		}
+		return strings.Join(ids, " ")
 	}
-	if got := itemRows(items, func(src string) bool { return strings.HasPrefix(src, "panel.") }); len(got) != 2 {
-		t.Errorf("rows of panel: %v", got)
+	is := func(id string) func(string) bool { return func(src string) bool { return src == id } }
+	for id, want := range map[string]string{
+		"panel.5":           "panel-47 panel-90 panel-91",
+		"panel.12":          "panel-90 en-1",
+		"datetime-picker.2": "dp-1",
+		"K4":                "F3-1",
+		"K12":               "K12-1",
+	} {
+		if got := rows(is(id)); got != want {
+			t.Errorf("rows of %s: %s, want %s", id, got, want)
+		}
+	}
+	if got := rows(func(src string) bool { return strings.HasPrefix(src, "panel.") }); got != "panel-47 panel-59 panel-90 panel-91 en-1" {
+		t.Errorf("rows of panel: %s", got)
 	}
 }
 

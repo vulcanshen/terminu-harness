@@ -86,6 +86,7 @@ tasks:
 - **implementation 寫到 review 判得出來**：review 不讀程式碼，只拿這裡對 tdp。寫從哪裡觸發（哪個 panel、哪個鍵、Space menu 的哪一項、
   啟動時、計時）、經過什麼（開什麼 popup、問什麼、成功與失敗給什麼回饋、畫面上的字）、讀寫什麼（哪個檔、哪個位置、外部指令）、
   用了 terminu-go 的哪些元件。一個 task 有好幾個入口時，每個入口各寫一行。tgo 本身就會做的（Space menu 怎麼開、`?` 怎麼畫）不用寫。
+  genwork 從文件裡找不到的部分寫「不知道：<缺什麼>」，review 會判成沒有測試，等寫程式的一方看程式補上。
 - **test 是作保**，三種：
   - 測試的名字（`TestDeleteKeyAsks`，子測試寫 `TestX/sub`）：check 拿 `go test -list` 對。每個入口都要有測試走到。
   - `user: {date, how}`：寫不成測試的（例：要一台 Windows），寫使用者怎麼確認的與日期。每次 review 都請使用者重新確認，確認了就更新日期。

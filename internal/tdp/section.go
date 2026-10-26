@@ -98,7 +98,7 @@ func sectionText(b []byte, id string) (string, []string) {
 	return strings.TrimRight(strings.Join(text, "\n"), "\n"), children
 }
 
-// itemRows are the checklist's table rows whose source column passes keep.
+// itemRows are the checklist's table rows with a source that passes keep.
 func itemRows(items []byte, keep func(src string) bool) []string {
 	var rows []string
 	for _, line := range strings.Split(string(items), "\n") {
@@ -106,9 +106,33 @@ func itemRows(items []byte, keep func(src string) bool) []string {
 			continue
 		}
 		cols := strings.Split(line, "|")
-		if len(cols) > 3 && keep(strings.TrimSpace(cols[2])) {
-			rows = append(rows, line)
+		if len(cols) <= 3 {
+			continue
+		}
+		for _, src := range sources(cols[2]) {
+			if keep(src) {
+				rows = append(rows, line)
+				break
+			}
 		}
 	}
 	return rows
+}
+
+// sources are the sections a source column names: several are separated by
+// 、, and what follows （ or " (" only narrows one down (（圖）, (diagram)).
+func sources(col string) []string {
+	var out []string
+	for _, s := range strings.Split(col, "、") {
+		if i := strings.Index(s, "（"); i >= 0 {
+			s = s[:i]
+		}
+		if i := strings.Index(s, " ("); i >= 0 {
+			s = s[:i]
+		}
+		if s = strings.TrimSpace(s); s != "" {
+			out = append(out, s)
+		}
+	}
+	return out
 }
