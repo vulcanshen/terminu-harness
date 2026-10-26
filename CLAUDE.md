@@ -225,7 +225,7 @@ user：「harness 不應該只是這樣而已」—— judge 只是最後一步�
   `judge_profile`、`judge_verdicts`、`judge_gap`、`judge_status`、`judge_finish`（server 名 `harness`）。Go 寫，用
   `mark3labs/mcp-go`（家族的 clerk 也用）、`creack/pty`；只支援 macOS、Linux。
 - **repo 自己的 Makefile**（build、test、check、clean），不套 `family.mk`。plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（2026-10-19 從根目錄的 `.mcp.json` 搬過去）：有
-  `.local/bin/terminu-harness` 就用，沒有就用 Go 從原始碼建到 `~/.terminu-harness/bin/`，所以現在使用者要有 Go。發版要不要改成
+  `.local/bin/terminu-harness`、而且沒有原始碼比它新就用（2026-10-26 hostu 試用時用到舊檔，加了比新舊），不然就用 Go 從原始碼建到 `~/.terminu-harness/bin/`，所以現在使用者要有 Go。發版要不要改成
   下載 release 的 binary，發版時跟 user 定。
 - **時間的暫時判法**照 HN1、HN2 的「暫時」寫在 judge agent 裡，tdp 定案後改（tdp v0.8.0 定了，見下一節）。
 

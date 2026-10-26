@@ -1,11 +1,13 @@
 #!/bin/sh
 # Starts the harness's MCP server. A binary built next to the source
-# (.local/bin, make build) is used as is; otherwise one is built from this
-# source with Go, once per source, into ~/.terminu-harness/bin.
+# (.local/bin, make build) is used while no source is newer than it;
+# otherwise one is built from this source with Go, once per source, into
+# ~/.terminu-harness/bin.
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
-if [ -x "$root/.local/bin/terminu-harness" ]; then
-	exec "$root/.local/bin/terminu-harness" "$@"
+dev="$root/.local/bin/terminu-harness"
+if [ -x "$dev" ] && [ -z "$(cd "$root" && find cmd internal go.mod go.sum -type f -newer "$dev" | head -n 1)" ]; then
+	exec "$dev" "$@"
 fi
 home=${TERMINU_HARNESS__HOME:-$HOME/.terminu-harness}
 sum=$(cd "$root" && find cmd internal go.mod go.sum -type f | LC_ALL=C sort | xargs cat | cksum | cut -d ' ' -f 1)

@@ -10,7 +10,7 @@ help: ## 列出所有指令
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ {printf "  %-8s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 .PHONY: build
-build: ## 建 MCP server 到 .local/bin（plugin 的 scripts/mcp.sh 會優先用它）
+build: ## 建 MCP server 到 .local/bin（plugin 的 scripts/mcp.sh 會優先用它，比原始碼舊時不用）
 	go build -o .local/bin/$(BINARY) ./cmd/$(BINARY)
 
 .PHONY: test
