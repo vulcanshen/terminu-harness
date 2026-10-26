@@ -7,6 +7,7 @@ require (
 	github.com/creack/pty v1.1.24
 	github.com/mark3labs/mcp-go v0.48.0
 	golang.org/x/image v0.47.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (

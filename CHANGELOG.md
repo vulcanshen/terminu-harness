@@ -8,3 +8,4 @@
 - `/terminu:release`: checks, reviews what changed since the last tag, turns `## Unreleased` into the version's heading the tdp way, and tags and pushes once you agree.
 - `/terminu:reportgap`: drafts an issue for tdp or terminu-go and files it once you agree.
 - A terminal of its own (a PTY and an emulator, no tmux or desktop needed) to open the app being made, press keys and read the screen, its colours or a picture of it; and tdp's files at any version.
+- `check` (an MCP tool, and `terminu-harness check` on the command line): checks the app's `harness-assets/` — `idea.md`, `spec.yaml`, `work.yaml`, `review.yaml` — against each other; every tdp citation in `spec.yaml` against the tdp the app's terminu-go follows (read from `go.mod` and terminu-go's CHANGELOG); every test in `work.yaml` against `go test -list` and every commit against git. It lists what is left to do: tasks not built yet, tasks built to an older spec, a review behind the spec.

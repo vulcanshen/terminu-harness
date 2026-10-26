@@ -7,6 +7,7 @@ import (
 	"os"
 
 	mcpserver "github.com/mark3labs/mcp-go/server"
+	"github.com/vulcanshen/terminu-harness/internal/assets"
 	"github.com/vulcanshen/terminu-harness/internal/server"
 )
 
@@ -17,6 +18,7 @@ const usage = `terminu-harness: the terminu harness's MCP server
 
 Usage:
   terminu-harness mcp           serve MCP on stdin and stdout (Claude Code starts it)
+  terminu-harness check [repo]  check the app's harness-assets/ (the current directory when left out)
   terminu-harness version       print the version (-v, --version)
   terminu-harness help          print this help (-h, --help)
 `
@@ -33,6 +35,16 @@ func main() {
 		sv.Close()
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
+			os.Exit(1)
+		}
+	case "check":
+		repo := "."
+		if len(os.Args) > 2 {
+			repo = os.Args[2]
+		}
+		r := assets.Check(repo, assets.Default(server.Source()))
+		fmt.Print(r.Text())
+		if len(r.Problems) > 0 {
 			os.Exit(1)
 		}
 	case "version", "-v", "--version":

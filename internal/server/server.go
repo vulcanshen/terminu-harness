@@ -18,6 +18,7 @@ import (
 
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/vulcanshen/terminu-harness/internal/assets"
 	"github.com/vulcanshen/terminu-harness/internal/render"
 	"github.com/vulcanshen/terminu-harness/internal/tdp"
 	"github.com/vulcanshen/terminu-harness/internal/term"
@@ -58,11 +59,16 @@ func Home() string {
 	return filepath.Join(dir, ".terminu-harness")
 }
 
+// Source is where the harness reads tdp from.
+func Source() tdp.Source {
+	return tdp.Source{Repo: os.Getenv(EnvTDPRepo), Cache: filepath.Join(Home(), "cache", "tdp")}
+}
+
 // New is a server with nothing open.
 func New() *Server {
 	return &Server{
 		sessions: map[string]*entry{},
-		src:      tdp.Source{Repo: os.Getenv(EnvTDPRepo), Cache: filepath.Join(Home(), "cache", "tdp")},
+		src:      Source(),
 	}
 }
 
@@ -161,6 +167,14 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 		mcp.WithString("path", mcp.Required(), mcp.Description("The path in the terminu repo.")),
 		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4, the newest tag when left out.")),
 	), sv.tdpFile)
+
+	s.AddTool(mcp.NewTool("check",
+		mcp.WithDescription("Check an app's harness-assets/ (idea.md, spec.yaml, work.yaml, review.yaml): the files against each other, spec.yaml's "+
+			"tdp citations against the tdp version the app's terminu-go follows (from go.mod and terminu-go's CHANGELOG), work.yaml's tests "+
+			"against go test -list and its commits against git. Returns the problems to fix and what is left to do (tasks not built yet or "+
+			"built to an older spec, a review behind the spec)."),
+		mcp.WithString("repo", mcp.Description("The app's repo, the current directory when left out.")),
+	), sv.check)
 	return s
 }
 
@@ -465,4 +479,16 @@ func (sv *Server) tdpFile(_ context.Context, req mcp.CallToolRequest) (*mcp.Call
 		return fail("%v", err)
 	}
 	return mcp.NewToolResultText(fmt.Sprintf("tdp %s %s\n\n%s", tdp.Tag(version), req.GetString("path", ""), b)), nil
+}
+
+func (sv *Server) check(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	repo := req.GetString("repo", "")
+	if repo == "" {
+		wd, err := os.Getwd()
+		if err != nil {
+			return fail("the current directory: %v", err)
+		}
+		repo = wd
+	}
+	return mcp.NewToolResultText(assets.Check(repo, assets.Default(sv.src)).Text()), nil
 }
