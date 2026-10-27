@@ -6,7 +6,7 @@ tdp 做。
 - repo：`terminu-harness`（本機 `~/Documents/sideproj/terminu-harness`，還沒有 GitHub repo）；plugin 名 `terminu`（skill 打
   `/terminu:newapp` 這種）；skill 名不帶連字號（user 2026-10-20：`new-app` → `newapp`、`report-gap` → `reportgap`）。
 - 授權：GPL-3.0（跟家族其他 repo 一樣；可以用 terminu-go 的程式）。
-- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v0.11.5**，2026-10-27 發的；terminu-go 最新是 v0.6.5，對應 tdp v0.11.5，tdptest 從 v0.3.0 起）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1455 條）。
+- 規範：`~/Documents/sideproj/terminu`（tdp），照**最新 tag** 做（現在是 **tdp v1.0.0**，2026-10-27 發的 stable 版；terminu-go 最新是 v1.0.0，對應 tdp v1.0.0，tdptest 從 v0.3.0 起）。tdptest 與 reviewer 的依據是 tdp 的條目清單 `checklist/`（`items-zh_TW.md`、`items.md`，1455 條）。
 
 上面這些都已經跟 user 定案，不要重提。
 
