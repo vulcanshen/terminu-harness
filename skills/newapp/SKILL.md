@@ -22,7 +22,7 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   `principle/rules-zh_TW.md`、`components/README-zh_TW.md`、`project/README-zh_TW.md`。用到哪個元件再讀那個元件的檔
   （`components/layout/panel-zh_TW.md`、`components/dialog/form-zh_TW.md`……）。每一節的標題前面就是它的編號（`panel.5`）。
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
-  不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（背景做的事記進去）、「讀不了自己的檔時」、「設定」、「測試 app」
+  不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
   （`tdptest`）、「計時器：`App.Tick`」。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
@@ -124,9 +124,10 @@ spec 的重點，使用者看了成品再提要改的。
 
 **升版**：
 
-1. `go get github.com/vulcanshen/terminu-go@<新的 tag>`，`go mod tidy`。
+1. `go get github.com/vulcanshen/terminu-go@<新的 tag>`，`go mod tidy`。中間隔了好幾版（跨 minor 也一樣）也一次升到新的 tag。
 2. 把 spec 的 `to` 到新版之間 tdp 每一版的 CHANGELOG 統整成一份：同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改
-   terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。
+   terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。terminu-go 舊版之後每一版的 CHANGELOG 也讀：寫了 app
+   要改的（例：「An app that logs its own filter takes that out」）一起放進這一份。
 3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節、或做的事被新的規定
    管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（project
    的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。
