@@ -38,9 +38,10 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
 - 每一題都對到 tdp：需求落在哪個元件。選元件前先讀那個元件的「用途」節：它寫了什麼該用、什麼不該用（例：設定檔交給 `$EDITOR`，
   不用 textarea）。跟 tdp 衝突的當場說出來，讓使用者選「改需求」或「回報 tdp」。
 - **不問 tdp 已經規定的事**：按鍵、外框、顏色、popup 的開關、splash、README 的結構，照 tdp 做。
-- 使用者不是 vulcanshen 時，app 是「照 tdp 做的 app」，不是家族成員（tdp Rules E 章開頭）：repo 的路徑、Homebrew tap、splash
-  的作者信箱換成使用者自己的，README 的 family 段寫「照 terminu design 做」並附連結、不列家族成員。問需求時一起問使用者的
-  帳號、tap 與信箱。
+- 使用者不是 vulcanshen 時，app 是「照 tdp 做的 app」，不是家族成員（tdp Rules E 章開頭）：Homebrew tap、splash 的作者信箱換成
+  使用者自己的，README 的 family 段寫「照 terminu design 做」並附 tdp 的連結。project 只綁家族成員（tdp project.1）：3. 照樣拿
+  project 與範本當起點，範本裡的 `vulcanshen`（repo 的路徑、tap 的 owner、首頁）換成使用者的帳號（tdp project.2）；之後使用者
+  要改 repo 的目錄、Makefile、CHANGELOG、發布步驟都可以，Rules E 章照樣守。問需求時一起問使用者的帳號、tap 與信箱。
 - 使用者講的需求照他的話寫進 `harness-assets/idea.md`（repo 還沒開就先記著，3. 開 repo 時寫進去）。
 
 ## 2. spec.yaml
@@ -68,7 +69,7 @@ spec 的重點，使用者看了成品再提要改的。
 - `.claude/rules/terminu.md`：讓之後在這個 repo 寫程式的人（包括別的 session）照 harness 的規矩，內容照抄這個 skill 資料夾裡的
   `terminu-rule.md`。
 
-- `go mod init github.com/vulcanshen/<app>`，`go get github.com/vulcanshen/terminu-go@<0. 定的 tag>`，不用 `go.work`。
+- `go mod init github.com/<帳號>/<app>`（家族成員是 `vulcanshen`），`go get github.com/vulcanshen/terminu-go@<0. 定的 tag>`，不用 `go.work`。
 - 把建 app 的程式寫成 `newApp() *terminu.App`（main 裡 `Run` 以外的全部，位置照使用者啟動時一樣從環境變數讀），在它所在的
   package 放 `tdp_test.go`：
 
@@ -132,7 +133,8 @@ spec 的重點，使用者看了成品再提要改的。
    要改的（例：「An app that logs its own filter takes that out」）一起放進這一份。
 3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節、或做的事被新的規定
    管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（project
-   的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。
+   的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。照 tdp 做的 app 不用跟 project 改的
+   （tdp project.1）。
 4. 回到 4，把 `spec` 改了的 task 照新版做一次。
 
 **使用者加需求、改需求**：寫進 idea.md，照「升版」的 3. 開新一份 spec（`from`、`to` 不變），新增或修改 task，回到 4。

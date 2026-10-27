@@ -7,7 +7,8 @@ argument-hint: [版號，例：v0.3.0]
 # /terminu:release
 
 發版的規定在 tdp：先用 `tdp_file` 讀 `project/README-zh_TW.md` 的 project.6（CHANGELOG）與 project.7（發布），照 app 照的那一版 tdp
-（MCP 工具 `check` 第一行的 tdp 版本）做；下面是 harness 加的檢查與順序。哪一步沒過就停，跟使用者說卡在哪。
+（MCP 工具 `check` 第一行的 tdp 版本）做；下面是 harness 加的檢查與順序。哪一步沒過就停，跟使用者說卡在哪。照 tdp 做的 app
+（不是家族成員）的 CHANGELOG 與發布步驟可以自行決定（tdp project.1）：app 改過的，6.–9. 照 app 自己的寫法；沒改過的跟家族一樣。
 
 1. **工作目錄乾淨**：`git status --porcelain` 沒有輸出，而且在預設 branch 上。不乾淨就停，問使用者要先 commit 還是先收起來。
 2. **升到最新的 terminu-go，`make check` 過**：go.mod 的版本不是最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）

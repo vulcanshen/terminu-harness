@@ -31,7 +31,8 @@ newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harn
      同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改 terminu-go 畫法、app 不用動的拿掉。
   3. `make check` 過：不過就照 terminu-go 舊版之後每一版的 CHANGELOG 與失敗訊息修到過。
   4. 統整剩下的是測試蓋不到、app 自己要改的事（app 給的字、README、CHANGELOG、project 的檔、app 自己的 popup 與流程）：一條一條
-     讀相關的程式與檔案，沒照新版的就改，改完再跑一次 `make check`。改不了的、tdp 寫不清楚的記下來，6. 跟使用者說。
+     讀相關的程式與檔案，沒照新版的就改，改完再跑一次 `make check`。改不了的、tdp 寫不清楚的記下來，6. 跟使用者說。照 tdp
+     做的 app（不是家族成員）不用跟 project 改的（tdp project.1）。
   5. commit（不加 Claude 署名），訊息寫升到哪一版，列出 4. 改了哪幾條。
 
 ## 2. 從 README 寫 idea.md 與 spec.yaml
