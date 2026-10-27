@@ -1,7 +1,9 @@
 # Changelog
 
-## [Unreleased]
-### Added
+Each release names the version of terminu design (tdp) it follows.
+
+## v1.0.0 — tdp v1.0.0
+
 - `/terminu`: in the folder of an app the harness keeps, checks what the app is waiting for (a newer terminu-go and the tdp it follows, answers to reports, TODOs) and carries on; in a terminu-go app it has not kept yet, offers to take it over; otherwise asks what you want to do (make a new app, review, release, or report to tdp or terminu-go) and takes you there.
 - `/terminu:newapp`: asks what the app is for, one question at a time, and writes it down in your words (`idea.md`); matches each request to tdp (`spec.yaml`) and builds the app with terminu-go from the tdp project templates task by task, running the tests, opening each piece in a terminal of its own and writing down how each task was built and what tests back it (`work.yaml`). Where tdp has no answer it drafts an issue for tdp or terminu-go and works around it meanwhile. It picks up where it left off when you come back, takes new requests, and follows a newer tdp when you agree.
 - `/terminu:review`: a separate, read-only reviewer judges every task in the app's records against tdp, without reading the code; you reconfirm the checks only you can do; what does not follow tdp is listed in `review.yaml` and fixed without asking, in the records or in the code; you are asked only whether to report something to tdp.
