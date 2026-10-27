@@ -2,6 +2,11 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.0.1 — tdp v1.0.1
+
+- `/terminu`: a newer terminu-go is offered as an upgrade only when it changes the lib or what the app has to do; one that changes only documents (such as tdp v1.0.1, a family member's README) is told of and waits for the release.
+- `/terminu:release`: brings the app up to the newest terminu-go before the checks, so the upgrades left waiting go in with the release.
+
 ## v1.0.0 — tdp v1.0.0
 
 - `/terminu`: in the folder of an app the harness keeps, checks what the app is waiting for (a newer terminu-go and the tdp it follows, answers to reports, TODOs) and carries on; in a terminu-go app it has not kept yet, offers to take it over; otherwise asks what you want to do (make a new app, review, release, or report to tdp or terminu-go) and takes you there.
