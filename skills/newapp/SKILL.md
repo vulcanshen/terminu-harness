@@ -114,8 +114,10 @@ spec 的重點，使用者看了成品再提要改的。
 
 1. 讀 `harness-assets/` 的四個檔，跑 `check`：問題先改掉；「待做」就是接下來要做的。
 2. 先查在等的事，不用使用者開口：
-   - **新版**：terminu-go 有沒有比 go.mod 新的 tag（每一版 tdp 都有一版 terminu-go 對到它）。有的話跟使用者說新版對到哪一版
-     tdp、tdp 的 CHANGELOG 改了什麼，問要不要升（AskUserQuestion）。要升就照下面的「升版」做。
+   - **新版**：terminu-go 有沒有比 go.mod 新的 tag（每一版 tdp 都有一版 terminu-go 對到它）。有的話讀 go.mod 那一版之後每一版
+     terminu-go 的 CHANGELOG：有一版改了 lib、或寫了 app 的程式或行為要改，就跟使用者說新版對到哪一版 tdp、tdp 的 CHANGELOG 改了
+     什麼，問要不要升（AskUserQuestion）。要升就照下面的「升版」做。都只改文件的（例：tdp v1.0.1 只改家族成員 README 的一段），
+     只跟使用者說有新版、發版前會升，不問（user 2026-10-27：只改文件的版不用馬上升，`/terminu:release` 發版前升到最新）。
    - **回報**：spec.yaml remark 裡的每個 issue，照當初送的方式看有沒有回應（GitHub issue 用 `gh issue view`；在本機送給別的
      session 的，看那邊的回覆或紀錄）。
    - **TODO**：程式裡還剩哪些 `TODO(tdp #N)`、`TODO(tgo #N)`（`grep -rn 'TODO(t' --include='*.go' .`）。

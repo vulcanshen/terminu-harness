@@ -13,7 +13,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **newapp**（`skills/newapp`，主 session 照著做）：讀 app 的 tgo 對到的那一版 tdp → 一次一題問需求，寫進 idea.md → 對 tdp 寫 spec.yaml
   就開始做（不等確認）→ 照 tdp project 範本開 repo（多放 `.claude/rules/terminu.md`，內容在 `skills/newapp/terminu-rule.md`）→ 一個 task 一個 task 寫，每個 `make check`、
   用 harness 的終端機開起來看、記進 work.yaml、跑 `check`、給使用者看、commit → 卡住叫 `terminu:reportgap`，remark 記 issue，程式標
-  `TODO(tdp #N)`。「繼續」先查 tgo 新版（要升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
+  `TODO(tdp #N)`。「繼續」先查 tgo 新版（改了 lib 或要 app 改的才問要不要升，只改文件的等發版；升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
 - **analysis**（`skills/analysis`）：接手先用 tdp 與 tgo 做的 app。從 README 寫 idea.md 與 spec.yaml，從 git commit history 寫
   work.yaml（測試名字從 `go test -list` 拿，用 `git log -S'func TestX('` 找加進它的 commit，對回 task），不讀程式碼也不讀舊的開發者
   文件；找不到的寫「不知道」。放 `.claude/rules/terminu.md`，刪掉舊的開發者文件（只刪開發者文件），接著 review。tgo 不是最新版時
@@ -23,7 +23,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **review**（`skills/review`）：`check` → 使用者重新確認 `user` 作保 → 派 `terminu:reviewer`（`agents/reviewer.md`，只讀 harness-assets
   與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的自己改紀錄或程式修到合，只有要不要回報 tdp 問使用者（user 2026-10-27：hostu 試用時
   一直問，大部分改紀錄就能處理）。implementation 寫了「不知道」的，派 reviewer 前先看程式補完整，省掉一輪。
-- **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
+- **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、先升到最新的 tgo（user 2026-10-27）、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
   `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`、問使用者才 tag 與 push。
 - **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
   spec.yaml 那個 task 的 remark。

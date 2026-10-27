@@ -1,6 +1,6 @@
 ---
 name: release
-description: 發一個 terminu-go app 的新版：make check、照 tdp review 紀錄、列出還沒做的需求、整理 CHANGELOG，問過使用者才打 tag、push。review 還有不合的不擋，但要使用者確認要發版還是繼續打磨。user 要發版時使用。
+description: 發一個 terminu-go app 的新版：先升到最新的 terminu-go、make check、照 tdp review 紀錄、列出還沒做的需求、整理 CHANGELOG，問過使用者才打 tag、push。review 還有不合的不擋，但要使用者確認要發版還是繼續打磨。user 要發版時使用。
 argument-hint: [版號，例：v0.3.0]
 ---
 
@@ -10,7 +10,9 @@ argument-hint: [版號，例：v0.3.0]
 （MCP 工具 `check` 第一行的 tdp 版本）做；下面是 harness 加的檢查與順序。哪一步沒過就停，跟使用者說卡在哪。
 
 1. **工作目錄乾淨**：`git status --porcelain` 沒有輸出，而且在預設 branch 上。不乾淨就停，問使用者要先 commit 還是先收起來。
-2. **`make check` 過**；有 `release-check` target 就也跑（tdp 寫了哪一種警告不算失敗）。
+2. **升到最新的 terminu-go，`make check` 過**：go.mod 的版本不是最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）
+   時，照 newapp 的「升版」（`../newapp/SKILL.md`）升上去，`spec` 改了的 task 照新版做完再往下（user 2026-10-27：app 發版前先升到
+   最新；只改文件的版平常不升，在這裡一起升）。接著 `make check`；有 `release-check` target 就也跑（tdp 寫了哪一種警告不算失敗）。
 3. **review**：用 Skill 叫 `terminu:review`。它改了 harness-assets 或程式，就 commit（不加 Claude 署名），回到 2。
 4. **還有不合的、還沒做的**：
    - review.yaml 還有 `accepted: false` 的：列出來（task、reason），問使用者（AskUserQuestion）：**照樣發版**，或**繼續打磨**

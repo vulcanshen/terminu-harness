@@ -59,7 +59,9 @@ tgo）在 `e36d757` 的 CLAUDE.md。
   review 每次全部重判；reason 開頭標「違反」「沒有測試」「tdp 不清楚」。
 - **流程**（user 2026-10-25）：`/terminu` 描述需求 → 記進 idea.md → 依 idea.md 與 tdp 產生、更新 spec.yaml → 照 spec 建置，互動中的
   決定同時更新 spec.yaml 與 work.yaml → review 覆蓋 review.yaml → 發版前跑 review，還有 accepted false 就問使用者「照樣發版還是
-  繼續打磨」，不擋。在這幾步之間循環。打 `/terminu` 時先查 tgo 有沒有新版，使用者同意就升。
+  繼續打磨」，不擋。在這幾步之間循環。打 `/terminu` 時先查 tgo 有沒有新版：改了 lib 或要 app 改程式、
+  行為的，使用者同意就升；只改文件的版（例：tdp v1.0.1）只告知，等發版前一次升到最新（user 2026-10-27 在 terminu 定的：tgo 每一版
+  tdp 照舊都發，但只有要 app 改的版才通知成員）。
 - **升版**（user）：把 spec 的 `to` 到新版之間 tdp 各版的 CHANGELOG 先統整（同一節以最新的為主、只改 tgo 畫法的拿掉），再跟紀錄比對，
   開新一份 spec。對不到任何 task 的（project 的檔、README、CHANGELOG 的寫法）直接改（terminu 2026-10-26 提的）。
 - **review 不讀程式碼**（user 2026-10-25）：`terminu:reviewer` agent 從乾淨的 context 開始，只讀 harness-assets 與 tdp（`tdp_section`
@@ -72,7 +74,7 @@ tgo）在 `e36d757` 的 CLAUDE.md。
   重新確認（AI 不替使用者確認）。
 - **reviewer 什麼時候跑**（user 2026-10-20）：「應該不管是不是 newapp, 有兩種方式可以叫 reviewer, 1 個是 app 發版前， 1 個是
   手動呼叫」：`/terminu:release` 與 `/terminu:review`，都在 app 自己的 session 裡打。
-- **`/terminu:release` 包整個發版**（user 選 A）：照 tdp project.6、project.7：工作目錄乾淨、`make check`、review、CHANGELOG 的
+- **`/terminu:release` 包整個發版**（user 選 A）：照 tdp project.6、project.7：工作目錄乾淨、升到最新的 tgo（user 2026-10-27）、`make check`、review、CHANGELOG 的
   `## Unreleased` 改成 `## vX.Y.Z — tdp <版本>`，問使用者版號與要不要打 tag，同意才 tag、push。
 - **commit hook**（user 同意）：harness 管的 app 裡，commit 改了程式、`harness-assets/work.yaml` 沒改就擋；行為沒變的在 commit 訊息
   最後加一行 `Terminu-Work: unchanged`。

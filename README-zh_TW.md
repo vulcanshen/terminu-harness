@@ -12,10 +12,10 @@
 
 - **做一個新的 app**：一次問一題，弄清楚 app 要做什麼（只問需求；畫面、按鍵、檔案格式由它照 tdp 決定），把你的話記下來、每個需求對到 tdp，就開始做：照 tdp 的 project 範本用 terminu-go 一個需求一個需求做出來，每一個都跑測試、在它自己帶的終端機裡打開來看，記下怎麼做的、哪些測試守著，做完給你看。
 - **tdp 找不到答案時不自己決定**：app 的每個決定都要在 tdp 找得到根據，或在 tdp 明文寫「app 可以自行決定」的範圍裡。tdp 沒寫、寫得不清楚、或 terminu-go 還做不到的地方，它會跟你說明，替 tdp 或 terminu-go 寫好 issue 草稿，你同意了才發；等的期間先用暫時的做法，它們更新後再回來改。
-- **繼續做、加需求、跟上新版**：在 app 的資料夾打 `/terminu`，它先查 terminu-go 有沒有新版（每一版 tdp 都有一版 terminu-go 對到它）、在等的 issue 有沒有回應、程式裡還剩哪些暫時的做法，講給你聽；要升版、要加需求都從這裡接著做。
+- **繼續做、加需求、跟上新版**：在 app 的資料夾打 `/terminu`，它先查 terminu-go 有沒有新版（每一版 tdp 都有一版 terminu-go 對到它）、在等的 issue 有沒有回應、程式裡還剩哪些暫時的做法，講給你聽。新版的 terminu-go 改了 lib 或要 app 改的，問你要不要升；只改文件的，等發版時一起升。要加需求也從這裡接著做。
 - **接手現成的 terminu app**：先用 tdp 與 terminu-go 做、之後才掛上 plugin 的 app，從它的 README（做什麼）與 git history（每一塊怎麼做的、哪些測試守著）整理出紀錄，之後照同一套流程走。
 - **review**：另一個只讀的 reviewer 拿 tdp 對 app 的紀錄判每一個需求的做法，不讀程式碼；要你自己確認的（例：要一台 Windows 才驗得了）每次都請你重新確認。不合的它自己改紀錄或程式修到合，只有要不要回報 tdp 會問你。
-- **發版**：跑測試、review、告訴你還有哪些不合與還沒做的需求、照 tdp 整理 CHANGELOG，問過你才打 tag、push。
+- **發版**：先升到最新的 terminu-go，跑測試、review、告訴你還有哪些不合與還沒做的需求、照 tdp 整理 CHANGELOG，問過你才打 tag、push。
 - **回報 tdp 或 terminu-go**：替 tdp 或 terminu-go 寫 issue 草稿，你同意了才發。
 
 不需要 tmux 或圖形介面；會離開你這台機器的事（issue、GitHub repo、發版）都先問你。
