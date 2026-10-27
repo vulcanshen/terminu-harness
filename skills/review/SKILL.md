@@ -1,6 +1,6 @@
 ---
 name: review
-description: 照 tdp 判一個 terminu-go app 的 harness-assets：先驗紀錄、請使用者重新確認要人確認的作保，再派 terminu 的 reviewer 拿 tdp 對 work.yaml 的每一個 task，結果寫進 review.yaml，不合的一項一項跟使用者決定怎麼處理。不讀程式碼。user 要 review 時使用；/terminu:release 也照這裡做。
+description: 照 tdp 判一個 terminu-go app 的 harness-assets：先驗紀錄、請使用者重新確認要人確認的作保，再派 terminu 的 reviewer 拿 tdp 對 work.yaml 的每一個 task，結果寫進 review.yaml，不合的自己改紀錄或程式處理到合，只有要不要回報 tdp 問使用者。reviewer 不讀程式碼。user 要 review 時使用；/terminu:release 也照這裡做。
 argument-hint: [只看哪幾個 task，例：3 5 8]
 ---
 
@@ -14,10 +14,11 @@ work.yaml 沒寫的，review 看不到。格式見 newapp 的 `harness-assets.md
 1. 沒有 `harness-assets/spec.yaml`（現成的 terminu app，還沒用 harness 管過）：用 Skill 叫 `terminu:analysis` 產生，回來再往下。
 2. 跑 MCP 工具 `check`。
    - `go.mod` 讀不到 terminu-go：這不是 harness 管的 app，跟使用者說，結束。
-   - 測試、commit、使用者確認的問題（「測試 X 不在 go test -list 裡」「沒有測試」……）：記下是哪些 task，3. 直接判 `沒有測試`。
+   - 測試、commit、使用者確認的問題（「測試 X 不在 go test -list 裡」「沒有測試」……）：紀錄寫錯的（測試改了名字、打錯）直接改；
+     真的沒有的記下是哪些 task，3. 直接判 `沒有測試`。
    - 其他問題（格式、id、spec 對不上、tdp 編號找不到）：紀錄本身錯了，先改 harness-assets，再跑 `check`，到只剩上一條那種問題為止。
-3. work.yaml 的 implementation 寫了「不知道」的 task（analysis 從 README 與 git history 找不到的）：紀錄不完整，判不了，3. 直接判
-   `沒有測試：implementation 還有不知道的部分（<缺什麼>）`。
+3. work.yaml 的 implementation 寫了「不知道」的 task（analysis 從 README 與 git history 找不到的）：你（寫程式的一方，不是 reviewer）
+   看程式把 implementation 補完整，再往下。不用問使用者：補紀錄只是把做了的事寫下來。
 4. 記下 `check` 第一行的 tdp 版本：這次照這一版判。
 
 ## 2. 請使用者重新確認
@@ -46,19 +47,20 @@ reviewer 說 spec.yaml 少引了哪些 tdp 的，補進那個 task 的 `tdp`（�
 
 跑 `check`，review.yaml 沒有問題。
 
-## 5. 不合的，跟使用者決定
+## 5. 不合的，自己處理到合
 
-把判的結果給使用者看：合的幾個、不合的照三種分開列（task、reason）。不合的一項一項問（AskUserQuestion，一次一題）：
+改紀錄、改程式、補測試處理得了的，不問使用者，直接做；只有要不要回報 tdp 由使用者決定（user 2026-10-27：「如果改紀錄可以處理，
+就不要在過問使用者了，應該是只有『是否提交給 tdp』才要詢問」）。
 
-| reason 開頭 | 選項 |
+| reason 開頭 | 怎麼處理 |
 |---|---|
-| 違反 | **修掉**（改程式、測試與 work.yaml）；**回報 tdp**（覺得 tdp 的規定不合用，用 Skill 叫 `terminu:reportgap`，remark 記 issue）；**先不處理** |
-| 沒有測試 | **補測試**；**改成使用者確認**（問使用者怎麼確認，記進 `user`）；**補紀錄**（implementation 寫了不知道的：寫程式的一方看程式把 implementation 補完整）；**先不處理** |
-| tdp 不清楚 | **回報 tdp**（`terminu:reportgap`，remark 記 issue）；**先不處理** |
+| 違反 | 先看程式。程式本來就合 tdp、是紀錄寫錯的，改 work.yaml；程式真的不合的，改程式、測試與 work.yaml。照 tdp 改會違背 idea.md 的需求時，用 Skill 叫 `terminu:reportgap` 寫回報（它給使用者看草稿，同意才發，發了 remark 記 issue）；不發就照 tdp 改。 |
+| 沒有測試 | 補測試，寫進 `test`。程式測不到的（例：要一台 Windows 才驗得了）寫成 `user: {date, how}`，`how` 寫使用者要怎麼做，照 2. 請使用者確認。 |
+| tdp 不清楚 | 用 Skill 叫 `terminu:reportgap` 寫回報，同上。 |
 
-- 選「先不處理」的留在 review.yaml，下一次 review 還是會列出來。
-- 修了東西的：改完跑 `check`，再回到 3. 只判改了的 task，更新 review.yaml。
+- 改完跑 `make check` 與 `check`，再回到 3. 只判改了的 task，更新 review.yaml。同一個 task 改了兩次還不合，停下來跟使用者說卡在哪。
+- 在等回報的、使用者沒重新確認的、使用者不發回報的，留在 review.yaml，下一次 review 還是會列出來；發版時 release 會問要不要照樣發。
 
 ## 6. 結束
 
-說合的、不合的各幾個，不合的裡面使用者選了什麼，改了哪些檔。修了東西不自己 commit，除非使用者要，或是 `/terminu:release` 叫你的。
+說合的、不合的各幾個，改了哪些紀錄、哪些程式與測試，回報了哪些，還列著的有哪些。修了東西不自己 commit，除非使用者要，或是 `/terminu:release` 叫你的。

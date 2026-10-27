@@ -66,6 +66,10 @@ tgo）在 `e36d757` 的 CLAUDE.md。
   照編號讀），判紀錄寫的做法合不合 tdp。用 tgo 做的 app 元件本身一定照 tdp，讀程式碼找問題是白工。**只判紀錄寫了的**：程式做了、
   work.yaml 沒寫的，harness 不保證（user 選 A，寫進 README 與 app 的規則檔）。review 不拿 spec 判需求有沒有做到；發版時列出還沒做的
   需求，不擋。
+- **review 不合的自己處理，只問要不要回報 tdp**（user 2026-10-27：「如果改紀錄可以處理，就不要在過問使用者了，應該是只有『是否
+  提交給 tdp』才要詢問」，hostu 試用時一直問）：紀錄寫錯的改紀錄，程式不合的改程式，沒測試的補測試，implementation 寫了「不知道」
+  的先看程式補完整再判；tdp 不清楚、或照 tdp 改會違背需求的才叫 reportgap，使用者看草稿決定發不發。`user` 作保照舊每次請使用者
+  重新確認（AI 不替使用者確認）。
 - **reviewer 什麼時候跑**（user 2026-10-20）：「應該不管是不是 newapp, 有兩種方式可以叫 reviewer, 1 個是 app 發版前， 1 個是
   手動呼叫」：`/terminu:release` 與 `/terminu:review`，都在 app 自己的 session 裡打。
 - **`/terminu:release` 包整個發版**（user 選 A）：照 tdp project.6、project.7：工作目錄乾淨、`make check`、review、CHANGELOG 的

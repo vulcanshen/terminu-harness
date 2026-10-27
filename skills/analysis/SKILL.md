@@ -90,9 +90,11 @@ tdp v0.10.0 起不管開發者文件（tdp P5），harness 管的 app 改用 har
 1. 跑 MCP 工具 `check`。格式、id、tdp 編號的問題改到沒有；測試相關的問題留著，交給 review；「沒有 tdp 根據」留到回報了 tdp。
 2. commit（不加 Claude 署名），harness-assets、規則檔、刪掉的文件一起，訊息寫「Take the app over with the terminu harness」這類。
 3. 告訴使用者：
-   - 先升了 terminu-go 的：升到哪一版、為了新版 tdp 改了哪幾條；改不了的、tdp 寫不清楚的，問要不要用 `terminu:reportgap` 回報。
+   - 先升了 terminu-go 的：升到哪一版、為了新版 tdp 改了哪幾條、改不了的卡在哪；tdp 寫不清楚的用 Skill 叫 `terminu:reportgap`
+     寫回報（它給使用者看草稿，同意才發）。
    - harness-assets 產生了，之後 review 會拿它判；要改內容就跟 harness 說。
    - 幾個 task；寫了「不知道」的有哪幾個；沒有作保的有哪幾個。
-   - tdp 找不到根據的有哪幾個：問要不要用 `terminu:reportgap` 回報 tdp（使用者同意才發），發了把 issue 補進那個 task 的 remark。
+   - tdp 找不到根據的有哪幾個：用 Skill 叫 `terminu:reportgap` 寫回報（它給使用者看草稿，同意才發），發了把 issue 補進那個 task 的
+     remark。
    - 刪了哪些檔、拿不準所以留著的檔、progress.md 不再用了。
 4. 接著用 Skill 叫 `terminu:review`（從 /terminu 進來接手的，或是 review 叫你的，都回到 review）。

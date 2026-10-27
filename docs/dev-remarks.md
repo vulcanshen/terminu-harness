@@ -21,7 +21,8 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   試用時只做 go get 與 `make check`，family.mk 少了 tdp v0.9.4 的 `make dev` 沒人抓到；tdptest 抓得到範本，抓不到 app 給的字與
   README（terminu 2026-10-26 提的）。
 - **review**（`skills/review`）：`check` → 使用者重新確認 `user` 作保 → 派 `terminu:reviewer`（`agents/reviewer.md`，只讀 harness-assets
-  與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的一項一項問使用者。
+  與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的自己改紀錄或程式修到合，只有要不要回報 tdp 問使用者（user 2026-10-27：hostu 試用時
+  一直問，大部分改紀錄就能處理）。implementation 寫了「不知道」的，派 reviewer 前先看程式補完整，省掉一輪。
 - **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
   `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`、問使用者才 tag 與 push。
 - **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
@@ -49,8 +50,8 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   範圍裡；找不到、不清楚、矛盾只能回報 tdp。tdp v0.10.0 照這個拿掉了「偏離」、開發者文件的規定，每一節都給了編號。
 - **review 不讀程式碼，拿 tdp 對紀錄**（user 2026-10-25）：用 tgo 做的 app 元件本身一定照 tdp，讀程式碼找問題是白工；harness 要管的
   是 app 的機制有沒有違反 tdp。程式對不對交給測試（work.yaml 的作保）。代價：work.yaml 沒寫的 review 看不到，harness 不保證。
-- **reviewer 跟寫程式的一方分開**：agent 從乾淨的 context 開始，看得到的只有紀錄與 tdp。不另外記「駁回過的問題」：使用者選了先不處理
-  的留在 review.yaml，下一次照樣列出來。
+- **reviewer 跟寫程式的一方分開**：agent 從乾淨的 context 開始，看得到的只有紀錄與 tdp。不另外記「駁回過的問題」：還沒處理完的（在等
+  回報、使用者不發回報的）留在 review.yaml，下一次照樣列出來。
 - **app 照的 tdp 版本不另外存**：從 go.mod 的 terminu-go 推。tdp 只多一句放行的小版本也要有自己的 tgo 版本（user 選 A，2026-10-26），
   因為放行本身就是 review 的根據。
 - **接手只看 README 與 git history**（user 2026-10-26）：接手時的 spec 只要寫出現在有哪些功能，那是 README 本來就寫的；做法的根據是
