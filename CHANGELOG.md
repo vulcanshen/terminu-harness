@@ -2,6 +2,10 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.1.0-beta.3 — tdp v1.1.0-beta.3
+
+- `/terminu:release`, on a new major version from v2 on, ends the module path in `/vN` and changes every import and the `go install` paths in the README and the docs, in the same commit as the CHANGELOG heading, so `go install …@latest` gets the release.
+
 ## v1.1.0-beta.2 — tdp v1.1.0-beta.2
 
 - `/terminu:release` releases a beta: the version may be `vX.Y.Z-beta.N` and the CHANGELOG heading is its tag; it goes out as a GitHub pre-release that the Homebrew tap and the scoop bucket do not get, and the stable release after it covers everything since the previous stable one, the betas' changes too.
