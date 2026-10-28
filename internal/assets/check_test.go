@@ -221,4 +221,16 @@ func TestVersionPatterns(t *testing.T) {
 	if len(ms) != 2 || ms[0][1] != "v0.5.1" || ms[0][2] != "v0.10.1" {
 		t.Errorf("changelog: %v", ms)
 	}
+	m := changelogRE.FindStringSubmatch("## v1.1.0-beta.1 — tdp v1.1.0-beta.1\n")
+	if m == nil || m[1] != "v1.1.0-beta.1" || m[2] != "v1.1.0-beta.1" {
+		t.Errorf("a pre-release in the changelog: %v", m)
+	}
+	for v, want := range map[string]bool{
+		"v1.0.2": true, "v1.1.0-beta.1": true, "v1.1.0-rc.2": true,
+		"v1.1": false, "1.0.2": false, "v1.1.0-": false, "v1.1.0-beta..1": false,
+	} {
+		if isVersion(v) != want {
+			t.Errorf("isVersion(%q) = %v", v, !want)
+		}
+	}
 }

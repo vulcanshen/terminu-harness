@@ -100,7 +100,7 @@ newapp 照 user 給的需求做了 hostu（只在本機；第一版 2026-10-19 �
 - `make build`：建到 `.local/bin/terminu-harness`，`scripts/mcp.sh` 優先用它。有原始碼比它新時不用，改從原始碼建：2026-10-26 hostu
   試用時用到 09:46 建的舊檔，比認得範本路徑的 `d5889fa` 早，check 把 `tdp project/install.sh` 報成找不到。改了 server 的程式之後，
   已經開著的 session 要重新連 MCP（`/mcp`）才換成新的。
-- `make test`；設 `TERMINU_HARNESS__TDP_REPO=~/Documents/sideproj/terminu` 時也驗從本機 clone 讀 tdp 的檔案。
+- `make test`；把 `TERMINU_HARNESS__TDP_REPO` 設成你 clone 的 terminu 的路徑時，也驗從本機 clone 讀 tdp 的檔案。
 - server 的測試開 `internal/server/testdata/fixture`（測試時才建的小程式，不靠外部套件）代替真的 app：它照家族 app 的方式探測
   icon 寬度、顯示收到的鍵、按 `a` 播 5 格動畫、按 `w` 印超過邊界、按 `q` 結束。驗 MCP 工具用它，不拿家族成員來試。
 - `make check`：gofmt、go vet、測試、`claude plugin validate`。

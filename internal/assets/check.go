@@ -298,7 +298,7 @@ func isVersion(v string) bool {
 }
 
 var (
-	versionRE   = regexp.MustCompile(`^v\d+\.\d+\.\d+$`)
+	versionRE   = regexp.MustCompile(`^v\d+\.\d+\.\d+(-[0-9A-Za-z-]+(\.[0-9A-Za-z-]+)*)?$`)
 	requireRE   = regexp.MustCompile(`(?m)^\s*(?:require\s+)?` + regexp.QuoteMeta(TGO) + `\s+(v\S+)`)
 	changelogRE = regexp.MustCompile(`(?m)^## (v\S+) — tdp (v\S+)`)
 )

@@ -34,7 +34,8 @@ func Tag(version string) string {
 	return "v" + version
 }
 
-// Latest is the newest vX.Y.Z tag.
+// Latest is the newest vX.Y.Z tag; a pre-release (v1.1.0-beta.1) counts, and
+// comes before its release.
 func (s Source) Latest() (string, error) {
 	var names []string
 	if s.Repo != "" {
@@ -56,10 +57,10 @@ func (s Source) Latest() (string, error) {
 			names = append(names, t.Name)
 		}
 	}
-	best, bestV := "", []int(nil)
+	best, bestV := "", version{}
 	for _, n := range names {
 		v, ok := semver(n)
-		if ok && (bestV == nil || less(bestV, v)) {
+		if ok && (best == "" || less(bestV, v)) {
 			best, bestV = n, v
 		}
 	}
@@ -69,29 +70,66 @@ func (s Source) Latest() (string, error) {
 	return best, nil
 }
 
-func semver(tag string) ([]int, bool) {
-	parts := strings.Split(strings.TrimPrefix(tag, "v"), ".")
+// version is a vX.Y.Z tag and its pre-release, the dot-separated part after
+// a "-" (v1.1.0-beta.1).
+type version struct {
+	core [3]int
+	pre  []string
+}
+
+func semver(tag string) (version, bool) {
+	var v version
+	core, pre, hasPre := strings.Cut(strings.TrimPrefix(tag, "v"), "-")
+	parts := strings.Split(core, ".")
 	if len(parts) != 3 || !strings.HasPrefix(tag, "v") {
-		return nil, false
+		return v, false
 	}
-	v := make([]int, 3)
 	for i, p := range parts {
 		n, err := strconv.Atoi(p)
 		if err != nil {
-			return nil, false
+			return v, false
 		}
-		v[i] = n
+		v.core[i] = n
+	}
+	if hasPre {
+		v.pre = strings.Split(pre, ".")
+		for _, id := range v.pre {
+			if id == "" {
+				return v, false
+			}
+		}
 	}
 	return v, true
 }
 
-func less(a, b []int) bool {
-	for i := range a {
-		if a[i] != b[i] {
-			return a[i] < b[i]
+// less is semver's precedence: a pre-release comes before its release; the
+// parts of pre-releases compare one by one, numbers as numbers and before
+// words, and the shorter comes first when one is the start of the other.
+func less(a, b version) bool {
+	for i := range a.core {
+		if a.core[i] != b.core[i] {
+			return a.core[i] < b.core[i]
 		}
 	}
-	return false
+	if len(a.pre) == 0 || len(b.pre) == 0 {
+		return len(a.pre) > len(b.pre)
+	}
+	for i := 0; i < len(a.pre) && i < len(b.pre); i++ {
+		x, y := a.pre[i], b.pre[i]
+		if x == y {
+			continue
+		}
+		nx, ex := strconv.Atoi(x)
+		ny, ey := strconv.Atoi(y)
+		switch {
+		case ex == nil && ey == nil:
+			return nx < ny
+		case ex == nil || ey == nil:
+			return ex == nil
+		}
+		return x < y
+	}
+	return len(a.pre) < len(b.pre)
 }
 
 // File is the file at path in tdp at the tag.
