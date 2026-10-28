@@ -25,7 +25,12 @@ argument-hint: [版號，例：v0.3.0、v0.3.0-beta.1]
 6. **CHANGELOG**：照 tdp 把 `## Unreleased` 的標題改成這一版的標題（`## vX.Y.Z — tdp vA.B.C`，beta 是 `## vX.Y.Z-beta.N — tdp vA.B.C`；
    tdp 版本是 `check` 第一行的那一版）。發正式版而上一個正式版之後發過 beta 的：這一段寫上一個正式版以來的全部改動，把那幾個
    beta 段落寫的改動併進來，beta 自己的段落留著（tdp project.6）。`## Unreleased` 沒有內容、也沒有要併的 beta 就停，跟使用者說
-   這一版沒有寫下改了什麼。commit（不加 Claude 署名）。
+   這一版沒有寫下改了什麼。
+   **升到新的大版號（v2 以上）**：go.mod 的 module 結尾要是 `/vN`（例 v4 是 `github.com/<帳號>/<app>/v4`；tdp project.3），跟這個
+   標題放同一個 commit 一起改三樣：go.mod 的 module、所有 import、README 與文件裡的 `go install` 路徑
+   （`…/<app>/vN/cmd/<app>@latest`）。tdptest 拿 CHANGELOG 最新一版的大版號對 module，分開改中間的 `make check` 不會過；已經發過
+   v2 以上卻沒帶的，2. 的 `make check` 就會不過，也照這樣改。
+   `make check` 過了，commit（不加 Claude 署名）。
 7. **問使用者**：給使用者看版號、這一版的 CHANGELOG 段落、review 的結果（合的幾個、使用者選了照樣發的不合項），問要不要打這一版
    的 tag 並 push（AskUserQuestion）。push 之後 `release.yml` 會建置、發 GitHub release、推 Homebrew tap；beta 發成 GitHub 的
    pre-release，不推 tap 與 scoop bucket（tdp project.7）。
