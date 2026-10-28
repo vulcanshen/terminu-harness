@@ -2,6 +2,11 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.1.0-beta.1 — tdp v1.1.0-beta.1
+
+- tdp's pre-releases: `tdp_file`, `tdp_section` and `check` take a version such as `v1.1.0-beta.1`, so an app on a terminu-go beta reads its tdp and its `spec.yaml` may follow it; the newest tag counts pre-releases, each before its release.
+- An app made with tdp (not one of vulcanshen's): `/terminu:newapp` starts it from tdp's project templates with your account in them and in `go mod init`, and you may change them afterwards (tdp v1.0.2); an upgrade does not carry tdp's project changes into it, and `/terminu:release` follows the app's own CHANGELOG and release steps where it changed them.
+
 ## v1.0.1 — tdp v1.0.1
 
 - `/terminu`: a newer terminu-go is offered as an upgrade only when it changes the lib or what the app has to do; one that changes only documents (such as tdp v1.0.1, a family member's README) is told of and waits for the release.
