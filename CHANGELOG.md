@@ -2,6 +2,15 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.1.0 — tdp v1.1.0
+
+Everything since v1.0.1, the betas v1.1.0-beta.1 to beta.3 included:
+
+- tdp's pre-releases: `tdp_file`, `tdp_section` and `check` take a version such as `v1.1.0-beta.1`, so an app on a terminu-go beta reads its tdp and its `spec.yaml` may follow it; the newest tag counts pre-releases, each before its release.
+- `/terminu:release` releases a beta: the version may be `vX.Y.Z-beta.N` and the CHANGELOG heading is its tag; it goes out as a GitHub pre-release that the Homebrew tap and the scoop bucket do not get, and the stable release after it covers everything since the previous stable one, the betas' changes too.
+- `/terminu:release`, on a new major version from v2 on, ends the module path in `/vN` and changes every import and the `go install` paths in the README and the docs, in the same commit as the CHANGELOG heading, so `go install …@latest` gets the release.
+- An app made with tdp (not one of vulcanshen's): `/terminu:newapp` starts it from tdp's project templates with your account in them and in `go mod init`, and you may change them afterwards; an upgrade does not carry tdp's project changes into it, and `/terminu:release` follows the app's own CHANGELOG and release steps where it changed them.
+
 ## v1.1.0-beta.3 — tdp v1.1.0-beta.3
 
 - `/terminu:release`, on a new major version from v2 on, ends the module path in `/vN` and changes every import and the `go install` paths in the README and the docs, in the same commit as the CHANGELOG heading, so `go install …@latest` gets the release.
