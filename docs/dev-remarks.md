@@ -24,7 +24,8 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的自己改紀錄或程式修到合，只有要不要回報 tdp 問使用者（user 2026-10-27：hostu 試用時
   一直問，大部分改紀錄就能處理）。implementation 寫了「不知道」的，派 reviewer 前先看程式補完整，省掉一輪。
 - **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、先升到最新的 tgo（user 2026-10-27）、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
-  `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`、問使用者才 tag 與 push。
+  `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`（beta 是 `vX.Y.Z-beta.N`，之後的正式版那一段併進 beta 的改動，tdp v1.1.0-beta.2）、
+  問使用者才 tag 與 push。
 - **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
   spec.yaml 那個 task 的 remark。
 - **檢查**（`internal/assets`，MCP 工具 `check`、命令列 `terminu-harness check`）：四個檔彼此對不對得上；app 照的 tdp 版本從 go.mod 的
@@ -110,4 +111,5 @@ newapp 照 user 給的需求做了 hostu（只在本機；第一版 2026-10-19 �
 
 ## 發布
 
-還沒發過。GitHub repo、tag、release 的 binary 怎麼給使用者，發版時跟 user 定。
+只打 tag、push（v1.0.0 起），沒有 GitHub release 的 binary：`scripts/mcp.sh` 在使用者的機器上用 Go 從原始碼建。要不要改成下載
+release 的 binary 還沒定。
