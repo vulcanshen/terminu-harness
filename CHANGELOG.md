@@ -2,6 +2,10 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.1.0-beta.2 — tdp v1.1.0-beta.2
+
+- `/terminu:release` releases a beta: the version may be `vX.Y.Z-beta.N` and the CHANGELOG heading is its tag; it goes out as a GitHub pre-release that the Homebrew tap and the scoop bucket do not get, and the stable release after it covers everything since the previous stable one, the betas' changes too.
+
 ## v1.1.0-beta.1 — tdp v1.1.0-beta.1
 
 - tdp's pre-releases: `tdp_file`, `tdp_section` and `check` take a version such as `v1.1.0-beta.1`, so an app on a terminu-go beta reads its tdp and its `spec.yaml` may follow it; the newest tag counts pre-releases, each before its release.
