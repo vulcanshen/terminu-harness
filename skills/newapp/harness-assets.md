@@ -2,8 +2,9 @@
 
 app 的 repo 頂層放 `harness-assets/`，四個檔。tdp 不管開發者文件（tdp P5），這幾個檔由 harness 定；家族的 repo 範本
 （harness project.3）允許圖上沒有的頂層目錄。寫完、改完用 MCP 工具 `check` 驗：四個檔對不對得上、tdp 編號在不在那一版 tdp 裡、
-harness 編號在不在 harness 的 project 裡、測試在不在 `go test -list` 裡；app 照的 tdp 沒有 project/（v1.2.0-beta.1 起）時，也拿
-harness 的範本比家族成員的 repo。
+harness 編號在不在 harness 的 project 裡、work.yaml 的作保守不守得住（四種，見下面的「test 是作保」）；app 照的 tdp 沒有
+project/（v1.2.0-beta.1 起）時，也拿 harness 的範本比家族成員的 repo。輸出開頭有「沒有檢查完」時，這次不算通過，把原因排除了
+再跑一次。
 
 | 檔 | 是什麼 | 誰寫 |
 |---|---|---|

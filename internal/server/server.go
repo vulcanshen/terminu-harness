@@ -185,10 +185,13 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 	s.AddTool(mcp.NewTool("check",
 		mcp.WithDescription("Check an app's harness-assets/ (idea.md, spec.yaml, work.yaml, review.yaml): the files against each other, spec.yaml's "+
 			"tdp citations against the tdp version the app's terminu-go follows (from go.mod and terminu-go's CHANGELOG) and its harness "+
-			"citations against harness's project/, work.yaml's tests against go test -list and its commits against git. Once that tdp has no "+
-			"project/ (v1.2.0-beta.1 on), a family member's repo is checked against harness's project/ too: the templates, the files, the "+
-			"Makefile, the CHANGELOG. Returns the problems to fix and what is left to do (tasks not built yet or built to an older spec, a "+
-			"review behind the spec)."),
+			"citations against harness's project/; and each backing in work.yaml's test list: a test name against go test -list, a subtest "+
+			"(TestX/sub) by running it with go test -run and finding it in the -v output, check: repo as counting only where this check "+
+			"reads the repo (a family member's, its tdp without project/), a commit against git, user: {date, how} for a YYYY-MM-DD date "+
+			"and a how. Once that tdp has no project/ (v1.2.0-beta.1 on), a family member's repo is checked against harness's project/ too: "+
+			"the templates, the files, the Makefile, the CHANGELOG. Returns the problems to fix and what is left to do (tasks not built yet "+
+			"or built to an older spec, a review behind the spec). What it could not check (tdp it could not read, tests that would not "+
+			"run) heads the result as not checked and the call is an error: the check has not passed; run it again once that is fixed."),
 		mcp.WithString("repo", mcp.Description("The app's repo, the current directory when left out.")),
 	), sv.check)
 	return s

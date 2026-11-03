@@ -5,6 +5,8 @@ Each release names the version of terminu design (tdp) it follows.
 ## Unreleased
 
 - The terminal's `keys` types `text` `gap_ms` after the last key, as it spaces the keys, where it used to follow at once: an app could read a key and the text as one input (`/` and `line` as `/line`, one key of several characters to bubbletea), and the key never acted.
+- The `check` tool's description names what it does since v1.2.0-beta.3: the four backings, a subtest run with `go test -run`, `check: repo` counting only where the repo is read, and a check that could not be done ending as an error, not a pass. It named only tests and commits, so the change could not be told from it.
+- `/terminu:newapp`'s upgrade gives a task the new spec id only when the new text changes it, its record or what was built from it; a task that cites a changed section for something else keeps its id, as each review judges every task against the new tdp anyway.
 
 ## v1.2.0-beta.3 — tdp v1.2.0-beta.1
 

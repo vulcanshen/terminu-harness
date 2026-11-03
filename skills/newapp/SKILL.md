@@ -143,8 +143,10 @@ spec 的重點，使用者看了成品再提要改的。
 2. 把 spec 的 `to` 到新版之間 tdp 每一版的 CHANGELOG 統整成一份：同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改
    terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。terminu-go 舊版之後每一版的 CHANGELOG 也讀：寫了 app
    要改的（例：「An app that logs its own filter takes that out」）一起放進這一份。
-3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節、或做的事被新的規定
-   管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（repo
+3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節的，拿新版的原文對它
+   做的事；沒引到、但做的事被新的規定管到的也一樣。新的寫法改到它（紀錄要改，或照紀錄做的程式得改）才照新版改 task（`tdp`、
+   remark），`spec` 改成新的 id，4. 會照新版重做；改的地方跟它做的事無關的（例：T1 加了一列管搜尋，引 T1 但不搜尋的 task），
+   `spec` 不動：每次 review 都拿新版判全部的 task，加 id 只多一次白做。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（repo
    範本的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。照 tdp 做的 app 不用跟家族的 repo
    範本改（harness project.1）。
    - **第一次升到沒有 project/ 的 tdp**（v1.2.0-beta.1 起）：家族的 repo 範本搬到 harness，編號不變。spec 裡的 `tdp project.3`、
