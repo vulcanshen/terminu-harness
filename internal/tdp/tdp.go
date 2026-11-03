@@ -185,18 +185,38 @@ func (s Source) File(tag, path string) ([]byte, error) {
 	return b, nil
 }
 
+// retryWait is how long get waits before each try after the first.
+var retryWait = []time.Duration{time.Second, 2 * time.Second}
+
+// get fetches url, trying again after a network error, a 5xx or a 429 (a
+// GitHub API call that timed out once fails no check); a 404 or a 403 is
+// final.
 func get(url string) ([]byte, error) {
+	for try := 0; ; try++ {
+		b, again, err := getOnce(url)
+		if err == nil {
+			return b, nil
+		}
+		if !again || try >= len(retryWait) {
+			return nil, err
+		}
+		time.Sleep(retryWait[try])
+	}
+}
+
+func getOnce(url string) (b []byte, again bool, err error) {
 	resp, err := client.Get(url)
 	if err != nil {
-		return nil, err
+		return nil, true, err
 	}
 	defer resp.Body.Close()
-	b, err := io.ReadAll(resp.Body)
+	b, err = io.ReadAll(resp.Body)
 	if err != nil {
-		return nil, err
+		return nil, true, err
 	}
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("%s: %s", url, resp.Status)
+		again := resp.StatusCode >= 500 || resp.StatusCode == http.StatusTooManyRequests
+		return nil, again, fmt.Errorf("%s: %s", url, resp.Status)
 	}
-	return b, nil
+	return b, false, nil
 }

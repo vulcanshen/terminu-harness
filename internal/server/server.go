@@ -551,5 +551,10 @@ func (sv *Server) check(_ context.Context, req mcp.CallToolRequest) (*mcp.CallTo
 		}
 		repo = wd
 	}
-	return mcp.NewToolResultText(assets.Check(repo, assets.Default(sv.src)).Text()), nil
+	r := assets.Check(repo, assets.Default(sv.src))
+	if len(r.Incomplete) > 0 {
+		// Not a pass: the agent must not take it for one.
+		return mcp.NewToolResultError(r.Text()), nil
+	}
+	return mcp.NewToolResultText(r.Text()), nil
 }

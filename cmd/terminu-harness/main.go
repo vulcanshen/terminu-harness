@@ -47,7 +47,7 @@ func main() {
 		}
 		r := assets.Check(repo, assets.Default(server.Source()))
 		fmt.Print(r.Text())
-		if len(r.Problems) > 0 {
+		if r.Failed() {
 			os.Exit(1)
 		}
 	case "hook-commit":

@@ -93,8 +93,12 @@ tasks:
   啟動時、計時）、經過什麼（開什麼 popup、問什麼、成功與失敗給什麼回饋、App Log 記什麼、畫面上的字）、讀寫什麼（哪個檔、哪個位置、外部指令）、
   用了 terminu-go 的哪些元件。一個 task 有好幾個入口時，每個入口各寫一行。tgo 本身就會做的（Space menu 怎麼開、`?` 怎麼畫）不用寫。
   analysis 從 README 與 git history 找不到的部分寫「不知道：<缺什麼>」，review 會判成沒有測試，等寫程式的一方看程式補上。
-- **test 是作保**，三種：
-  - 測試的名字（`TestDeleteKeyAsks`，子測試寫 `TestX/sub`）：check 拿 `go test -list` 對。每個入口都要有測試走到。
+- **test 是作保**，四種，每一筆只寫一種：
+  - 測試的名字（`TestDeleteKeyAsks`，子測試寫 `TestX/sub`，照 `go test -v` 印的名字）：check 拿 `go test -list` 對頂層的名字，子測試
+    實際用 `go test -run` 跑一次，要真的跑得到。每個入口都要有測試走到。
+  - `check: repo`：harness 的 `check` 守住的，也就是家族成員的 repo 跟 harness 範本的比對（範本檔、目錄與檔案、`/vN`、Claude Code
+    的檔、Makefile、CHANGELOG；harness project）。只在 app 照的 tdp 沒有 project/（v1.2.0-beta.1 起）、而且是家族成員時有效；之前
+    repo 由 terminu-go 的 tdptest 查，作保寫那個測試（例 `TestTDP/repo`）。
   - `user: {date, how}`：寫不成測試的（例：要一台 Windows），寫使用者怎麼確認的與日期。每次 review 都請使用者重新確認，確認了就更新日期。
   - `commit: <hash>`：連使用者確認都做不到時，指出做這件事的 commit 當紀錄。
   - 沒有作保的 task，review 判 `沒有測試`。

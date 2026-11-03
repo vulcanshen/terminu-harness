@@ -32,8 +32,12 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   spec.yaml 那個 task 的 remark。
 - **檢查**（`internal/assets`，MCP 工具 `check`、命令列 `terminu-harness check`）：四個檔彼此對不對得上；app 照的 tdp 版本從 go.mod 的
   terminu-go 讀它 CHANGELOG 的 `## vX — tdp vY` 推（每一版 tdp 都有一版 tgo 對到它），spec.yaml 的 tdp 編號拿那一版 tdp 標題裡的編號對；
-  `harness` 開頭的引用拿 harness 的 `project/` 對；work.yaml 的測試拿 `go test -list` 對、commit 拿 git 對。app 照的 tdp 沒有
-  `project/`（v1.2.0-beta.1 起）時，家族成員的 repo 拿 harness 的範本比（`internal/repo`，見下面的「家族的 repo 範本」）。另外列出待做。
+  `harness` 開頭的引用拿 harness 的 `project/` 對；work.yaml 的測試拿 `go test -list` 對頂層的名字，子測試（`TestX/sub`）用
+  `go test -run '^TestX$/^sub$' -v` 真的跑一次、看 `=== RUN` 有沒有它（同一個頂層的合成一次；demou 試 beta 時 `TestTDP/repo`
+  已經拿掉，只對頂層名字照樣過，DM44），`check: repo` 只在 harness 真的查 repo 時算數，commit 拿 git 對。app 照的 tdp 沒有
+  `project/`（v1.2.0-beta.1 起）時，家族成員的 repo 拿 harness 的範本比（`internal/repo`，見下面的「家族的 repo 範本」）。讀不到
+  tdp、`go test` 跑不起來時不當成沒東西查：列在開頭的「沒有檢查完」，命令列 exit 1、MCP 回 isError（demou 第一次跑時 GitHub API
+  逾時，只回一條像備註的訊息，repo 也靜靜跳過）；讀 GitHub 時網路錯誤、5xx、429 試三次。另外列出待做。
 - **commit hook**（`hooks/hooks.json` → `scripts/hook-commit.sh` → `terminu-harness hook-commit`，`internal/hook`）：PreToolUse 掛在
   Bash 上。shell 先濾掉不提到 commit 的指令；harness 管的 repo 裡，commit 改了程式、work.yaml 沒改、訊息沒有 `Terminu-Work: unchanged`
   就 exit 2 擋下並說明。

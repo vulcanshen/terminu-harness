@@ -1,6 +1,7 @@
 package assets
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"os/exec"
@@ -25,19 +26,22 @@ type Env struct {
 	IDs func(tdpVersion string) (tdp.IDs, error)
 	// Tests is the names of the app's tests; nil skips checking them.
 	Tests func(repo string) (map[string]bool, error)
+	// Subtests runs the subtests named (TestX/sub) and returns the ones that
+	// ran; nil skips checking them.
+	Subtests func(repo string, names []string) (map[string]bool, error)
 	// Commit reports whether the repo has the commit.
 	Commit func(repo, hash string) bool
 }
 
 // Default reads go.mod and terminu-go's CHANGELOG for the versions, tdp from
-// src, and runs go test -list and git in the repo.
+// src, and runs go test -list, go test -run and git in the repo.
 func Default(src tdp.Source) Env {
-	return Env{Versions: Versions, IDs: src.IDs, Tests: Tests, Commit: Commit}
+	return Env{Versions: Versions, IDs: src.IDs, Tests: Tests, Subtests: Subtests, Commit: Commit}
 }
 
 // Problem is something in the files to fix.
 type Problem struct {
-	File string // a file in Dir, or go.mod
+	File string // a file in Dir, go.mod, or a file of the repo
 	Task int    // 0 when it is not about one task
 	Msg  string
 }
@@ -49,11 +53,19 @@ func (p Problem) String() string {
 	return fmt.Sprintf("%s：%s", p.File, p.Msg)
 }
 
-// Report is what Check found: problems to fix, and what is left to do.
+// Report is what Check found: problems to fix, what it could not check this
+// time (tdp not read, the tests not run), and what is left to do.
 type Report struct {
-	TGO, TDP string
-	Problems []Problem
-	Todo     []string
+	TGO, TDP   string
+	Incomplete []string
+	Problems   []Problem
+	Todo       []string
+}
+
+// Failed reports whether the report is not a pass: a problem, or something
+// left unchecked.
+func (r Report) Failed() bool {
+	return len(r.Problems) > 0 || len(r.Incomplete) > 0
 }
 
 // ReasonKinds are how a reason in review.yaml starts.
@@ -96,14 +108,16 @@ func Check(repo string, env Env) Report {
 		}
 		got, err := env.IDs(tdpVersion)
 		if err != nil {
-			add(SpecFile, 0, "讀不到 tdp %s 的編號，tdp 欄位沒有檢查：%v", tdpVersion, err)
+			r.Incomplete = append(r.Incomplete, fmt.Sprintf("讀不到 tdp %s（%v）：spec.yaml 的 tdp 欄位、家族成員的 repo 都沒有檢查，這次不算通過；網路好了再跑一次 check", tdpVersion, err))
 		} else {
 			ids = &got
 		}
 	}
 	// The repo against harness's project/, once the tdp the app follows has
 	// none (v1.2.0-beta.1 on); before, that terminu-go's tdptest checks it.
+	repoChecked := false
 	if ids != nil && !ids.Project() {
+		repoChecked = repocheck.IsFamily(repo)
 		for _, p := range repocheck.Check(repo) {
 			add(p.File, 0, "%s", p.Msg)
 		}
@@ -117,11 +131,17 @@ func Check(repo string, env Env) Report {
 
 	work := map[int]WorkTask{}
 	if f.Work != nil {
-		var tests map[string]bool
+		wc := workCheck{repo: repo, spec: spec, commit: env.Commit, ids: ids, repoChecked: repoChecked}
 		if env.Tests != nil {
-			if tests, err = env.Tests(repo); err != nil {
-				add(WorkFile, 0, "go test -list 跑不起來，測試的名字沒有檢查：%v", err)
-				tests = nil
+			if wc.tests, err = env.Tests(repo); err != nil {
+				r.Incomplete = append(r.Incomplete, fmt.Sprintf("go test -list 跑不起來（%v）：work.yaml 的測試名字沒有檢查", err))
+				wc.tests = nil
+			}
+		}
+		if subs := subtests(f.Work); len(subs) > 0 && env.Subtests != nil {
+			if wc.ran, err = env.Subtests(repo, subs); err != nil {
+				r.Incomplete = append(r.Incomplete, fmt.Sprintf("子測試跑不起來（%v）：work.yaml 的子測試沒有檢查", err))
+				wc.ran = nil
 			}
 		}
 		for _, w := range f.Work.Tasks {
@@ -130,7 +150,7 @@ func Check(repo string, env Env) Report {
 				continue
 			}
 			work[w.ID] = w
-			checkWork(repo, w, spec, tests, env.Commit, add)
+			wc.task(w, add)
 		}
 	}
 
@@ -215,7 +235,39 @@ func checkSpec(s *Spec, ids *tdp.IDs, add addFunc) {
 	}
 }
 
-func checkWork(repo string, w WorkTask, spec map[int]SpecTask, tests map[string]bool, commit func(repo, hash string) bool, add addFunc) {
+// workCheck is what checking work.yaml's tasks needs: the spec, the app's
+// tests and the subtests that ran, how to look up a commit, the tdp the app
+// follows, and whether check read the repo against harness's project/.
+type workCheck struct {
+	repo        string
+	spec        map[int]SpecTask
+	tests       map[string]bool // nil: not checked
+	ran         map[string]bool // subtests that ran; nil: not checked
+	commit      func(repo, hash string) bool
+	ids         *tdp.IDs // nil: tdp not read
+	repoChecked bool
+}
+
+// subtests are the subtests work.yaml's live tasks name (TestX/sub), each once.
+func subtests(work *Work) []string {
+	var out []string
+	seen := map[string]bool{}
+	for _, w := range work.Tasks {
+		if w.Canceled {
+			continue
+		}
+		for _, b := range w.Test {
+			if strings.Contains(b.Test, "/") && !seen[b.Test] {
+				seen[b.Test] = true
+				out = append(out, b.Test)
+			}
+		}
+	}
+	return out
+}
+
+func (wc workCheck) task(w WorkTask, add addFunc) {
+	repo, spec, tests, commit := wc.repo, wc.spec, wc.tests, wc.commit
 	if w.ID < 1 {
 		add(WorkFile, 0, "task 的 id 從 1 開始")
 		return
@@ -246,20 +298,36 @@ func checkWork(repo string, w WorkTask, spec map[int]SpecTask, tests map[string]
 	}
 	for _, b := range w.Test {
 		n := 0
-		for _, set := range []bool{b.Test != "", b.Commit != "", b.User != nil} {
+		for _, set := range []bool{b.Test != "", b.Check != "", b.Commit != "", b.User != nil} {
 			if set {
 				n++
 			}
 		}
 		if n != 1 {
-			add(WorkFile, w.ID, "test 的每一筆只寫一種：測試的名字、commit、或 user")
+			add(WorkFile, w.ID, "test 的每一筆只寫一種：測試的名字、check、commit、或 user")
 			continue
 		}
 		switch {
 		case b.Test != "":
-			name, _, _ := strings.Cut(b.Test, "/")
-			if tests != nil && !tests[name] {
+			name, _, isSub := strings.Cut(b.Test, "/")
+			switch {
+			case tests != nil && !tests[name]:
 				add(WorkFile, w.ID, "測試 %s 不在 go test -list 裡", b.Test)
+			case isSub && wc.ran != nil && !wc.ran[b.Test] && strings.HasSuffix(b.Test, "/repo") && wc.ids != nil && !wc.ids.Project():
+				add(WorkFile, w.ID, "子測試 %s 跑不出來：tdptest 的 repo 子測試從 terminu-go v1.2.0-beta.1 起拿掉了，repo 改由 harness 的 check 查，作保寫成 check: repo", b.Test)
+			case isSub && wc.ran != nil && !wc.ran[b.Test]:
+				add(WorkFile, w.ID, "子測試 %s 跑不出來：go test -run 沒有跑到這一個", b.Test)
+			}
+		case b.Check != "":
+			switch {
+			case b.Check != "repo":
+				add(WorkFile, w.ID, "check 寫成 %q：只有 check: repo（harness 的 check 拿 harness 的範本比對家族成員的 repo）", b.Check)
+			case wc.ids == nil:
+				// tdp not read: whether harness checks the repo is not known.
+			case wc.ids.Project():
+				add(WorkFile, w.ID, "check: repo 守不住：這一版 tdp 還有 project/，repo 由 terminu-go 的 tdptest 查，harness 不查；作保寫那個測試")
+			case !wc.repoChecked:
+				add(WorkFile, w.ID, "check: repo 守不住：go.mod 的 module 不在 github.com/vulcanshen 底下，harness 不查這個 repo")
 			}
 		case b.Commit != "":
 			if commit != nil && !commit(repo, b.Commit) {
@@ -363,6 +431,57 @@ func Tests(repo string) (map[string]bool, error) {
 	return names, nil
 }
 
+var runRE = regexp.MustCompile(`(?m)^\s*=== RUN\s+(\S+)\s*$`)
+
+// Subtests runs the subtests named (TestX/sub, TestX/sub/deeper) in the repo
+// and returns the names go test -v reported running: one go test -run per
+// top-level test, each level anchored, the names at a level ORed. Whether
+// they pass is make check's business; a build that fails is an error.
+func Subtests(repo string, names []string) (map[string]bool, error) {
+	var tops []string
+	paths := map[string][][]string{}
+	for _, n := range names {
+		parts := strings.Split(n, "/")
+		if _, ok := paths[parts[0]]; !ok {
+			tops = append(tops, parts[0])
+		}
+		paths[parts[0]] = append(paths[parts[0]], parts[1:])
+	}
+	ran := map[string]bool{}
+	for _, top := range tops {
+		levels := []string{"^" + regexp.QuoteMeta(top) + "$"}
+		for depth := 0; ; depth++ {
+			var alts []string
+			seen := map[string]bool{}
+			for _, p := range paths[top] {
+				if depth < len(p) && !seen[p[depth]] {
+					seen[p[depth]] = true
+					alts = append(alts, regexp.QuoteMeta(p[depth]))
+				}
+			}
+			if len(alts) == 0 {
+				break
+			}
+			levels = append(levels, "^(?:"+strings.Join(alts, "|")+")$")
+		}
+		run := strings.Join(levels, "/")
+		cmd := exec.Command("go", "test", "-run", run, "-v", "-count=1", "./...")
+		cmd.Dir = repo
+		out, err := cmd.CombinedOutput()
+		var exit *exec.ExitError
+		if err != nil && !errors.As(err, &exit) {
+			return nil, fmt.Errorf("go test -run %s: %w", run, err)
+		}
+		if strings.Contains(string(out), "[build failed]") || strings.Contains(string(out), "[setup failed]") {
+			return nil, fmt.Errorf("go test -run %s 編譯不過\n%s", run, out)
+		}
+		for _, m := range runRE.FindAllStringSubmatch(string(out), -1) {
+			ran[m[1]] = true
+		}
+	}
+	return ran, nil
+}
+
 // Commit reports whether the repo has the commit.
 func Commit(repo, hash string) bool {
 	return exec.Command("git", "-C", repo, "cat-file", "-e", hash+"^{commit}").Run() == nil
@@ -373,6 +492,12 @@ func (r Report) Text() string {
 	var b strings.Builder
 	if r.TGO != "" {
 		fmt.Fprintf(&b, "terminu-go %s，tdp %s\n", r.TGO, r.TDP)
+	}
+	if len(r.Incomplete) > 0 {
+		fmt.Fprintf(&b, "沒有檢查完（%d），這次不算通過：\n", len(r.Incomplete))
+		for _, s := range r.Incomplete {
+			fmt.Fprintf(&b, "- %s\n", s)
+		}
 	}
 	if len(r.Problems) == 0 {
 		b.WriteString("問題：沒有\n")

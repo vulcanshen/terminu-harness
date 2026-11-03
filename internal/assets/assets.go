@@ -72,10 +72,12 @@ type WorkTask struct {
 	Canceled       bool      `yaml:"canceled"`
 }
 
-// Backing is one thing that backs a task: a test's name, a commit (when no
-// test can show it), or the user's own check.
+// Backing is one thing that backs a task: a test's name, a check harness's
+// check runs (repo), a commit (when no test can show it), or the user's own
+// check.
 type Backing struct {
 	Test   string     `yaml:"test"`
+	Check  string     `yaml:"check"`
 	Commit string     `yaml:"commit"`
 	User   *UserCheck `yaml:"user"`
 }

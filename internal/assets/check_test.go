@@ -1,6 +1,7 @@
 package assets
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -291,5 +292,161 @@ func TestCheckRepo(t *testing.T) {
 	}
 	if r := Check(dir, env); len(r.Problems) > 0 {
 		t.Errorf("tdp with project/, the repo checked:\n%s", r.Text())
+	}
+}
+
+const backingSpec = `id: 1
+from: 0
+to: v0.10.1
+tasks:
+  - {id: 1, spec: 1, request: 子測試, tdp: [tdp K9]}
+  - {id: 2, spec: 1, request: 不見的子測試, tdp: [tdp K9]}
+  - {id: 3, spec: 1, request: tdptest 的 repo, tdp: [tdp K9]}
+  - {id: 4, spec: 1, request: repo, tdp: [harness project.3]}
+  - {id: 5, spec: 1, request: 別的 check, tdp: [tdp K9]}
+`
+
+const backingWork = `tasks:
+  - {id: 1, spec: 1, implementation: a, test: [TestList/sub]}
+  - {id: 2, spec: 1, implementation: b, test: [TestList/gone]}
+  - {id: 3, spec: 1, implementation: c, test: [TestList/repo]}
+  - {id: 4, spec: 1, implementation: d, test: [{check: repo}]}
+  - {id: 5, spec: 1, implementation: e, test: [{check: lint}, {check: repo, commit: abc1234}]}
+`
+
+// TestCheckBackings: a subtest backs a task only when go test runs it, and a
+// tdptest repo subtest gone with tdp's project/ says to write check: repo;
+// check: repo backs a task only where harness's check reads the repo: a
+// family member's, its tdp without project/.
+func TestCheckBackings(t *testing.T) {
+	dir := write(t, map[string]string{IdeaFile: "# 書架\n", SpecFile: backingSpec, WorkFile: backingWork})
+	gomod := func(module string) {
+		if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module "+module+"\n"), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	gomod("github.com/vulcanshen/shelfu")
+	env := fakeEnv()
+	var asked []string
+	env.Subtests = func(_ string, names []string) (map[string]bool, error) {
+		asked = names
+		return map[string]bool{"TestList/sub": true}, nil
+	}
+	got := Check(dir, env).Text()
+	if strings.Join(asked, " ") != "TestList/sub TestList/gone TestList/repo" {
+		t.Errorf("subtests asked: %q", asked)
+	}
+	for _, want := range []string{
+		"work.yaml task 2：子測試 TestList/gone 跑不出來：go test -run 沒有跑到這一個",
+		"work.yaml task 3：子測試 TestList/repo 跑不出來：tdptest 的 repo 子測試從 terminu-go v1.2.0-beta.1 起拿掉了，repo 改由 harness 的 check 查，作保寫成 check: repo",
+		"work.yaml task 5：check 寫成 \"lint\"：只有 check: repo",
+		"work.yaml task 5：test 的每一筆只寫一種：測試的名字、check、commit、或 user",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in:\n%s", want, got)
+		}
+	}
+	for _, not := range []string{"work.yaml task 1：", "work.yaml task 4："} {
+		if strings.Contains(got, not) {
+			t.Errorf("%q in:\n%s", not, got)
+		}
+	}
+
+	withProject := env
+	withProject.IDs = func(v string) (tdp.IDs, error) {
+		ids, err := fakeEnv().IDs(v)
+		ids.Files["project"] = "project/README-zh_TW.md"
+		return ids, err
+	}
+	got = Check(dir, withProject).Text()
+	for _, want := range []string{
+		"work.yaml task 3：子測試 TestList/repo 跑不出來：go test -run 沒有跑到這一個",
+		"work.yaml task 4：check: repo 守不住：這一版 tdp 還有 project/",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("tdp with project/: missing %q in:\n%s", want, got)
+		}
+	}
+
+	gomod("github.com/someone/shelfu")
+	if got := Check(dir, env).Text(); !strings.Contains(got, "work.yaml task 4：check: repo 守不住：go.mod 的 module 不在 github.com/vulcanshen 底下") {
+		t.Errorf("not a family member's: %s", got)
+	}
+}
+
+// TestCheckIncomplete: tdp that cannot be read, tests that do not run, are
+// not a pass: they head the report as what was not checked, and the repo is
+// not taken as checked.
+func TestCheckIncomplete(t *testing.T) {
+	dir := write(t, map[string]string{IdeaFile: "# 書架\n", SpecFile: backingSpec, WorkFile: backingWork})
+	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module github.com/vulcanshen/shelfu\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	env := fakeEnv()
+	env.IDs = func(string) (tdp.IDs, error) { return tdp.IDs{}, errors.New("api.github.com: timeout") }
+	env.Tests = func(string) (map[string]bool, error) { return nil, errors.New("exit 1") }
+	env.Subtests = func(string, []string) (map[string]bool, error) { return nil, errors.New("build failed") }
+	r := Check(dir, env)
+	if !r.Failed() || len(r.Incomplete) != 3 {
+		t.Fatalf("incomplete %q", r.Incomplete)
+	}
+	got := r.Text()
+	for _, want := range []string{
+		"沒有檢查完（3），這次不算通過：",
+		"- 讀不到 tdp v0.10.1（api.github.com: timeout）：spec.yaml 的 tdp 欄位、家族成員的 repo 都沒有檢查，這次不算通過；網路好了再跑一次 check",
+		"- go test -list 跑不起來（exit 1）：work.yaml 的測試名字沒有檢查",
+		"- 子測試跑不起來（build failed）：work.yaml 的子測試沒有檢查",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in:\n%s", want, got)
+		}
+	}
+	if strings.Index(got, "沒有檢查完") > strings.Index(got, "問題") {
+		t.Errorf("not checked comes after the problems:\n%s", got)
+	}
+	for _, not := range []string{"Makefile：", "check: repo 守不住", "跑不出來"} {
+		if strings.Contains(got, not) {
+			t.Errorf("%q with nothing read:\n%s", not, got)
+		}
+	}
+}
+
+// TestSubtests runs go test in a module of its own: the subtests named come
+// back when go test runs them, passing or failing, deeper ones too; a name
+// nothing runs does not; a build that fails is an error.
+func TestSubtests(t *testing.T) {
+	if testing.Short() {
+		t.Skip("runs go test")
+	}
+	dir := t.TempDir()
+	put := func(name, s string) {
+		if err := os.WriteFile(filepath.Join(dir, name), []byte(s), 0o644); err != nil {
+			t.Fatal(err)
+		}
+	}
+	put("go.mod", "module example.com/shelf\n\ngo 1.22\n")
+	put("shelf_test.go", `package shelf
+
+import "testing"
+
+func TestA(t *testing.T) {
+	t.Run("sub", func(t *testing.T) {})
+	t.Run("other", func(t *testing.T) { t.Run("deep", func(t *testing.T) {}) })
+}
+
+func TestB(t *testing.T) { t.Run("fails", func(t *testing.T) { t.Fatal("no") }) }
+`)
+	ran, err := Subtests(dir, []string{"TestA/sub", "TestA/other/deep", "TestA/gone", "TestB/fails", "TestC/x"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	for name, want := range map[string]bool{"TestA/sub": true, "TestA/other/deep": true, "TestB/fails": true, "TestA/gone": false, "TestC/x": false} {
+		if ran[name] != want {
+			t.Errorf("%s ran: %v", name, ran[name])
+		}
+	}
+	put("broken.go", "package shelf\n\nfunc {\n")
+	if _, err := Subtests(dir, []string{"TestA/sub"}); err == nil || !strings.Contains(err.Error(), "編譯不過") {
+		t.Errorf("a build that fails: %v", err)
 	}
 }

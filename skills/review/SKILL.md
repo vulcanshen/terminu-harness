@@ -14,7 +14,9 @@ work.yaml 沒寫的，review 看不到。格式見 newapp 的 `harness-assets.md
 1. 沒有 `harness-assets/spec.yaml`（現成的 terminu app，還沒用 harness 管過）：用 Skill 叫 `terminu:analysis` 產生，回來再往下。
 2. 跑 MCP 工具 `check`。
    - `go.mod` 讀不到 terminu-go：這不是 harness 管的 app，跟使用者說，結束。
-   - 測試、commit、使用者確認的問題（「測試 X 不在 go test -list 裡」「沒有測試」……）：紀錄寫錯的（測試改了名字、打錯）直接改；
+   - 「沒有檢查完」（讀不到 tdp、測試跑不起來）：這次不算，先把原因排除（例：網路），再跑一次 `check`，不往下判。
+   - 測試、check、commit、使用者確認的問題（「測試 X 不在 go test -list 裡」「子測試 X 跑不出來」「check: repo 守不住」「沒有測試」……）：
+     紀錄寫錯的（測試改了名字、打錯、守 repo 的還寫著已經拿掉的 tdptest 子測試）直接改；
      真的沒有的記下是哪些 task，3. 直接判 `沒有測試`。
    - 其他問題（格式、id、spec 對不上、tdp 編號找不到）：紀錄本身錯了，先改 harness-assets，再跑 `check`，到只剩上一條那種問題為止。
 3. work.yaml 的 implementation 寫了「不知道」的 task（analysis 從 README 與 git history 找不到的）：你（寫程式的一方，不是 reviewer）

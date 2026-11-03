@@ -65,8 +65,10 @@ newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harn
   1. `go test -list . ./...` 列出測試的名字。
   2. 每個測試用 `git log --reverse --format='%h %s' -S'func <TestX>(' -- '*_test.go'` 找加進它的 commit；那個 commit 做的是哪個
      task，這個測試就寫在那個 task。名字一看就知道在測哪個 task 的也算。對不上的不硬配。
-  3. 沒有測試、但找得到做這個 task 的 commit：寫 `commit: <hash>`。
-  4. 都沒有就空著，review 會判沒有測試。
+  3. repo、範本、發布那一類的 task（家族成員的 repo 跟 harness 範本的比對）：app 照的 tdp 沒有 project/（v1.2.0-beta.1 起）時寫
+     `check: repo`，由 harness 的 `check` 守住（`../newapp/harness-assets.md` 的作保）。
+  4. 沒有測試、但找得到做這個 task 的 commit：寫 `commit: <hash>`。
+  5. 都沒有就空著，review 會判沒有測試。
 
 ## 4. 放規則檔
 

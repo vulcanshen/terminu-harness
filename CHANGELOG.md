@@ -2,6 +2,12 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.0-beta.3 — tdp v1.2.0-beta.1
+
+- A fourth backing in `work.yaml`, `check: repo`: harness's `check` guards the task, reading a family member's repo against the family's templates. It counts only where harness reads the repo: a family member's, its tdp without `project/`.
+- A subtest named as a backing (`TestX/sub`) has to run: `check` runs it with `go test -run` and looks for it in the output, where it used to look up `TestX` alone, so a subtest that is gone (terminu-go's `TestTDP/repo`, say) no longer passes. A gone `…/repo` says to write `check: repo`; `/terminu:newapp`'s first upgrade to a tdp without `project/` swaps it, and `/terminu:analysis` writes `check: repo` for the repo's task.
+- `check` no longer passes what it could not check: tdp it could not read, tests that would not run head the report as not checked, and the command exits 1 (the MCP tool reports an error). Reading tdp from GitHub tries again after a network error, a 5xx or a 429.
+
 ## v1.2.0-beta.2 — tdp v1.2.0-beta.1
 
 - The newest terminu-go no longer counts a beta, as Go's `@latest` does not: `/terminu`, `/terminu:newapp`, `/terminu:release` and `/terminu:analysis` take the newest release (`go list -m …@latest`), a beta only when the app is on a beta already (the last of `go list -m -versions`, so a release replaces its betas) or when you name one. A family's beta round is for the members it names; the rest are no longer upgraded to it when they release.

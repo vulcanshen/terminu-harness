@@ -149,8 +149,9 @@ spec 的重點，使用者看了成品再提要改的。
    範本改（harness project.1）。
    - **第一次升到沒有 project/ 的 tdp**（v1.2.0-beta.1 起）：家族的 repo 範本搬到 harness，編號不變。spec 裡的 `tdp project.3`、
      `tdp project/install.sh`、`tdp project-13` 改成 `harness project.3`、`harness project/install.sh`、`harness project-13`；家族成員
-     的範本檔開頭的註解從 `(tdp project/…)` 改成 `(harness project/…)`，照 `tdp_section` 讀到的 harness 範本重新複製。`check`
-     兩樣都會指出來。之後範本改了，是 harness 發版時改的，`check` 一樣會比出來。
+     的範本檔開頭的註解從 `(tdp project/…)` 改成 `(harness project/…)`，照 `tdp_section` 讀到的 harness 範本重新複製；work.yaml
+     裡守 repo 的作保（tdptest 的 repo 子測試，例 `TestTDP/repo`，terminu-go v1.2.0-beta.1 起拿掉了）換成 `check: repo`。`check`
+     三樣都會指出來。之後範本改了，是 harness 發版時改的，`check` 一樣會比出來。
 4. 回到 4，把 `spec` 改了的 task 照新版做一次。
 
 **使用者加需求、改需求**：寫進 idea.md，照「升版」的 3. 開新一份 spec（`from`、`to` 不變），新增或修改 task，回到 4。

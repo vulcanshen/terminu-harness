@@ -1,6 +1,43 @@
 package tdp
 
-import "testing"
+import (
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+)
+
+// TestGetRetries: a 5xx, a 429 or a network error is tried again, up to
+// three tries in all; a 404 is final.
+func TestGetRetries(t *testing.T) {
+	saved := retryWait
+	retryWait = []time.Duration{time.Millisecond, time.Millisecond}
+	defer func() { retryWait = saved }()
+	calls := 0
+	codes := []int{http.StatusServiceUnavailable, http.StatusTooManyRequests, http.StatusOK}
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		code := codes[min(calls, len(codes)-1)]
+		calls++
+		w.WriteHeader(code)
+		_, _ = w.Write([]byte("tdp"))
+	}))
+	defer srv.Close()
+	if b, err := get(srv.URL); err != nil || string(b) != "tdp" || calls != 3 {
+		t.Errorf("503, 429, 200: %q, %v, %d calls", b, err, calls)
+	}
+	calls, codes = 0, []int{http.StatusBadGateway}
+	if _, err := get(srv.URL); err == nil || calls != 3 {
+		t.Errorf("502 each time: %v, %d calls", err, calls)
+	}
+	calls, codes = 0, []int{http.StatusNotFound}
+	if _, err := get(srv.URL); err == nil || calls != 1 {
+		t.Errorf("404: %v, %d calls", err, calls)
+	}
+	srv.Close()
+	if _, err := get(srv.URL); err == nil {
+		t.Errorf("a closed server: no error")
+	}
+}
 
 func TestVersionOrder(t *testing.T) {
 	order := []string{

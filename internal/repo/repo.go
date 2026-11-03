@@ -80,29 +80,46 @@ var (
 // v2 on ending in /vN, the major version of the latest release its CHANGELOG
 // names (project.3, project-13).
 func (r *repo) family() bool {
-	s, ok := r.read("go.mod")
-	if !ok {
+	mod := module(r.root)
+	if !isFamily(mod) {
 		return false
 	}
-	m := moduleRE.FindStringSubmatch(s)
-	if m == nil || m[1] == libModule || !strings.HasPrefix(m[1], Family) {
-		return false
-	}
-	r.name, _, _ = strings.Cut(strings.TrimPrefix(majorRE.ReplaceAllString(m[1], ""), Family), "/")
+	r.name, _, _ = strings.Cut(strings.TrimPrefix(majorRE.ReplaceAllString(mod, ""), Family), "/")
 	want := Family + r.name
 	major, latest := r.release()
 	if major >= 2 {
 		want += "/v" + strconv.Itoa(major)
 	}
-	if m[1] != want {
+	if mod != want {
 		why := "CHANGELOG.md 還沒有發過版"
 		if latest != "" {
 			why = "CHANGELOG.md 寫的最新一版是 " + latest
 		}
 		r.add("go.mod", "module 是 %s，不是 %s：%s；v2 起 module 結尾帶大版號 /vN，go install %s/cmd/%s@latest 才裝得到最新的 release（harness project.3、project-13）",
-			m[1], want, why, want, r.name)
+			mod, want, why, want, r.name)
 	}
 	return true
+}
+
+// IsFamily reports whether the repository at root is a family member's,
+// which Check reads: its go.mod's module under github.com/vulcanshen, and not
+// terminu-go itself.
+func IsFamily(root string) bool { return isFamily(module(root)) }
+
+func isFamily(mod string) bool {
+	return mod != "" && mod != libModule && strings.HasPrefix(mod, Family)
+}
+
+// module is the module path go.mod at root names, "" when there is none.
+func module(root string) string {
+	b, err := os.ReadFile(filepath.Join(root, "go.mod"))
+	if err != nil {
+		return ""
+	}
+	if m := moduleRE.FindSubmatch(b); m != nil {
+		return string(m[1])
+	}
+	return ""
 }
 
 // release is the latest release CHANGELOG.md names, its first heading with
