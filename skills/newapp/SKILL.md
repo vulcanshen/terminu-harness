@@ -16,8 +16,14 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
 
 ## 0. 準備
 
-- **版本**：terminu-go 用最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）；tdp 用那一版 terminu-go 對到的版本
-  （terminu-go 那一版 CHANGELOG 的標題 `## vX.Y.Z — tdp vA.B.C`）。之後讀 tdp 一律指定這個版本，不讀最新的。
+- **要用的 terminu-go**（這裡定一次，「繼續」、「升版」、`terminu:release`、`terminu:analysis` 都照這個）：
+  - 預設是最新的正式版，跟 Go 的 `@latest` 一樣不算 beta：`go list -m -f '{{.Version}}' github.com/vulcanshen/terminu-go@latest`。
+  - app 的 go.mod 已經是 beta（版本帶 `-`，例 `v1.2.0-beta.1`）：算 beta，拿 `go list -m -versions github.com/vulcanshen/terminu-go`
+    的最後一個（照 semver 排，正式版排在它的 beta 後面，所以正式版出來就升到正式版）。
+  - 使用者明確指定某一版（例：「升到 v1.2.0-beta.1 試試」）：用那一版。
+  - beta 是給試的：家族一輪 beta 只有指定的成員跟，沒指定的不要自己升上去。
+- **tdp**：用那一版 terminu-go 對到的版本（terminu-go 那一版 CHANGELOG 的標題 `## vX.Y.Z — tdp vA.B.C`）。之後讀 tdp 一律指定這個
+  版本，不讀最新的。
 - **tdp**：用 `tdp_file` 讀 `principle/README-zh_TW.md`（P5「明文放行」寫了 tdp 管什麼、哪些 app 可以自行決定）、
   `principle/rules-zh_TW.md`、`components/README-zh_TW.md`。用到哪個元件再讀那個元件的檔
   （`components/layout/panel-zh_TW.md`、`components/dialog/form-zh_TW.md`……）。每一節的標題前面就是它的編號（`panel.5`）。
@@ -119,7 +125,8 @@ spec 的重點，使用者看了成品再提要改的。
 
 1. 讀 `harness-assets/` 的四個檔，跑 `check`：問題先改掉；「待做」就是接下來要做的。
 2. 先查在等的事，不用使用者開口：
-   - **新版**：terminu-go 有沒有比 go.mod 新的 tag（每一版 tdp 都有一版 terminu-go 對到它）。有的話讀 go.mod 那一版之後每一版
+   - **新版**：「0. 準備」的「要用的 terminu-go」有沒有比 go.mod 新（每一版 tdp 都有一版 terminu-go 對到它；go.mod 是正式版時
+     beta 不算）。有的話讀 go.mod 那一版之後每一版
      terminu-go 的 CHANGELOG：有一版改了 lib、或寫了 app 的程式或行為要改，就跟使用者說新版對到哪一版 tdp、tdp 的 CHANGELOG 改了
      什麼，問要不要升（AskUserQuestion）。要升就照下面的「升版」做。都只改文件的（例：tdp v1.0.1 只改家族成員 README 的一段），
      只跟使用者說有新版、發版前會升，不問（user 2026-10-27：只改文件的版不用馬上升，`/terminu:release` 發版前升到最新）。
@@ -131,7 +138,8 @@ spec 的重點，使用者看了成品再提要改的。
 
 **升版**：
 
-1. `go get github.com/vulcanshen/terminu-go@<新的 tag>`，`go mod tidy`。中間隔了好幾版（跨 minor 也一樣）也一次升到新的 tag。
+1. `go get github.com/vulcanshen/terminu-go@<要用的版本>`（「0. 準備」的「要用的 terminu-go」），`go mod tidy`。中間隔了好幾版
+   （跨 minor 也一樣）也一次升上去。
 2. 把 spec 的 `to` 到新版之間 tdp 每一版的 CHANGELOG 統整成一份：同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改
    terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。terminu-go 舊版之後每一版的 CHANGELOG 也讀：寫了 app
    要改的（例：「An app that logs its own filter takes that out」）一起放進這一份。

@@ -1,21 +1,24 @@
 ---
 name: release
-description: 發一個 terminu-go app 的新版：先升到最新的 terminu-go、make check、照 tdp review 紀錄、列出還沒做的需求、整理 CHANGELOG，問過使用者才打 tag、push。review 還有不合的不擋，但要使用者確認要發版還是繼續打磨。user 要發版時使用。
+description: 發一個 terminu-go app 的新版：先升到最新的正式版 terminu-go（app 已經在 beta 上才算 beta）、make check、照 tdp review 紀錄、列出還沒做的需求、整理 CHANGELOG，問過使用者才打 tag、push。review 還有不合的不擋，但要使用者確認要發版還是繼續打磨。user 要發版時使用。
 argument-hint: [版號，例：v0.3.0、v0.3.0-beta.1]
 ---
 
 # /terminu:release
 
-發版的規定在家族的 repo 範本（terminu project，tdp v1.2.0-beta.1 起在 harness，tdp E6 交給它）：先用 `tdp_section` 讀
-`harness project.6`（CHANGELOG）與 `harness project.7`（發布）；2. 會先升到最新的 terminu-go，所以照的都是 harness 的這一份。下面是
-harness 加的檢查與順序。哪一步沒過就停，跟使用者說卡在哪。照 tdp 做的 app（不是家族成員）的 CHANGELOG 與發布步驟可以自行決定
+發版的規定在家族的 repo 範本（terminu project）的 project.6（CHANGELOG）與 project.7（發布）。2. 升完 terminu-go 之後看 app 照的
+tdp（`check` 第一行）：還有 project/（v1.1.10 以前）就用 `tdp_section` 讀 `tdp project.6`、`tdp project.7`；沒有（v1.2.0-beta.1
+起，tdp E6 交給 harness）就讀 `harness project.6`、`harness project.7`。下面寫 `harness project.N` 的地方，照前一種的換成
+`tdp project.N`。下面是 harness 加的檢查與順序。哪一步沒過就停，跟使用者說卡在哪。照 tdp 做的 app（不是家族成員）的 CHANGELOG 與發布步驟可以自行決定
 （harness project.1、tdp 的 E 章開頭）：app 改過的，6.–9. 照 app 自己的寫法；沒改過的跟家族一樣。
 
 1. **工作目錄乾淨**：`git status --porcelain` 沒有輸出，而且在預設 branch 上。不乾淨就停，問使用者要先 commit 還是先收起來。
-2. **升到最新的 terminu-go，`make check` 與 `check` 過**：go.mod 的版本不是最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）
-   時，照 newapp 的「升版」（`../newapp/SKILL.md`）升上去，`spec` 改了的 task 照新版做完再往下（user 2026-10-27：app 發版前先升到
-   最新；只改文件的版平常不升，在這裡一起升）。接著 `make check`；有 `release-check` target 就也跑（harness project.7 寫了哪一種警告
-   不算失敗）。再跑 MCP 工具 `check`：家族成員的 repo（範本、目錄、Makefile、CHANGELOG）由它拿 harness 的範本比，報的問題改到沒有。
+2. **升到最新的 terminu-go，`make check` 與 `check` 過**：go.mod 的版本比 newapp「0. 準備」的「要用的 terminu-go」舊
+   （`../newapp/SKILL.md`；預設是最新的正式版，app 已經在 beta 上才算 beta，使用者指定的照指定的）時，照 newapp 的「升版」升上去，
+   `spec` 改了的 task 照新版做完再往下（user 2026-10-27：app 發版前先升到最新；只改文件的版平常不升，在這裡一起升）。正式版的 app
+   不會在這裡被升到 beta。接著 `make check`；有 `release-check` target 就也跑（harness project.7 寫了哪一種警告不算失敗）。再跑
+   MCP 工具 `check`，報的問題改到沒有：app 照的 tdp 沒有 project/ 時，家族成員的 repo（範本、目錄、Makefile、CHANGELOG）由它拿
+   harness 的範本比；還有 project/ 時，由那一版 terminu-go 的 tdptest 在 `make check` 裡查。
 3. **review**：用 Skill 叫 `terminu:review`。它改了 harness-assets 或程式，就 commit（不加 Claude 署名），回到 2。
 4. **還有不合的、還沒做的**：
    - review.yaml 還有 `accepted: false` 的：列出來（task、reason），問使用者（AskUserQuestion）：**照樣發版**，或**繼續打磨**

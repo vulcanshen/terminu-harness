@@ -2,6 +2,12 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.0-beta.2 — tdp v1.2.0-beta.1
+
+- The newest terminu-go no longer counts a beta, as Go's `@latest` does not: `/terminu`, `/terminu:newapp`, `/terminu:release` and `/terminu:analysis` take the newest release (`go list -m …@latest`), a beta only when the app is on a beta already (the last of `go list -m -versions`, so a release replaces its betas) or when you name one. A family's beta round is for the members it names; the rest are no longer upgraded to it when they release.
+- `tdp_file` and `tdp_section`, given no version, read the newest tdp release rather than a beta.
+- `/terminu:release` reads the release rules from tdp's `project/` while the app's tdp still has it (v1.1.10 and before), and from harness's after that.
+
 ## v1.2.0-beta.1 — tdp v1.2.0-beta.1
 
 - The family's repo templates move here from tdp: tdp says what an app should be, whatever the language, and templates written for Go and goreleaser are the family's upkeep, kept with the tool that makes and releases the family's apps. `project/` holds terminu project as tdp v1.1.10 had it: its page (sections project.1–8), its checklist items (the 38 `project-` items, their IDs kept) and the seven templates, whose first comment now cites `harness project/…`.

@@ -166,7 +166,7 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 			"principle/icon.svg, checklist/README-zh_TW.md. Traditional Chinese is the original. From tdp v1.2.0-beta.1 on the family's repo "+
 			"templates (project/) are harness's: read them with tdp_section, \"harness project\" or \"harness project/install.sh\"."),
 		mcp.WithString("path", mcp.Required(), mcp.Description("The path in the terminu repo.")),
-		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4, the newest tag when left out.")),
+		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4, or v1.2.0-beta.1 for a beta; the newest release (not a beta) when left out.")),
 	), sv.tdpFile)
 
 	s.AddTool(mcp.NewTool("tdp_section",
@@ -178,7 +178,7 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 			"v1.2.0-beta.1: a section (harness project.3), the whole page (harness project), a template by its path (harness "+
 			"project/install.sh), a checklist item (harness project-13). An older tdp still has its own project/ (tdp project.3)."),
 		mcp.WithArray("ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("The IDs, with or without the tdp prefix (\"tdp K4\" or \"K4\"), or with the harness prefix (\"harness project.3\").")),
-		mcp.WithString("version", mcp.Description("A tdp version like v0.10.1, the newest tag when left out.")),
+		mcp.WithString("version", mcp.Description("A tdp version like v0.10.1, or v1.2.0-beta.1 for a beta; the newest release (not a beta) when left out.")),
 	), sv.tdpSection)
 
 	s.AddTool(mcp.NewTool("check",

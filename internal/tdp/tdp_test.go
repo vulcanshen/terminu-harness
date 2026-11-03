@@ -26,3 +26,22 @@ func TestVersionOrder(t *testing.T) {
 		}
 	}
 }
+
+// TestNewest: the newest tag is the newest release, as Go's @latest takes
+// it; a beta only while there is no release, and a release after its betas.
+func TestNewest(t *testing.T) {
+	for _, c := range []struct {
+		tags []string
+		want string
+	}{
+		{[]string{"v1.1.10", "v1.2.0-beta.1", "v1.1.9", "main"}, "v1.1.10"},
+		{[]string{"v1.2.0-beta.1", "v1.2.0", "v1.2.0-beta.2"}, "v1.2.0"},
+		{[]string{"v1.1.10", "v1.1.9", "v1.1.11"}, "v1.1.11"},
+		{[]string{"v1.0.0-beta.1", "v1.0.0-beta.2"}, "v1.0.0-beta.2"},
+		{[]string{"main", "x"}, ""},
+	} {
+		if got := newest(c.tags); got != c.want {
+			t.Errorf("newest(%q) = %q, want %q", c.tags, got, c.want)
+		}
+	}
+}

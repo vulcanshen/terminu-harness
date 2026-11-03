@@ -34,8 +34,9 @@ func Tag(version string) string {
 	return "v" + version
 }
 
-// Latest is the newest vX.Y.Z tag; a pre-release (v1.1.0-beta.1) counts, and
-// comes before its release.
+// Latest is the newest release, a vX.Y.Z tag with no pre-release, as Go's
+// @latest takes it: a beta (v1.2.0-beta.1) is the newest only while there is
+// no release at all. A version with a pre-release is read when asked for.
 func (s Source) Latest() (string, error) {
 	var names []string
 	if s.Repo != "" {
@@ -57,17 +58,31 @@ func (s Source) Latest() (string, error) {
 			names = append(names, t.Name)
 		}
 	}
-	best, bestV := "", version{}
-	for _, n := range names {
-		v, ok := semver(n)
-		if ok && (best == "" || less(bestV, v)) {
-			best, bestV = n, v
-		}
-	}
+	best := newest(names)
 	if best == "" {
 		return "", fmt.Errorf("no vX.Y.Z tag")
 	}
 	return best, nil
+}
+
+// newest is the newest release among the tags, or the newest pre-release
+// when none is a release; "" when none is a version.
+func newest(names []string) string {
+	best, bestV, pre := "", version{}, true
+	for _, n := range names {
+		v, ok := semver(n)
+		if !ok {
+			continue
+		}
+		isPre := len(v.pre) > 0
+		switch {
+		case best == "",
+			pre && !isPre,
+			pre == isPre && less(bestV, v):
+			best, bestV, pre = n, v, isPre
+		}
+	}
+	return best
 }
 
 // version is a vX.Y.Z tag and its pre-release, the dot-separated part after

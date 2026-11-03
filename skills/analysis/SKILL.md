@@ -1,6 +1,6 @@
 ---
 name: analysis
-description: 接手一個還沒用 harness 管過的 terminu-go app：從 README 寫 idea.md 與 spec.yaml、從 git commit history 寫 work.yaml，讓 review 有依據，之後照 harness 的流程走。寫紀錄不讀程式碼（terminu-go 不是最新版時先升，那一段要改程式）；刪掉舊的開發者文件，放上 app 的規則檔，做完告訴使用者。/terminu 問了要接手、或 /terminu:review 找不到 harness-assets 時使用。
+description: 接手一個還沒用 harness 管過的 terminu-go app：從 README 寫 idea.md 與 spec.yaml、從 git commit history 寫 work.yaml，讓 review 有依據，之後照 harness 的流程走。寫紀錄不讀程式碼（terminu-go 不是最新的正式版時先升，那一段要改程式；app 已經在 beta 上才算 beta）；刪掉舊的開發者文件，放上 app 的規則檔，做完告訴使用者。/terminu 問了要接手、或 /terminu:review 找不到 harness-assets 時使用。
 ---
 
 # 接手一個現成的 terminu app
@@ -22,11 +22,12 @@ newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harn
 - 工作目錄不乾淨（`git status --porcelain` 有輸出）：停下來，問使用者要先 commit 還是先收起來。
 - **版本**：terminu-go 是 go.mod 裡的版本；tdp 是那一版 terminu-go 的 CHANGELOG 標題寫的（`## vX.Y.Z — tdp vA.B.C`；CHANGELOG 在
   `go list -m -f {{.Dir}} github.com/vulcanshen/terminu-go` 那個目錄）。之後讀 tdp 一律指定這一版。
-- **先升 terminu-go**：go.mod 的版本不是最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）時，問使用者要不要
+- **先升 terminu-go**：go.mod 的版本比 newapp「0. 準備」的「要用的 terminu-go」舊（`../newapp/SKILL.md`；預設是最新的正式版，
+  app 已經在 beta 上才算 beta，使用者指定的照指定的）時，問使用者要不要
   先升（AskUserQuestion，推薦升）：spec 照哪一版 tdp 寫，就要引那一版的編號，照舊版寫完馬上升版等於做兩次。tdp 早於 v0.10.0、或
   CHANGELOG 沒寫對到哪一版 tdp 的，一定要先升：那時 components 的節還沒有編號，spec 引不了。使用者不升而 tdp 早於 v0.10.0：跟
   使用者說接手不了，結束。升（這一段要改程式，analysis 只有這裡讀程式）：
-  1. `go get github.com/vulcanshen/terminu-go@<最新的 tag>`、`go mod tidy`。
+  1. `go get github.com/vulcanshen/terminu-go@<要用的版本>`、`go mod tidy`。
   2. 用 `tdp_file` 讀新版 tdp 的 `CHANGELOG.md`，把舊版之後到新版的每一版統整成一份，照 newapp 的「升版」2.（`../newapp/SKILL.md`）：
      同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改 terminu-go 畫法、app 不用動的拿掉。
   3. `make check` 過：不過就照 terminu-go 舊版之後每一版的 CHANGELOG 與失敗訊息修到過。

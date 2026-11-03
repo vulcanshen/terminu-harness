@@ -13,7 +13,9 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **newapp**（`skills/newapp`，主 session 照著做）：讀 app 的 tgo 對到的那一版 tdp → 一次一題問需求，寫進 idea.md → 對 tdp 寫 spec.yaml
   就開始做（不等確認）→ 照家族的 repo 範本（harness 的 `project/`）開 repo（多放 `.claude/rules/terminu.md`，內容在 `skills/newapp/terminu-rule.md`）→ 一個 task 一個 task 寫，每個 `make check`、
   用 harness 的終端機開起來看、記進 work.yaml、跑 `check`、給使用者看、commit → 卡住叫 `terminu:reportgap`，remark 記 issue，程式標
-  `TODO(tdp #N)`。「繼續」先查 tgo 新版（改了 lib 或要 app 改的才問要不要升，只改文件的等發版；升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
+  `TODO(tdp #N)`。「繼續」先查 tgo 新版（「要用的 terminu-go」定在 newapp 的「0. 準備」，release、analysis 照它：預設 `go list -m …@latest`
+  的正式版，app 已經在 beta 上才拿 `go list -m -versions` 的最後一個，使用者指定的照指定的；harness v1.2.0-beta.2 起，之前拿 GitHub
+  tags 的第一個，beta 也算，這一輪只有 demou 試 beta，其他成員會被帶上去；改了 lib 或要 app 改的才問要不要升，只改文件的等發版；升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
 - **analysis**（`skills/analysis`）：接手先用 tdp 與 tgo 做的 app。從 README 寫 idea.md 與 spec.yaml，從 git commit history 寫
   work.yaml（測試名字從 `go test -list` 拿，用 `git log -S'func TestX('` 找加進它的 commit，對回 task），不讀程式碼也不讀舊的開發者
   文件；找不到的寫「不知道」。放 `.claude/rules/terminu.md`，刪掉舊的開發者文件（只刪開發者文件），接著 review。tgo 不是最新版時
