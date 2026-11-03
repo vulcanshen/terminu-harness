@@ -1,7 +1,8 @@
 // Command fixture is a small full-screen program the server's tests drive in
 // place of a real app: it measures an icon the way a terminu family app does
 // (print one, ask where the cursor went), shows the last key it got, plays a
-// short animation on a, prints past the edge on w and ends on q.
+// short animation on a, prints past the edge on w, stops reading 90ms after b
+// and ends on q.
 package main
 
 import (
@@ -51,7 +52,13 @@ func main() {
 				close(keys)
 				return
 			}
-			keys <- append([]byte(nil), buf[:n]...)
+			b := append([]byte(nil), buf[:n]...)
+			keys <- b
+			if string(b) == "b" {
+				// Busy with the key a while, as an app can be: what
+				// arrives meanwhile is read at once.
+				time.Sleep(90 * time.Millisecond)
+			}
 		}
 	}()
 	for {

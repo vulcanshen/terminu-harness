@@ -2,6 +2,10 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## Unreleased
+
+- The terminal's `keys` types `text` `gap_ms` after the last key, as it spaces the keys, where it used to follow at once: an app could read a key and the text as one input (`/` and `line` as `/line`, one key of several characters to bubbletea), and the key never acted.
+
 ## v1.2.0-beta.3 — tdp v1.2.0-beta.1
 
 - A fourth backing in `work.yaml`, `check: repo`: harness's `check` guards the task, reading a family member's repo against the family's templates. It counts only where harness reads the repo: a family member's, its tdp without `project/`.

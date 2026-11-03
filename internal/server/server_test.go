@@ -78,6 +78,15 @@ func TestTerminalTools(t *testing.T) {
 		}
 	}
 
+	// The text comes gap_ms after the last key, a read of its own: "/" and
+	// "line" in one read is one key to the app, and its / never fires (viewu).
+	// After b the fixture does not read for 90ms; / comes at 60ms, then the
+	// text at 120ms, once the fixture has read / alone.
+	out, _ = call(t, sv.keys, map[string]any{"session": "s1", "keys": []any{"b", "/"}, "text": "line"})
+	if !strings.Contains(out, "key 6c696e65") {
+		t.Errorf("keys / then text line: the app did not read line alone in\n%s", out)
+	}
+
 	out, _ = call(t, sv.styles, map[string]any{"session": "s1", "row": 0, "width": 10})
 	if !strings.Contains(out, `0–6 "fixture" fg #89b4fa bg default bold`) {
 		t.Errorf("styles:\n%s", out)

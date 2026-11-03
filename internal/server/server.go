@@ -107,13 +107,14 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 		mcp.WithDescription("Press keys in a session and return the screen once it settles (no change for 150ms, at most wait_ms). "+
 			"Keys are written the checklist's way: Enter, Esc, Space, Tab, Shift-Tab, Backspace, Delete, Up, Down, Left, Right, Home, End, "+
 			"PgUp, PgDn, F1–F12, Ctrl-C, Alt-x, Shift-Down, or one character (j, ?, V, 1). They go gap_ms apart, so Esc then j stays two keys. "+
-			"text is typed after the keys, as is. With record_ms the screen is recorded from just before the first key for that long instead: "+
+			"text is typed gap_ms after the last key, as is and in one write, so the app reads it at once, as a paste: a key that has to act "+
+			"on its own (a hotkey such as /, j) goes in keys, not at the start of text. With record_ms the screen is recorded from just before the first key for that long instead: "+
 			"every change the app drew, with its time in ms and the rows that changed (rows marked 'colours only' changed colour or attributes, "+
 			"not characters). Record with no keys to watch time pass (a toast's countdown, an animation already running)."),
 		session,
 		mcp.WithArray("keys", mcp.WithStringItems(), mcp.Description("The keys, in order.")),
-		mcp.WithString("text", mcp.Description("Text to type after the keys.")),
-		mcp.WithNumber("gap_ms", mcp.Description("Time between keys, 60 when left out.")),
+		mcp.WithString("text", mcp.Description("Text to type after the keys, gap_ms after the last one.")),
+		mcp.WithNumber("gap_ms", mcp.Description("Time between keys, and between the last key and text, 60 when left out.")),
 		mcp.WithNumber("record_ms", mcp.Description("Record this long and return the frames.")),
 		mcp.WithNumber("wait_ms", mcp.Description("How long at most to wait for the screen to settle, 2000 when left out.")),
 	), sv.keys)
@@ -261,11 +262,17 @@ func (sv *Server) keys(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToo
 	if recordFor > 0 {
 		e.s.Record()
 	}
-	if err := e.s.Keys(keys, ms(req, "gap_ms", 60)); err != nil {
+	gap := ms(req, "gap_ms", 60)
+	if err := e.s.Keys(keys, gap); err != nil {
 		e.s.StopRecording()
 		return fail("%v", err)
 	}
 	if text != "" {
+		if len(keys) > 0 {
+			// The text gap apart too: read with the last key it is one key
+			// with several characters, and the key's own action never runs.
+			time.Sleep(gap)
+		}
 		if err := e.s.Type(text); err != nil {
 			e.s.StopRecording()
 			return fail("%v", err)
