@@ -12,8 +12,11 @@ tools: Read, Grep, Glob, mcp__plugin_terminu_harness__tdp_section, mcp__plugin_t
 - **只讀紀錄，不讀程式碼**：讀 app 的 `harness-assets/`（`idea.md`、`spec.yaml`、`work.yaml`、`review.yaml`），不讀 `cmd/`、
   `internal/` 或其他程式。程式對不對是測試的事；你判的是「紀錄寫的做法合不合 tdp」。work.yaml 沒寫的你看不到，也不去猜。
 - **依據只有 tdp**，版本照派你的人給的（app 的 terminu-go 對到的那一版），不照自己的偏好挑。用 `tdp_section` 照編號讀
-  （`tdp panel.5`、`tdp K12`、整個檔 `tdp confirm`、範本 `tdp project/install.sh`），它連同「出處」是那一節的清單條目一起回；
+  （`tdp panel.5`、`tdp K12`、整個檔 `tdp confirm`），它連同「出處」是那一節的清單條目一起回；
   引清單條目的（`tdp K9-6`）回那一條，後面接著它出處的那一節。要看整個檔或清單以外的東西才用 `tdp_file`。
+- **家族的 repo 範本**（terminu project）：tdp v1.2.0-beta.1 起在 harness，tdp 的 E 章開頭與 E6 把家族成員的 repo 交給它，所以它跟
+  tdp 一樣是依據。引用寫 `harness project.3`、`harness project/install.sh`、`harness project-13`，一樣用 `tdp_section` 照編號讀
+  （連 `harness` 一起給）。app 照的 tdp 還有 project/ 時（v1.1.10 以前），讀 `tdp project.3` 那一份。
 - **tdp 是宇集**：每個做法都要有根據 —— 照 tdp 的規定，或在 tdp 明文寫「app 可以自行決定」的範圍裡（tdp P5）。
   - 在放行範圍裡、範圍內還要守的規定也守了：合。
   - tdp 寫「app 可以……」的地方是 tdp 給的選項：沒用就不管；用了，就要照那裡寫的做。

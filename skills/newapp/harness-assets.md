@@ -1,7 +1,9 @@
 # harness-assets：harness 在 app 裡的紀錄
 
-app 的 repo 頂層放 `harness-assets/`，四個檔。tdp 不管開發者文件（tdp P5），這幾個檔由 harness 定；tdp project.3 允許圖上沒有的
-頂層目錄。寫完、改完用 MCP 工具 `check` 驗：四個檔對不對得上、tdp 編號在不在那一版 tdp 裡、測試在不在 `go test -list` 裡。
+app 的 repo 頂層放 `harness-assets/`，四個檔。tdp 不管開發者文件（tdp P5），這幾個檔由 harness 定；家族的 repo 範本
+（harness project.3）允許圖上沒有的頂層目錄。寫完、改完用 MCP 工具 `check` 驗：四個檔對不對得上、tdp 編號在不在那一版 tdp 裡、
+harness 編號在不在 harness 的 project 裡、測試在不在 `go test -list` 裡；app 照的 tdp 沒有 project/（v1.2.0-beta.1 起）時，也拿
+harness 的範本比家族成員的 repo。
 
 | 檔 | 是什麼 | 誰寫 |
 |---|---|---|
@@ -51,10 +53,12 @@ tasks:
   （有幾個 panel、各放什麼）也是 task，版面的 ASCII 圖寫在它的 remark。
 - **tdp 引用**：一律 `tdp` 加編號（tdp 的「引用」）。
   - rules 用規則編號：`tdp K4`。principle 用 `tdp P5`，術語用 `tdp terms.3`。
-  - components 與 project 用節編號：`tdp panel.5`、`tdp project.3`；README 用資料夾名：`tdp components.5`、`tdp input.2`。
+  - components 用節編號：`tdp panel.5`；README 用資料夾名：`tdp components.5`、`tdp input.2`。
   - 一個元件整個都用到時引整個檔：`tdp confirm`、`tdp form`。
-  - project 的範本檔寫路徑：`tdp project/install.sh`，等於那一份範本。
   - 要比一整節精確時引清單的條目：`tdp K9-6`、`tdp note-78`，指的是那一條的出處，依據還是規範的文字。
+  - **家族的 repo 範本**（terminu project）寫在同一個 `tdp` 欄位，用 `harness` 加編號：節 `harness project.3`、整頁 `harness project`、
+    範本檔寫路徑 `harness project/install.sh`（等於那一份範本）、條目 `harness project-13`。tdp v1.2.0-beta.1 起它在 harness（tdp
+    的 E 章開頭與 E6 交給 harness）；app 照的 tdp 還有 project/（v1.1.10 以前）時，也可以照舊寫 `tdp project.3`。
   - 在 tdp「app 可以自行決定」的範圍裡做的，引那個放行（領域熱鍵、領域的符號與顏色、功能邏輯都是 `tdp P5`），範圍內還要守的規定
     也一起引（例：熱鍵還要引 `tdp M5`、`tdp K12`）。
   - 編號寫在 tdp 每一節的標題前面。

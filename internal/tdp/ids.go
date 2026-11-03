@@ -83,30 +83,52 @@ func (s Source) Files(tag string) ([]string, error) {
 	return paths, nil
 }
 
+// tree is what IDs and Sections read: tdp at a tag, or harness's project/.
+type tree struct {
+	at    string // "tdp v1.2.0", "harness": what errors name
+	paths []string
+	file  func(path string) ([]byte, error)
+	items string // the path of its checklist
+}
+
+// tree is tdp at the tag.
+func (s Source) tree(tag string) (tree, error) {
+	paths, err := s.Files(tag)
+	if err != nil {
+		return tree{}, err
+	}
+	return tree{at: "tdp " + Tag(tag), paths: paths, file: func(p string) ([]byte, error) { return s.File(tag, p) }, items: ItemsFile}, nil
+}
+
 // IDs reads the IDs in tdp at the tag from the headings of the Traditional
 // Chinese files, the original.
 func (s Source) IDs(tag string) (IDs, error) {
-	paths, err := s.Files(tag)
+	t, err := s.tree(tag)
 	if err != nil {
 		return IDs{}, err
 	}
+	return t.ids()
+}
+
+func (t tree) ids() (IDs, error) {
 	ids := IDs{Sections: map[string]string{}, Paths: map[string]string{}, Files: map[string]string{},
 		Templates: map[string]bool{}, Items: map[string][]string{}}
-	for _, p := range paths {
-		if template(p) {
-			ids.Templates[p] = true
-		}
-		if p == ItemsFile {
-			b, err := s.File(tag, p)
+	for _, p := range t.paths {
+		if p == t.items {
+			b, err := t.file(p)
 			if err != nil {
 				return IDs{}, err
 			}
 			ids.Items = items(b)
+			continue
+		}
+		if template(p) {
+			ids.Templates[p] = true
 		}
 		if !citable(p) {
 			continue
 		}
-		b, err := s.File(tag, p)
+		b, err := t.file(p)
 		if err != nil {
 			return IDs{}, err
 		}
@@ -119,6 +141,14 @@ func (s Source) IDs(tag string) (IDs, error) {
 		}
 	}
 	return ids, nil
+}
+
+// Project reports whether ids have terminu project, the family's repo
+// templates: tdp had them up to v1.1.10; from tdp v1.2.0-beta.1 on they are
+// harness's.
+func (ids IDs) Project() bool {
+	_, ok := ids.Files["project"]
+	return ok
 }
 
 // citable is a file whose headings carry IDs.

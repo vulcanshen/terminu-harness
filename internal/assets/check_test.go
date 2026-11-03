@@ -234,3 +234,62 @@ func TestVersionPatterns(t *testing.T) {
 		}
 	}
 }
+
+// TestCheckHarnessCitations: the family's repo templates are cited with the
+// harness prefix (harness project.3, harness project/install.sh, harness
+// project-13), checked against harness's project/; a tdp project ID the tdp
+// no longer has says to write it with harness.
+func TestCheckHarnessCitations(t *testing.T) {
+	spec := `id: 1
+from: 0
+to: v0.10.1
+tasks:
+  - id: 1
+    spec: 1
+    request: repo 照家族的範本
+    tdp: [harness project.3, harness project/install.sh, harness project-13, harness project]
+  - id: 2
+    spec: 1
+    request: 範本
+    tdp: [harness project.99, tdp project.3, harness K9]
+`
+	r := Check(write(t, map[string]string{IdeaFile: "# 書架\n", SpecFile: spec, WorkFile: "tasks: []\n"}), fakeEnv())
+	got := r.Text()
+	if strings.Contains(got, "spec.yaml task 1：") {
+		t.Errorf("harness citations taken as problems:\n%s", got)
+	}
+	for _, want := range []string{
+		"spec.yaml task 2：\"harness project.99\" 在 harness 的 project 裡找不到",
+		"spec.yaml task 2：\"tdp project.3\" 在這一版 tdp 裡找不到：家族的 repo 範本從 tdp v1.2.0-beta.1 起在 harness，寫成 \"harness project.3\"",
+		"spec.yaml task 2：\"harness K9\" 在 harness 的 project 裡找不到",
+	} {
+		if !strings.Contains(got, want) {
+			t.Errorf("missing %q in:\n%s", want, got)
+		}
+	}
+}
+
+// TestCheckRepo: once the tdp the app follows has no project/, check reads
+// the family member's repo against harness's project/; while it has, it
+// leaves the repo to that terminu-go's tdptest.
+func TestCheckRepo(t *testing.T) {
+	dir := write(t, map[string]string{IdeaFile: "# 書架\n", SpecFile: goodSpec, WorkFile: goodWork, ReviewFile: goodReview})
+	if err := os.WriteFile(filepath.Join(dir, "go.mod"), []byte("module github.com/vulcanshen/shelfu\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	r := Check(dir, fakeEnv())
+	for _, want := range []string{"Makefile：沒有這個檔（harness project.5", "family.mk：沒有這個檔（harness project.2、project-1）", "LICENSE：沒有這個檔"} {
+		if !strings.Contains(r.Text(), want) {
+			t.Errorf("missing %q in:\n%s", want, r.Text())
+		}
+	}
+	env := fakeEnv()
+	env.IDs = func(v string) (tdp.IDs, error) {
+		ids, err := fakeEnv().IDs(v)
+		ids.Files["project"] = "project/README-zh_TW.md"
+		return ids, err
+	}
+	if r := Check(dir, env); len(r.Problems) > 0 {
+		t.Errorf("tdp with project/, the repo checked:\n%s", r.Text())
+	}
+}

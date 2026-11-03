@@ -1,6 +1,6 @@
 ---
 name: reportgap
-description: 把 tdp 沒寫、寫不清楚、兩處矛盾，或 terminu-go 做不到的地方寫成 issue，給使用者看過、同意後發到 GitHub（vulcanshen/terminu 或 vulcanshen/terminu-go），記進 spec.yaml 那個 task 的 remark。newapp 開發卡住、review 判出 tdp 不清楚、使用者要回報 tdp 或 terminu-go 時使用。
+description: 把 tdp 沒寫、寫不清楚、兩處矛盾，terminu-go 做不到，或家族的 repo 範本（harness project）有問題的地方寫成 issue，給使用者看過、同意後發到 GitHub（vulcanshen/terminu、vulcanshen/terminu-go 或 vulcanshen/terminu-harness），記進 spec.yaml 那個 task 的 remark。newapp 開發卡住、review 判出 tdp 不清楚、使用者要回報 tdp 或 terminu-go 時使用。
 argument-hint: [卡在哪]
 ---
 
@@ -15,6 +15,7 @@ tdp 是宇集：app 的每個決定都要在 tdp 找得到根據，或在 tdp �
 |---|---|
 | tdp 沒寫、寫不清楚、兩處互相矛盾、照字面做會出錯、規定不合這個 app 用 | `vulcanshen/terminu` |
 | terminu-go 做不到 tdp 寫的、有 bug、缺 API | `vulcanshen/terminu-go` |
+| 家族的 repo 範本（harness project：範本檔、目錄、Makefile、CHANGELOG、發布）寫不清楚、有問題 | `vulcanshen/terminu-harness` |
 | app 自己的錯 | 不發，自己修 |
 
 ## 2. 先查有沒有人回報過
@@ -55,5 +56,5 @@ B …（後果）
 
 ## 5. 記下來
 
-在 `harness-assets/spec.yaml` 那個 task 的 remark 加一筆 `{note: 卡在哪、暫時怎麼做, issue: tdp #N}`（tgo 的寫 `tgo #N`；GitHub
+在 `harness-assets/spec.yaml` 那個 task 的 remark 加一筆 `{note: 卡在哪、暫時怎麼做, issue: tdp #N}`（tgo 的寫 `tgo #N`，harness 的寫 `harness #N`；GitHub
 以外的送法寫送去哪、哪一天）。程式裡的標記把 `#?` 換成編號。跑 `check`。

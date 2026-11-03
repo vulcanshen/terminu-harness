@@ -2,6 +2,14 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.0-beta.1 — tdp v1.2.0-beta.1
+
+- The family's repo templates move here from tdp: tdp says what an app should be, whatever the language, and templates written for Go and goreleaser are the family's upkeep, kept with the tool that makes and releases the family's apps. `project/` holds terminu project as tdp v1.1.10 had it: its page (sections project.1–8), its checklist items (the 38 `project-` items, their IDs kept) and the seven templates, whose first comment now cites `harness project/…`.
+- Citing them: `harness project.3`, `harness project` (the whole page), `harness project/install.sh`, `harness project-13`, in the same `tdp` list of `spec.yaml`. `tdp_section` reads them; `check` checks them against `project/`, and a `tdp project…` citation the app's tdp no longer has says to write it with `harness`. An app whose tdp still has `project/` (v1.1.10 and before) may cite it as before.
+- `check` compares a family member's repo with the templates, the files, the Makefile and the CHANGELOG, once the tdp it follows has no `project/`: what terminu-go's tdptest checked until now, moved here with the templates, with messages in Traditional Chinese.
+- `/terminu:newapp`, `/terminu:analysis` and `/terminu:release` read the templates from harness; the first upgrade to a tdp without `project/` rewrites the citations and the templates' first comments. `/terminu:release` runs `check` after `make check`.
+- `/terminu:reportgap` reports a problem with the family's templates to terminu-harness.
+
 ## v1.1.0 — tdp v1.1.0
 
 Everything since v1.0.1, the betas v1.1.0-beta.1 to beta.3 included:

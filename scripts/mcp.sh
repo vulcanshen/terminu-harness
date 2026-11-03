@@ -6,11 +6,11 @@
 set -e
 root=$(cd "$(dirname "$0")/.." && pwd)
 dev="$root/.local/bin/terminu-harness"
-if [ -x "$dev" ] && [ -z "$(cd "$root" && find cmd internal go.mod go.sum -type f -newer "$dev" | head -n 1)" ]; then
+if [ -x "$dev" ] && [ -z "$(cd "$root" && find cmd internal project project.go go.mod go.sum -type f -newer "$dev" | head -n 1)" ]; then
 	exec "$dev" "$@"
 fi
 home=${TERMINU_HARNESS__HOME:-$HOME/.terminu-harness}
-sum=$(cd "$root" && find cmd internal go.mod go.sum -type f | LC_ALL=C sort | xargs cat | cksum | cut -d ' ' -f 1)
+sum=$(cd "$root" && find cmd internal project project.go go.mod go.sum -type f | LC_ALL=C sort | xargs cat | cksum | cut -d ' ' -f 1)
 bin="$home/bin/terminu-harness-$sum"
 if [ ! -x "$bin" ]; then
 	if ! command -v go >/dev/null 2>&1; then

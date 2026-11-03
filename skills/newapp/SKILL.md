@@ -1,6 +1,6 @@
 ---
 name: newapp
-description: 照 terminu design（tdp）用 terminu-go 做一個 TUI app：把使用者的需求寫進 idea.md、對到 tdp 寫成 spec.yaml、照 tdp 的 project 範本開 repo、一個 task 一個 task 寫並記進 work.yaml、卡住就回報 tdp 或 terminu-go、做完給使用者看。也用來繼續做到一半的 app、加新需求、跟上新版的 tdp。由 /terminu 帶進來，或 user 要做一個 terminu 家族的 app 時使用。
+description: 照 terminu design（tdp）用 terminu-go 做一個 TUI app：把使用者的需求寫進 idea.md、對到 tdp 寫成 spec.yaml、照 harness 帶的家族 repo 範本（terminu project）開 repo、一個 task 一個 task 寫並記進 work.yaml、卡住就回報 tdp 或 terminu-go、做完給使用者看。也用來繼續做到一半的 app、加新需求、跟上新版的 tdp。由 /terminu 帶進來，或 user 要做一個 terminu 家族的 app 時使用。
 argument-hint: [app 的需求]
 ---
 
@@ -19,8 +19,10 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
 - **版本**：terminu-go 用最新的 tag（`gh api repos/vulcanshen/terminu-go/tags --jq '.[0].name'`）；tdp 用那一版 terminu-go 對到的版本
   （terminu-go 那一版 CHANGELOG 的標題 `## vX.Y.Z — tdp vA.B.C`）。之後讀 tdp 一律指定這個版本，不讀最新的。
 - **tdp**：用 `tdp_file` 讀 `principle/README-zh_TW.md`（P5「明文放行」寫了 tdp 管什麼、哪些 app 可以自行決定）、
-  `principle/rules-zh_TW.md`、`components/README-zh_TW.md`、`project/README-zh_TW.md`。用到哪個元件再讀那個元件的檔
+  `principle/rules-zh_TW.md`、`components/README-zh_TW.md`。用到哪個元件再讀那個元件的檔
   （`components/layout/panel-zh_TW.md`、`components/dialog/form-zh_TW.md`……）。每一節的標題前面就是它的編號（`panel.5`）。
+- **家族的 repo 範本**（terminu project）：tdp v1.2.0-beta.1 起不在 tdp，在 harness（tdp E 章開頭、E6 交給這裡）。用 `tdp_section`
+  讀 `harness project`（整頁），範本讀 `harness project/install.sh` 這樣的路徑。引用寫 `harness project.3`、`harness project-13`。
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
   （`tdptest`）、「計時器：`App.Tick`」。
@@ -39,9 +41,10 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   不用 textarea）。跟 tdp 衝突的當場說出來，讓使用者選「改需求」或「回報 tdp」。
 - **不問 tdp 已經規定的事**：按鍵、外框、顏色、popup 的開關、splash、README 的結構，照 tdp 做。
 - 使用者不是 vulcanshen 時，app 是「照 tdp 做的 app」，不是家族成員（tdp Rules E 章開頭）：Homebrew tap、splash 的作者信箱換成
-  使用者自己的，README 的 family 段寫「照 terminu design 做」並附 tdp 的連結。project 只綁家族成員（tdp project.1）：3. 照樣拿
-  project 與範本當起點，範本裡的 `vulcanshen`（repo 的路徑、tap 的 owner、首頁）換成使用者的帳號（tdp project.2）；之後使用者
-  要改 repo 的目錄、Makefile、CHANGELOG、發布步驟都可以，Rules E 章照樣守。問需求時一起問使用者的帳號、tap 與信箱。
+  使用者自己的，README 的 family 段寫「照 terminu design 做」並附 tdp 的連結。家族的 repo 範本只綁家族成員（harness project.1；
+  tdp 的 E 章開頭：照 tdp 做的 app 的 repo 自己決定）：3. 照樣拿它當起點，範本裡的 `vulcanshen`（repo 的路徑、tap 的 owner、首頁）
+  換成使用者的帳號（harness project.2）；之後使用者要改 repo 的目錄、Makefile、CHANGELOG、發布步驟都可以，tdp 的 E 章照樣守。
+  問需求時一起問使用者的帳號、tap 與信箱。
 - 使用者講的需求照他的話寫進 `harness-assets/idea.md`（repo 還沒開就先記著，3. 開 repo 時寫進去）。
 
 ## 2. spec.yaml
@@ -60,10 +63,10 @@ spec 的重點，使用者看了成品再提要改的。
 
 ## 3. 開 repo
 
-- 放在哪裡問使用者。repo 照 tdp project.3 的目錄，加上 `harness-assets/`。
-- 範本檔（`family.mk`、`release.yml`、`goreleaser.yaml`、`install.sh`、`uninstall.sh`、`version.go`、`gitignore`）用 `tdp_file`
-  抓同一版，照 project.2 的表複製，只改表上最後一欄允許的地方。
-- `Makefile`、`CHANGELOG.md` 的開頭照 project 頁；兩份 README 照 Rules E7；`docs/icon.svg` 照 Rules S5（U 框照 tdp 的
+- 放在哪裡問使用者。repo 照 harness project.3 的目錄，加上 `harness-assets/`。
+- 範本檔（`family.mk`、`release.yml`、`goreleaser.yaml`、`install.sh`、`uninstall.sh`、`version.go`、`gitignore`）用 `tdp_section`
+  讀 `harness project/<檔名>`，照 harness project.2 的表複製，只改表上最後一欄允許的地方。
+- `Makefile`、`CHANGELOG.md` 的開頭照 harness project.5、project.6；兩份 README 照 Rules E7；`docs/icon.svg` 照 Rules S5（U 框照 tdp 的
   `principle/icon.svg`，金色的字拼 app 的名字）；`LICENSE`。
 - `harness-assets/`：`idea.md`（1. 記的需求）、`spec.yaml`（2. 寫的）、`work.yaml`（`tasks: []`）。
 - `.claude/rules/terminu.md`：讓之後在這個 repo 寫程式的人（包括別的 session）照 harness 的規矩，內容照抄這個 skill 資料夾裡的
@@ -106,7 +109,8 @@ spec 的重點，使用者看了成品再提要改的。
 
 ## 5. 卡住
 
-- 分三種：tdp 沒寫、寫不清楚、兩處矛盾 → 回報 tdp；terminu-go 做不到或有 bug → 回報 terminu-go；app 自己的錯 → 自己修。
+- 分四種：tdp 沒寫、寫不清楚、兩處矛盾 → 回報 tdp；terminu-go 做不到或有 bug → 回報 terminu-go；家族的 repo 範本（harness
+  project）有問題 → 回報 terminu-harness；app 自己的錯 → 自己修。
 - 跟使用者說明卡在哪、暫時打算怎麼做，用 Skill 叫 `terminu:reportgap` 寫 issue，使用者同意才發。
 - **其他部分照做**：卡住的地方有合 tdp 的暫時做法就先照它做，程式裡標 `TODO(tdp #N)` 或 `TODO(tgo #N)`，spec.yaml 那個 task 的
   remark 記 `{note: 暫時怎麼做, issue: tdp #N}`；連暫時的做法都沒有，那個 task 先不做，其他照做。tdp 或 terminu-go 更新後回來改掉。
@@ -132,9 +136,13 @@ spec 的重點，使用者看了成品再提要改的。
    terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。terminu-go 舊版之後每一版的 CHANGELOG 也讀：寫了 app
    要改的（例：「An app that logs its own filter takes that out」）一起放進這一份。
 3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節、或做的事被新的規定
-   管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（project
-   的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。照 tdp 做的 app 不用跟 project 改的
-   （tdp project.1）。
+   管到的，照新版改 task（`tdp`、remark），`spec` 改成新的 id。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（repo
+   範本的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。照 tdp 做的 app 不用跟家族的 repo
+   範本改（harness project.1）。
+   - **第一次升到沒有 project/ 的 tdp**（v1.2.0-beta.1 起）：家族的 repo 範本搬到 harness，編號不變。spec 裡的 `tdp project.3`、
+     `tdp project/install.sh`、`tdp project-13` 改成 `harness project.3`、`harness project/install.sh`、`harness project-13`；家族成員
+     的範本檔開頭的註解從 `(tdp project/…)` 改成 `(harness project/…)`，照 `tdp_section` 讀到的 harness 範本重新複製。`check`
+     兩樣都會指出來。之後範本改了，是 harness 發版時改的，`check` 一樣會比出來。
 4. 回到 4，把 `spec` 改了的 task 照新版做一次。
 
 **使用者加需求、改需求**：寫進 idea.md，照「升版」的 3. 開新一份 spec（`from`、`to` 不變），新增或修改 task，回到 4。

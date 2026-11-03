@@ -11,7 +11,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   `harness-assets/spec.yaml` 就叫 `terminu:newapp` 接著做；是 terminu-go 的 app 但沒有 harness-assets，問要不要接手（analysis）；
   都不是就問要做新 app、review、發版還是回報。
 - **newapp**（`skills/newapp`，主 session 照著做）：讀 app 的 tgo 對到的那一版 tdp → 一次一題問需求，寫進 idea.md → 對 tdp 寫 spec.yaml
-  就開始做（不等確認）→ 照 tdp project 範本開 repo（多放 `.claude/rules/terminu.md`，內容在 `skills/newapp/terminu-rule.md`）→ 一個 task 一個 task 寫，每個 `make check`、
+  就開始做（不等確認）→ 照家族的 repo 範本（harness 的 `project/`）開 repo（多放 `.claude/rules/terminu.md`，內容在 `skills/newapp/terminu-rule.md`）→ 一個 task 一個 task 寫，每個 `make check`、
   用 harness 的終端機開起來看、記進 work.yaml、跑 `check`、給使用者看、commit → 卡住叫 `terminu:reportgap`，remark 記 issue，程式標
   `TODO(tdp #N)`。「繼續」先查 tgo 新版（改了 lib 或要 app 改的才問要不要升，只改文件的等發版；升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
 - **analysis**（`skills/analysis`）：接手先用 tdp 與 tgo 做的 app。從 README 寫 idea.md 與 spec.yaml，從 git commit history 寫
@@ -23,20 +23,29 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **review**（`skills/review`）：`check` → 使用者重新確認 `user` 作保 → 派 `terminu:reviewer`（`agents/reviewer.md`，只讀 harness-assets
   與 tdp，不讀程式碼，工具只有 Read、Grep、Glob、`tdp_section`、`tdp_file`）判每一個 task → 寫 review.yaml → 不合的自己改紀錄或程式修到合，只有要不要回報 tdp 問使用者（user 2026-10-27：hostu 試用時
   一直問，大部分改紀錄就能處理）。implementation 寫了「不知道」的，派 reviewer 前先看程式補完整，省掉一輪。
-- **release**（`skills/release`）：照 tdp project.7：工作目錄乾淨、先升到最新的 tgo（user 2026-10-27）、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
+- **release**（`skills/release`）：照 harness project.7：工作目錄乾淨、先升到最新的 tgo（user 2026-10-27）、`make check`、review（還有不合的問使用者照樣發還是繼續打磨）、
   `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`（beta 是 `vX.Y.Z-beta.N`，之後的正式版那一段併進 beta 的改動，tdp v1.1.0-beta.2）、
   問使用者才 tag 與 push。
-- **reportgap**（`skills/reportgap`）：判斷發到 tdp 還是 terminu-go、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
+- **reportgap**（`skills/reportgap`）：判斷發到 tdp、terminu-go 還是 harness（家族的 repo 範本）、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
   spec.yaml 那個 task 的 remark。
 - **檢查**（`internal/assets`，MCP 工具 `check`、命令列 `terminu-harness check`）：四個檔彼此對不對得上；app 照的 tdp 版本從 go.mod 的
   terminu-go 讀它 CHANGELOG 的 `## vX — tdp vY` 推（每一版 tdp 都有一版 tgo 對到它），spec.yaml 的 tdp 編號拿那一版 tdp 標題裡的編號對；
-  work.yaml 的測試拿 `go test -list` 對、commit 拿 git 對。另外列出待做。
+  `harness` 開頭的引用拿 harness 的 `project/` 對；work.yaml 的測試拿 `go test -list` 對、commit 拿 git 對。app 照的 tdp 沒有
+  `project/`（v1.2.0-beta.1 起）時，家族成員的 repo 拿 harness 的範本比（`internal/repo`，見下面的「家族的 repo 範本」）。另外列出待做。
 - **commit hook**（`hooks/hooks.json` → `scripts/hook-commit.sh` → `terminu-harness hook-commit`，`internal/hook`）：PreToolUse 掛在
   Bash 上。shell 先濾掉不提到 commit 的指令；harness 管的 repo 裡，commit 改了程式、work.yaml 沒改、訊息沒有 `Terminu-Work: unchanged`
   就 exit 2 擋下並說明。
 - **MCP server**（`cmd/terminu-harness`，子指令 `mcp`）：plugin.json 的 `mcpServers` 跑 `scripts/mcp.sh`（不放根目錄的 `.mcp.json`：在這個 repo 裡開 Claude Code 時它會被當成專案的 MCP 設定，`${CLAUDE_PLUGIN_ROOT}` 是空的就啟動失敗），server 名 `harness`，工具在
   Claude Code 裡叫 `mcp__plugin_terminu_harness__<工具>`：`open`、`keys`、`screen`、`styles`、`image`、`resize`、`overflow`、`close`、`tdp_file`、
-  `tdp_section`（照編號回那一節的原文與「出處」是它的清單條目）、`check`。
+  `tdp_section`（照編號回那一節的原文與「出處」是它的清單條目；`harness` 開頭的編號回 harness 的 `project/`）、`check`。
+- **家族的 repo 範本**（`project/`、根目錄的 `project.go` 用 `go:embed` 建進 binary）：terminu project 的說明頁、清單條目
+  （`project/items-zh_TW.md`，38 條，編號照舊）與 7 個範本檔。tdp v1.2.0-beta.1 從 tdp 搬來（user 2026-11-03：tdp 只講應該要
+  怎樣、跟語言無關，照 Go 與 goreleaser 寫的範本是家族的維運，交給產生與發布家族 app 的工具），內容是 tdp v1.1.10 的，只改了
+  說明頁裡指到 tdp 的地方與範本開頭的註解（`(harness project/…)`）。引用寫 `harness project.3`、`harness project/install.sh`、
+  `harness project-13`（`internal/tdp/harness.go`）。repo 的檢查（`internal/repo`）是從 terminu-go 的 tdptest（`tdptest/repo.go`，
+  tgo v1.1.11）搬來的，判法一樣，訊息改成中文、引用改成 harness；app 的名字從 go.mod 的 module 讀。app 照的 tdp 還有 `project/`
+  時不跑（那一版 tgo 的 tdptest 會查），沒有時才跑，比的是目前裝的這一版 harness 的範本。`project/version.go` 是範本，Go 建這個
+  module 時它自己是一個沒人 import 的 package。`scripts/mcp.sh` 比新舊時也看 `project/` 與 `project.go`。
 - **終端機**（`internal/term`、`internal/vt`）：`creack/pty` 開 app，`vt` 是從 terminu-go 複製的模擬器。讀 PTY 與處理畫面分兩個
   goroutine：一個只管讀（app 寫 PTY 不會被卡住），一個把讀到的全部一次餵給畫面，再用每一列的 checksum 找出變了哪幾列。錄影記的
   就是這些變化，時間取那一批第一塊輸出讀到的時刻；6ms 內的變化併成一格。

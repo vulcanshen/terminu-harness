@@ -10,13 +10,15 @@
 
 Type `/terminu` and say what you want to do:
 
-- **Make a new app**: it asks what the app is for, one question at a time (only what you need; screens, keys and file formats it decides by tdp), writes your words down, matches each request to tdp and gets going: it builds the app with terminu-go from the tdp project templates one request at a time, runs the tests, opens each in a terminal of its own, writes down how it was built and which tests back it, and shows you the app when it is done.
+- **Make a new app**: it asks what the app is for, one question at a time (only what you need; screens, keys and file formats it decides by tdp), writes your words down, matches each request to tdp and gets going: it builds the app with terminu-go from the family's repo templates (its own [terminu project](project/README.md)) one request at a time, runs the tests, opens each in a terminal of its own, writes down how it was built and which tests back it, and shows you the app when it is done.
 - **When tdp has no answer, it does not make one up**: every decision the app makes has its ground in tdp, or lies where tdp says "the app may decide for itself". Where tdp says nothing, is unclear, or terminu-go can't do it yet, it tells you and drafts an issue for tdp or terminu-go; once you agree it files it, works around it in the meantime and comes back when they are updated.
 - **Carry on, add requests, follow new versions**: type `/terminu` in the app's folder; it first checks for a newer terminu-go (every tdp version has a terminu-go version of its own), answers to the issues it is waiting for and the workarounds left in the code, and tells you. It offers to upgrade when a newer terminu-go changes the lib or what the app has to do; one that changes only documents waits for the release. New requests carry on from there.
 - **Take over a terminu app made without it**: an app built with tdp and terminu-go before the plugin was added gets its records from its README (what it does) and git history (how each part was built and which tests back it), and goes the same way from then on.
 - **Review**: a separate, read-only reviewer judges how each request was built, from the app's records, against tdp, without reading the code; the checks only you can do (say, ones that need a Windows machine) you confirm again each time. What does not follow tdp it fixes by itself, in the records or in the code; it asks you only whether to report something to tdp.
-- **Release**: brings the app up to the newest terminu-go, runs the checks, reviews, tells you what is still open and which requests are not built, writes the CHANGELOG the tdp way, and tags and pushes only once you agree; a beta first, if you want one, goes out as a GitHub pre-release that brew does not get.
-- **Report to tdp or terminu-go**: it drafts an issue for tdp or terminu-go and files it once you agree.
+- **Release**: brings the app up to the newest terminu-go, runs the checks, compares the repo with the family's templates, reviews, tells you what is still open and which requests are not built, writes the CHANGELOG the templates' way, and tags and pushes only once you agree; a beta first, if you want one, goes out as a GitHub pre-release that brew does not get.
+- **Report to tdp, terminu-go or harness**: it drafts an issue for tdp, terminu-go or the family's repo templates (terminu-harness) and files it once you agree.
+
+**The family's repo templates** (terminu project: the directories, Makefile, version, CHANGELOG and release files) live in this plugin's [`project/`](project/README.md) from tdp v1.2.0-beta.1 on: tdp says what an app should be, whatever the language, and templates written for Go and goreleaser are the family's upkeep, kept with the tool that makes and releases the family's apps. `check` compares a family member's repo with them; an app made with tdp starts from them and decides for itself after that.
 
 It needs no tmux or graphical desktop, and it asks before anything that leaves your machine (issues, GitHub repositories, releases).
 
@@ -64,6 +66,7 @@ In an app it keeps, a commit that changes the code without updating the records 
 |---|---|
 | The app's records: your requests (`idea.md`), the tdp each follows (`spec.yaml`), how each was built and which tests back it (`work.yaml`), the last review (`review.yaml`) | `harness-assets/` in the app's repo |
 | The rules for Claude writing code in the repo | `.claude/rules/terminu.md` in the app's repo |
+| The family's repo templates (terminu project) | the plugin's `project/`, also built into the MCP server |
 | tdp files fetched | `~/.terminu-harness/cache/tdp/` |
 | The built terminal and checks | `~/.terminu-harness/bin/` |
 

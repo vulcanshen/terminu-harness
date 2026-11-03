@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	repocheck "github.com/vulcanshen/terminu-harness/internal/repo"
 	"github.com/vulcanshen/terminu-harness/internal/tdp"
 )
 
@@ -98,6 +99,13 @@ func Check(repo string, env Env) Report {
 			add(SpecFile, 0, "讀不到 tdp %s 的編號，tdp 欄位沒有檢查：%v", tdpVersion, err)
 		} else {
 			ids = &got
+		}
+	}
+	// The repo against harness's project/, once the tdp the app follows has
+	// none (v1.2.0-beta.1 on); before, that terminu-go's tdptest checks it.
+	if ids != nil && !ids.Project() {
+		for _, p := range repocheck.Check(repo) {
+			add(p.File, 0, "%s", p.Msg)
 		}
 	}
 
@@ -192,12 +200,15 @@ func checkSpec(s *Spec, ids *tdp.IDs, add addFunc) {
 			add(SpecFile, t.ID, "沒有 tdp 根據：在 tdp 找不到根據時回報 tdp，把 issue 記在 remark")
 		}
 		for _, c := range t.TDP {
-			id, ok := strings.CutPrefix(c, "tdp ")
-			id = strings.TrimSpace(id)
+			inHarness, id := tdp.Cited(c)
 			switch {
-			case !ok || id == "":
-				add(SpecFile, t.ID, "tdp 寫成 %q：一律用 tdp 加編號，例 \"tdp K4\"、\"tdp panel.5\"、\"tdp confirm\"、\"tdp project/install.sh\"、\"tdp K9-6\"", c)
-			case ids != nil && !ids.Has(id):
+			case !inHarness && !strings.HasPrefix(c, "tdp ") || id == "":
+				add(SpecFile, t.ID, "tdp 寫成 %q：一律用 tdp 加編號，例 \"tdp K4\"、\"tdp panel.5\"、\"tdp confirm\"、\"tdp K9-6\"；家族的 repo 範本用 harness 加編號，例 \"harness project.3\"、\"harness project/install.sh\"、\"harness project-13\"", c)
+			case inHarness && !tdp.HarnessIDs().Has(id):
+				add(SpecFile, t.ID, "%q 在 harness 的 project 裡找不到", c)
+			case !inHarness && ids != nil && !ids.Has(id) && tdp.HarnessIDs().Has(id):
+				add(SpecFile, t.ID, "%q 在這一版 tdp 裡找不到：家族的 repo 範本從 tdp v1.2.0-beta.1 起在 harness，寫成 \"harness %s\"", c, id)
+			case !inHarness && ids != nil && !ids.Has(id):
 				add(SpecFile, t.ID, "%q 在這一版 tdp 裡找不到", c)
 			}
 		}

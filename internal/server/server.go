@@ -163,26 +163,31 @@ func (sv *Server) MCP(version string) *server.MCPServer {
 
 	s.AddTool(mcp.NewTool("tdp_file",
 		mcp.WithDescription("A file of terminu design (tdp) at a version, e.g. principle/rules-zh_TW.md, components/layout/popup-zh_TW.md, "+
-			"project/family.mk, principle/icon.svg, checklist/README-zh_TW.md. Traditional Chinese is the original."),
+			"principle/icon.svg, checklist/README-zh_TW.md. Traditional Chinese is the original. From tdp v1.2.0-beta.1 on the family's repo "+
+			"templates (project/) are harness's: read them with tdp_section, \"harness project\" or \"harness project/install.sh\"."),
 		mcp.WithString("path", mcp.Required(), mcp.Description("The path in the terminu repo.")),
 		mcp.WithString("version", mcp.Description("A tdp version like v0.7.4, the newest tag when left out.")),
 	), sv.tdpFile)
 
 	s.AddTool(mcp.NewTool("tdp_section",
 		mcp.WithDescription("Parts of tdp by the IDs an app cites them with, as spec.yaml writes them: rules (K4), principle (P5), terms (terms.3), "+
-			"sections of components and project (panel.5, project.3, input.2), a whole component or project file by name (confirm, form), "+
-			"a project template by its path (project/install.sh), or a checklist item (K9-6), which comes as its row followed by the sections "+
-			"it names as its source. Each comes with its text (a section runs from its heading to the next; the IDs of the sections under it "+
-			"are listed) and the checklist items whose source is it. Much smaller than reading whole files with tdp_file."),
-		mcp.WithArray("ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("The IDs, with or without the tdp prefix: \"tdp K4\" or \"K4\".")),
+			"sections of components (panel.5, input.2), a whole component file by name (confirm, form), or a checklist item (K9-6), which "+
+			"comes as its row followed by the sections it names as its source. Each comes with its text (a section runs from its heading to "+
+			"the next; the IDs of the sections under it are listed) and the checklist items whose source is it. Much smaller than reading "+
+			"whole files with tdp_file. IDs with the harness prefix are terminu project, the family's repo templates, harness's since tdp "+
+			"v1.2.0-beta.1: a section (harness project.3), the whole page (harness project), a template by its path (harness "+
+			"project/install.sh), a checklist item (harness project-13). An older tdp still has its own project/ (tdp project.3)."),
+		mcp.WithArray("ids", mcp.Required(), mcp.WithStringItems(), mcp.Description("The IDs, with or without the tdp prefix (\"tdp K4\" or \"K4\"), or with the harness prefix (\"harness project.3\").")),
 		mcp.WithString("version", mcp.Description("A tdp version like v0.10.1, the newest tag when left out.")),
 	), sv.tdpSection)
 
 	s.AddTool(mcp.NewTool("check",
 		mcp.WithDescription("Check an app's harness-assets/ (idea.md, spec.yaml, work.yaml, review.yaml): the files against each other, spec.yaml's "+
-			"tdp citations against the tdp version the app's terminu-go follows (from go.mod and terminu-go's CHANGELOG), work.yaml's tests "+
-			"against go test -list and its commits against git. Returns the problems to fix and what is left to do (tasks not built yet or "+
-			"built to an older spec, a review behind the spec)."),
+			"tdp citations against the tdp version the app's terminu-go follows (from go.mod and terminu-go's CHANGELOG) and its harness "+
+			"citations against harness's project/, work.yaml's tests against go test -list and its commits against git. Once that tdp has no "+
+			"project/ (v1.2.0-beta.1 on), a family member's repo is checked against harness's project/ too: the templates, the files, the "+
+			"Makefile, the CHANGELOG. Returns the problems to fix and what is left to do (tasks not built yet or built to an older spec, a "+
+			"review behind the spec)."),
 		mcp.WithString("repo", mcp.Description("The app's repo, the current directory when left out.")),
 	), sv.check)
 	return s
@@ -484,30 +489,49 @@ func (sv *Server) tdpFile(_ context.Context, req mcp.CallToolRequest) (*mcp.Call
 		}
 		version = v
 	}
-	b, err := sv.src.File(version, req.GetString("path", ""))
+	path := req.GetString("path", "")
+	b, err := sv.src.File(version, path)
 	if err != nil {
+		if strings.HasPrefix(strings.TrimPrefix(path, "/"), "project/") {
+			return fail("%v\nFrom tdp v1.2.0-beta.1 on the family's repo templates are harness's: tdp_section with \"harness project\" or \"harness %s\".", err, strings.TrimPrefix(path, "/"))
+		}
 		return fail("%v", err)
 	}
-	return mcp.NewToolResultText(fmt.Sprintf("tdp %s %s\n\n%s", tdp.Tag(version), req.GetString("path", ""), b)), nil
+	return mcp.NewToolResultText(fmt.Sprintf("tdp %s %s\n\n%s", tdp.Tag(version), path, b)), nil
 }
 
 func (sv *Server) tdpSection(_ context.Context, req mcp.CallToolRequest) (*mcp.CallToolResult, error) {
+	ids := req.GetStringSlice("ids", nil)
+	needTDP := false
+	for _, c := range ids {
+		if inHarness, _ := tdp.Cited(c); !inHarness {
+			needTDP = true
+		}
+	}
 	version := req.GetString("version", "")
-	if version == "" {
+	if version == "" && needTDP {
 		v, err := sv.src.Latest()
 		if err != nil {
 			return fail("the newest tdp: %v", err)
 		}
 		version = v
 	}
-	secs, err := sv.src.Sections(version, req.GetStringSlice("ids", nil))
+	secs, err := sv.src.Sections(version, ids)
 	if err != nil {
 		return fail("%v", err)
 	}
 	var b strings.Builder
-	fmt.Fprintf(&b, "tdp %s\n", tdp.Tag(version))
+	if needTDP {
+		fmt.Fprintf(&b, "tdp %s\n", tdp.Tag(version))
+	} else {
+		b.WriteString("harness project/\n")
+	}
 	for _, sec := range secs {
-		fmt.Fprintf(&b, "\n=== tdp %s (%s)\n%s\n", sec.ID, sec.Path, sec.Text)
+		in := "tdp"
+		if sec.Harness {
+			in = "harness"
+		}
+		fmt.Fprintf(&b, "\n=== %s %s (%s)\n%s\n", in, sec.ID, sec.Path, sec.Text)
 		if len(sec.Children) > 0 {
 			fmt.Fprintf(&b, "\nSections under it: %s\n", strings.Join(sec.Children, ", "))
 		}
