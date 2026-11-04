@@ -56,7 +56,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   goroutine：一個只管讀（app 寫 PTY 不會被卡住），一個把讀到的全部一次餵給畫面，再用每一列的 checksum 找出變了哪幾列。錄影記的
   就是這些變化，時間取那一批第一塊輸出讀到的時刻；6ms 內的變化併成一格。
 - **送鍵**（`keys`）：鍵一個一個送、中間隔 `gap_ms`（Esc 接著 j 不會變成 Alt-j）；`text` 在最後一個鍵之後也隔 `gap_ms`，一次
-  寫進去（app 一次讀到，像貼上）。viewu 試 beta 時 `/` 跟 text 同一次送，app 一次讀到 `/line`，bubbletea 當成一個好幾個字的鍵，
+  寫進去（app 一次讀到，像貼上）。catu（那時叫 viewu）試 beta 時 `/` 跟 text 同一次送，app 一次讀到 `/line`，bubbletea 當成一個好幾個字的鍵，
   Space menu 的 `/` 沒有作用（2026-11-03，原本 text 緊接著最後一個鍵）。app 忙著處理上一個鍵時，間隔內送到的照樣一次讀到，
   間隔只保證 app 有空讀的時候分開；測試的 fixture 按 `b` 之後 90ms 不讀，用來重現。
 - **等畫面穩定**：從送鍵之後、或之後最後一次變化起算，150ms 沒變就回傳（`open` 先等到第一次變化再等 300ms）。從上一次變化

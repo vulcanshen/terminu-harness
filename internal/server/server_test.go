@@ -79,7 +79,7 @@ func TestTerminalTools(t *testing.T) {
 	}
 
 	// The text comes gap_ms after the last key, a read of its own: "/" and
-	// "line" in one read is one key to the app, and its / never fires (viewu).
+	// "line" in one read is one key to the app, and its / never fires (catu).
 	// After b the fixture does not read for 90ms; / comes at 60ms, then the
 	// text at 120ms, once the fixture has read / alone.
 	out, _ = call(t, sv.keys, map[string]any{"session": "s1", "keys": []any{"b", "/"}, "text": "line"})

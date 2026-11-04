@@ -2,11 +2,21 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
-## Unreleased
+## v1.2.0 — tdp v1.2.0
 
+Everything since v1.1.0, the betas v1.2.0-beta.1 to beta.3 included:
+
+- The family's repo templates move here from tdp: tdp says what an app should be, whatever the language, and templates written for Go and goreleaser are the family's upkeep, kept with the tool that makes and releases the family's apps. `project/` holds terminu project as tdp v1.1.10 had it: its page (sections project.1–8), its checklist items (the 38 `project-` items, their IDs kept) and the seven templates, whose first comment now cites `harness project/…`.
+- Citing them: `harness project.3`, `harness project` (the whole page), `harness project/install.sh`, `harness project-13`, in the same `tdp` list of `spec.yaml`. `tdp_section` reads them; `check` checks them against `project/`, and a `tdp project…` citation the app's tdp no longer has says to write it with `harness`. An app whose tdp still has `project/` (v1.1.10 and before) may cite it as before.
+- `check` compares a family member's repo with the templates, the files, the Makefile and the CHANGELOG, once the tdp it follows has no `project/`: what terminu-go's tdptest checked until then, moved here with the templates, with messages in Traditional Chinese.
+- Four backings in `work.yaml`: a test, `check: repo`, `user: {date, how}`, `commit:`. `check: repo` means harness's `check` guards the task, reading a family member's repo against the templates; it counts only where harness reads the repo (a family member's, its tdp without `project/`). A subtest named as a backing (`TestX/sub`) has to run: `check` runs it with `go test -run` and looks for it in the output, so a subtest that is gone (terminu-go's `TestTDP/repo`, say) no longer passes, and a gone `…/repo` says to write `check: repo`.
+- `check` no longer passes what it could not check: tdp it could not read, tests that would not run head the report as not checked, and the command exits 1 (the MCP tool reports an error). Reading tdp from GitHub tries again after a network error, a 5xx or a 429. The tool's description says all of this.
+- The newest terminu-go no longer counts a beta, as Go's `@latest` does not: `/terminu`, `/terminu:newapp`, `/terminu:release` and `/terminu:analysis` take the newest release (`go list -m …@latest`), a beta only when the app is on a beta already (the last of `go list -m -versions`, so a release replaces its betas) or when you name one. `tdp_file` and `tdp_section`, given no version, read the newest tdp release rather than a beta.
+- `/terminu:newapp`, `/terminu:analysis` and `/terminu:release` read the templates from harness. The first upgrade to a tdp without `project/` rewrites the citations and the templates' first comments and swaps a `TestTDP/repo` backing for `check: repo`; `/terminu:analysis` writes `check: repo` for the repo's task. `/terminu:release` reads the release rules from tdp's `project/` while the app's tdp still has it, from harness's after that, and runs `check` after `make check`.
+- `/terminu:newapp`'s upgrade gives a task the new spec id only when the new tdp changes it, its record or what was built from it; a task that cites a changed section for something else keeps its id, as each review judges every task against the new tdp anyway.
+- `/terminu:review` handles a `check` that is not complete by checking again first.
+- `/terminu:reportgap` reports a problem with the family's templates to terminu-harness.
 - The terminal's `keys` types `text` `gap_ms` after the last key, as it spaces the keys, where it used to follow at once: an app could read a key and the text as one input (`/` and `line` as `/line`, one key of several characters to bubbletea), and the key never acted.
-- The `check` tool's description names what it does since v1.2.0-beta.3: the four backings, a subtest run with `go test -run`, `check: repo` counting only where the repo is read, and a check that could not be done ending as an error, not a pass. It named only tests and commits, so the change could not be told from it.
-- `/terminu:newapp`'s upgrade gives a task the new spec id only when the new text changes it, its record or what was built from it; a task that cites a changed section for something else keeps its id, as each review judges every task against the new tdp anyway.
 
 ## v1.2.0-beta.3 — tdp v1.2.0-beta.1
 
