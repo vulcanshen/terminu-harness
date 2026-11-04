@@ -2,6 +2,10 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.1 — tdp v1.2.0
+
+- The family no longer offers `go install` as a way to install an app: a binary it builds gets no version from goreleaser and prints `dev`. harness project.3 drops the `go install` path and keeps the `/vN` rule, for the module's versions and the binaries' build information, however the app is installed; project.7 names the ways in (brew, `install.sh`, scoop and `install.ps1` with a Windows build, a download from the GitHub release) and has a beta downloaded from its GitHub pre-release. `project-13`, its ID kept, checks the `/vN` without `go install`. `/terminu:release`, moving to a new major, changes the module and the imports; the README has no `go install` path to change. `check`'s message on a module without its `/vN` says why without `go install`.
+
 ## v1.2.0 — tdp v1.2.0
 
 Everything since v1.1.0, the betas v1.2.0-beta.1 to beta.3 included:

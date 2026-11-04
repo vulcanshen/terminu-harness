@@ -95,8 +95,8 @@ func (r *repo) family() bool {
 		if latest != "" {
 			why = "CHANGELOG.md 寫的最新一版是 " + latest
 		}
-		r.add("go.mod", "module 是 %s，不是 %s：%s；v2 起 module 結尾帶大版號 /vN，go install %s/cmd/%s@latest 才裝得到最新的 release（harness project.3、project-13）",
-			mod, want, why, want, r.name)
+		r.add("go.mod", "module 是 %s，不是 %s：%s；v2 起 module 結尾帶大版號 /vN，Go 才把 vN 的 tag 當成這個 module 的版本，執行檔的 build 資訊才是那一版（harness project.3、project-13）",
+			mod, want, why)
 	}
 	return true
 }

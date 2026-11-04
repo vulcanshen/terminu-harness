@@ -32,8 +32,8 @@ tdp（`check` 第一行）：還有 project/（v1.1.10 以前）就用 `tdp_sect
    beta 段落寫的改動併進來，beta 自己的段落留著（harness project.6）。`## Unreleased` 沒有內容、也沒有要併的 beta 就停，跟使用者說
    這一版沒有寫下改了什麼。
    **升到新的大版號（v2 以上）**：go.mod 的 module 結尾要是 `/vN`（例 v4 是 `github.com/<帳號>/<app>/v4`；harness project.3），跟這個
-   標題放同一個 commit 一起改三樣：go.mod 的 module、所有 import、README 與文件裡的 `go install` 路徑
-   （`…/<app>/vN/cmd/<app>@latest`）。`check` 拿 CHANGELOG 最新一版的大版號對 module，分開改中間的 `check` 不會過；已經發過
+   標題放同一個 commit 一起改兩樣：go.mod 的 module、所有 import。README 沒有 `go install`（家族不提供，harness project.7），
+   沒有安裝路徑要改。`check` 拿 CHANGELOG 最新一版的大版號對 module，分開改中間的 `check` 不會過；已經發過
    v2 以上卻沒帶的，2. 的 `check` 就會指出來，也照這樣改。
    `make check` 與 `check` 過了，commit（不加 Claude 署名）。
 7. **問使用者**：給使用者看版號、這一版的 CHANGELOG 段落、review 的結果（合的幾個、使用者選了照樣發的不合項），問要不要打這一版

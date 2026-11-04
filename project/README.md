@@ -90,14 +90,13 @@ little different from app to app. With one file, a diff shows what differs, and 
 └── LICENSE
 ```
 
-- The app's own Go code lives only in `cmd/<app>/` and `internal/`. The `go install` path is
-  `github.com/vulcanshen/<app>/cmd/<app>@latest` (an app made with tdp uses its own account:
-  `github.com/<account>/<app>`; tdp's start of chapter E).
-- **From v2 on, the module path ends in the major version**, as Go requires: kbu v4 is `github.com/vulcanshen/kbu/v4`,
-  its imports and its `go install` path (`github.com/vulcanshen/kbu/v4/cmd/kbu@latest`) with it. The release that
-  moves to a new major (v2 and up) changes them in the same commit. **Why**: without it Go does not take the tags
-  from v2 on as the module's versions: `go install …@latest` installed kbu v1.7.12 while kbu was v4.0.0, and the
-  binaries' build information read a pseudo-version (the user, 2026-10-28).
+- The app's own Go code lives only in `cmd/<app>/` and `internal/`. The module is `github.com/vulcanshen/<app>` (an app
+  made with tdp uses its own account: `github.com/<account>/<app>`; tdp's start of chapter E).
+- **From v2 on, the module path ends in the major version**, as Go requires, however the app is installed: kbu v4 is
+  `github.com/vulcanshen/kbu/v4`, its imports with it. The release that moves to a new major (v2 and up) changes the
+  module and every import in the same commit. **Why**: without it Go does not take the tags from v2 on as the module's
+  versions — Go's `@latest` was kbu v1.7.12 while kbu was v4.0.0 — and the binaries' build information
+  (`go version -m`) read a pseudo-version (the user, 2026-10-28).
 - **Small development tools** (Go ones too) may go in a top-level `tools/`; they are not the app itself.
 - Other top-level directories and files not in the tree (e.g. end-to-end tests), the app may decide for itself.
 - **Claude Code's files stay out of git**: `CLAUDE.md` and what is under `.claude/` are not tracked (the template
@@ -215,10 +214,14 @@ tdp an old release followed often cannot be found; filling it in would get it wr
    - sets the release's body to that section of the CHANGELOG. This step runs even when goreleaser's tap push failed,
      and skips when the release has not been made.
 
+- **How it is installed**: brew, `install.sh` (the latest release), scoop and `install.ps1` with a Windows build, or a
+  download from the GitHub release. The family does not offer `go install`, and the README does not mention it.
+  **Why**: a binary `go install` builds does not go through goreleaser, so no version is injected and `<app> version`
+  prints `dev` (project.4; the user, 2026-11-04).
 - **A beta**: before a stable release, the app may release a beta: tag `vX.Y.Z-beta.N` (N from 1), the same steps.
   goreleaser makes it a GitHub pre-release and leaves the Homebrew tap and the scoop bucket alone (`skip_upload:
-  auto`), so brew, scoop and `install.sh` (the latest release) keep the stable one; `go install …@vX.Y.Z-beta.N`
-  installs the beta. **Why**: v1.0.0 needed v1.0.1 the same day (the user, 2026-10-27: release a beta before a
+  auto`), so brew, scoop and `install.sh` (the latest release) keep the stable one; a beta is installed by downloading
+  it from the GitHub pre-release. **Why**: v1.0.0 needed v1.0.1 the same day (the user, 2026-10-27: release a beta before a
   stable one); a beta goes through the whole release without touching what brew and scoop users get.
 - **The release notes are written outside the checkout** (`$RUNNER_TEMP`): a file in the checkout leaves the tree
   dirty, and Go writes the binaries' build information as `vX.Y.Z+dirty` (`go version -m`), as the family's v1.0.0

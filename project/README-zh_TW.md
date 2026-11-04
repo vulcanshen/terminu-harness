@@ -76,12 +76,12 @@ Homebrew tap；跨 repo diff 一下就知道誰走樣。自己做一個 app 用�
 └── LICENSE
 ```
 
-- app 本身的 Go 程式只在 `cmd/<app>/` 與 `internal/`。`go install` 的路徑是 `github.com/vulcanshen/<app>/cmd/<app>@latest`
-  （照 tdp 做的 app 換成自己的帳號：`github.com/<帳號>/<app>`，tdp 的 E 章開頭）。
-- **v2 起，module 的路徑結尾帶大版號**，這是 Go 的規定：kbu v4 是 `github.com/vulcanshen/kbu/v4`，import 與 `go install`
-  的路徑（`github.com/vulcanshen/kbu/v4/cmd/kbu@latest`）跟著帶。升到新的大版號（v2 以上）的那一版，在同一個 commit 裡改。
-  **為什麼**：不帶的話，Go 不把 v2 以上的 tag 當成這個 module 的版本：kbu 已經是 v4.0.0，`go install …@latest` 裝到的卻是
-  v1.7.12，執行檔的 build 資訊也只是 pseudo-version（user 2026-10-28）。
+- app 本身的 Go 程式只在 `cmd/<app>/` 與 `internal/`。module 是 `github.com/vulcanshen/<app>`（照 tdp 做的 app 換成自己的
+  帳號：`github.com/<帳號>/<app>`，tdp 的 E 章開頭）。
+- **v2 起，module 的路徑結尾帶大版號**，這是 Go 的規定，跟 app 用什麼方式安裝無關：kbu v4 是 `github.com/vulcanshen/kbu/v4`，
+  import 跟著帶。升到新的大版號（v2 以上）的那一版，在同一個 commit 裡改 module 與所有 import。**為什麼**：不帶的話，Go 不把
+  v2 以上的 tag 當成這個 module 的版本 —— kbu 已經是 v4.0.0，Go 的 `@latest` 卻是 v1.7.12 —— 執行檔的 build 資訊
+  （`go version -m`）也只是 pseudo-version（user 2026-10-28）。
 - **開發用的小工具**（Go 寫的也一樣）可以放頂層的 `tools/`，不算 app 本身。
 - 圖上沒有的其他頂層目錄與檔案（例：端到端測試），app 可以自行決定。
 - **Claude Code 的檔案不進 git**：`CLAUDE.md` 與 `.claude/` 底下的檔案不追蹤（範本 [`gitignore`](gitignore) 排除了），
@@ -188,9 +188,12 @@ Each release names the version of terminu design (tdp) it follows.
      scoop bucket）；
    - 用 CHANGELOG 那一段蓋過 release 的內文。goreleaser 推 tap 失敗時這一步照樣做；release 還沒建好就跳過。
 
+- **怎麼安裝**：brew、`install.sh`（抓最新的 release），出 Windows 版的加 scoop 與 `install.ps1`，或從 GitHub release 下載。
+  家族不提供 `go install`，README 也不寫。**為什麼**：`go install` 建出來的執行檔沒經過 goreleaser，沒有注入版本，
+  `<app> version` 印的是 `dev`（project.4；user 2026-11-04）。
 - **beta**：正式版之前，app 可以先發 beta：tag `vX.Y.Z-beta.N`（N 從 1 起），步驟一樣。goreleaser 把它發成 GitHub 的
   pre-release，不推 Homebrew tap 與 scoop bucket（`skip_upload: auto`），所以 brew、scoop 與 `install.sh`（抓最新的
-  release）拿到的還是正式版；`go install …@vX.Y.Z-beta.N` 裝得到 beta。**為什麼**：v1.0.0 同一天就得補 v1.0.1（user
+  release）拿到的還是正式版；要裝 beta，從 GitHub 的 pre-release 下載。**為什麼**：v1.0.0 同一天就得補 v1.0.1（user
   2026-10-27：發 stable 之前要先發 beta）；beta 把整個發版流程走一遍，又不動到 brew、scoop 使用者拿到的版本。
 - **release notes 寫在 checkout 外面**（`$RUNNER_TEMP`）：寫在 checkout 裡會讓工作目錄變髒，Go 記進執行檔的 build 資訊
   就成了 `vX.Y.Z+dirty`（`go version -m` 看得到），家族 v1.0.0 那一輪的 release 都是這樣。

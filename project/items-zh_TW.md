@@ -19,7 +19,7 @@
 | project-10 | project.2 | 出 Windows 版時，`install.sh` 的 `WINDOWS` 設成 `yes`（範本註解） | 出 Windows 版 | 讀檔案：`install.sh` 的 `WINDOWS` |
 | project-11 | project.3 | app 本身的 Go 程式只在 `cmd/<app>/` 與 `internal/`；開發用的小工具可以放頂層的 `tools/` | 都要 | 讀檔案：`tools/` 以外的 `.go` 檔都在這兩個目錄底下 |
 | project-12 | project.3（圖） | main package 在 `cmd/<app>/main.go` | 都要 | 讀檔案 |
-| project-13 | project.3 | `go install github.com/<帳號>/<app>/cmd/<app>@latest` 裝得到最新的 release，v2 起 `<app>` 後面帶 `/vN`（家族成員的帳號是 `vulcanshen`，照 tdp 做的 app 是自己的帳號） | 都要 | 讀檔案：`go.mod` 的 module 是 `github.com/<帳號>/<app>`，最新的 release 是 vN.x.y、N ≥ 2 時結尾帶 `/vN`，`cmd/<app>` 是 main package；`go list -m <module>@latest` 是最新的 release |
+| project-13 | project.3 | `go.mod` 的 module 是 `github.com/<帳號>/<app>`，v2 起結尾帶最新的 release 的大版號 `/vN`（家族成員的帳號是 `vulcanshen`，照 tdp 做的 app 是自己的帳號） | 都要 | 讀檔案：`go.mod` 的 module 是 `github.com/<帳號>/<app>`，最新的 release 是 vN.x.y、N ≥ 2 時結尾帶 `/vN`；`go list -m <module>@latest` 是最新的 release |
 | project-14 | project.3（圖） | README 的 demo gif 放在 `docs/` | 都要 | 讀檔案：README 引用的 gif 在 `docs/` 底下 |
 | project-15 | project.3（圖） | 根目錄有 `go.mod`、`go.sum` | 都要 | 讀檔案 |
 | project-16 | project.3（圖） | 根目錄有 `LICENSE` | 都要 | 讀檔案 |
