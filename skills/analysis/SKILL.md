@@ -29,7 +29,8 @@ newapp 的 `harness-assets.md`（這個 skill 資料夾旁邊的 `../newapp/harn
   使用者說接手不了，結束。升（這一段要改程式，analysis 只有這裡讀程式）：
   1. `go get github.com/vulcanshen/terminu-go@<要用的版本>`、`go mod tidy`。
   2. 用 `tdp_file` 讀新版 tdp 的 `CHANGELOG.md`，把舊版之後到新版的每一版統整成一份，照 newapp 的「升版」2.（`../newapp/SKILL.md`）：
-     同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改 terminu-go 畫法、app 不用動的拿掉。
+     同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改 terminu-go 畫法、app 不用動的拿掉。新版 terminu-go 對到的 tdp 跟原本
+     的一樣（只升 terminu-go，例：v1.2.7 還是 tdp v1.2.6）時，沒有要統整的，跳過這一步。
   3. `make check` 過：不過就照 terminu-go 舊版之後每一版的 CHANGELOG 與失敗訊息修到過。
   4. 統整剩下的是測試蓋不到、app 自己要改的事（app 給的字、README、CHANGELOG、repo 範本的檔、app 自己的 popup 與流程）：一條一條
      讀相關的程式與檔案，沒照新版的就改，改完再跑一次 `make check`。改不了的、tdp 寫不清楚的記下來，6. 跟使用者說。照 tdp
@@ -96,7 +97,7 @@ tdp v0.10.0 起不管開發者文件（tdp P5），harness 管的 app 改用 har
 1. 跑 MCP 工具 `check`。格式、id、tdp 編號的問題改到沒有；測試相關的問題留著，交給 review；「沒有 tdp 根據」留到回報了 tdp。
 2. commit（不加 Claude 署名），harness-assets、規則檔、刪掉的文件一起，訊息寫「Take the app over with the terminu harness」這類。
 3. 告訴使用者：
-   - 先升了 terminu-go 的：升到哪一版、為了新版 tdp 改了哪幾條、改不了的卡在哪；tdp 寫不清楚的用 Skill 叫 `terminu:reportgap`
+   - 先升了 terminu-go 的：升到哪一版、為了新版 tdp 或 terminu-go 改了哪幾條、改不了的卡在哪；tdp 寫不清楚的用 Skill 叫 `terminu:reportgap`
      寫回報（它給使用者看草稿，同意才發）。
    - harness-assets 產生了，之後 review 會拿它判；要改內容就跟 harness 說。
    - 幾個 task；寫了「不知道」的有哪幾個；沒有作保的有哪幾個。

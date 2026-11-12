@@ -15,7 +15,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
   用 harness 的終端機開起來看、記進 work.yaml、跑 `check`、給使用者看、commit → 卡住叫 `terminu:reportgap`，remark 記 issue，程式標
   `TODO(tdp #N)`。「繼續」先查 tgo 新版（「要用的 terminu-go」定在 newapp 的「0. 準備」，release、analysis 照它：預設 `go list -m …@latest`
   的正式版，app 已經在 beta 上才拿 `go list -m -versions` 的最後一個，使用者指定的照指定的；harness v1.2.0-beta.2 起，之前拿 GitHub
-  tags 的第一個，beta 也算，這一輪只有 demou 試 beta，其他成員會被帶上去；改了 lib 或要 app 改的才問要不要升，只改文件的等發版；升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec）、remark 裡的 issue、TODO。
+  tags 的第一個，beta 也算，這一輪只有 demou 試 beta，其他成員會被帶上去；改了 lib 或要 app 改的才問要不要升，只改文件的等發版；升就統整中間各版 tdp 的 CHANGELOG、開新一份 spec，對到的 tdp 沒變（只升 tgo）就不開新 spec、只照 tgo 的 CHANGELOG 改）、remark 裡的 issue、TODO。
 - **analysis**（`skills/analysis`）：接手先用 tdp 與 tgo 做的 app。從 README 寫 idea.md 與 spec.yaml，從 git commit history 寫
   work.yaml（測試名字從 `go test -list` 拿，用 `git log -S'func TestX('` 找加進它的 commit，對回 task），不讀程式碼也不讀舊的開發者
   文件；找不到的寫「不知道」。放 `.claude/rules/terminu.md`，刪掉舊的開發者文件（只刪開發者文件），接著 review。tgo 不是最新版時
@@ -31,7 +31,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **reportgap**（`skills/reportgap`）：判斷發到 tdp、terminu-go 還是 harness（家族的 repo 範本）、查重複、照固定格式寫草稿、使用者同意才 `gh issue create`，記進
   spec.yaml 那個 task 的 remark。
 - **檢查**（`internal/assets`，MCP 工具 `check`、命令列 `terminu-harness check`）：四個檔彼此對不對得上；app 照的 tdp 版本從 go.mod 的
-  terminu-go 讀它 CHANGELOG 的 `## vX — tdp vY` 推（每一版 tdp 都有一版 tgo 對到它），spec.yaml 的 tdp 編號拿那一版 tdp 標題裡的編號對；
+  terminu-go 讀它 CHANGELOG 的 `## vX — tdp vY` 推（每一版 tdp 至少有一版 tgo 對到它，只加 API 的 tgo 對到同一版 tdp，例：tgo v1.2.6、v1.2.7 都是 tdp v1.2.6），spec.yaml 的 tdp 編號拿那一版 tdp 標題裡的編號對；
   `harness` 開頭的引用拿 harness 的 `project/` 對；work.yaml 的測試拿 `go test -list` 對頂層的名字，子測試（`TestX/sub`）用
   `go test -run '^TestX$/^sub$' -v` 真的跑一次、看 `=== RUN` 有沒有它（同一個頂層的合成一次；demou 試 beta 時 `TestTDP/repo`
   已經拿掉，只對頂層名字照樣過，DM44），`check: repo` 只在 harness 真的查 repo 時算數，commit 拿 git 對。app 照的 tdp 沒有
@@ -73,7 +73,7 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **reviewer 跟寫程式的一方分開**：agent 從乾淨的 context 開始，看得到的只有紀錄與 tdp。不另外記「駁回過的問題」：還沒處理完的（在等
   回報、使用者不發回報的）留在 review.yaml，下一次照樣列出來。
 - **app 照的 tdp 版本不另外存**：從 go.mod 的 terminu-go 推。tdp 只多一句放行的小版本也要有自己的 tgo 版本（user 選 A，2026-10-26），
-  因為放行本身就是 review 的根據。
+  因為放行本身就是 review 的根據。反過來不用：tdp 沒變、只加 API 的 tgo 版本對到同一版 tdp（tgo v1.2.7，2026-11-12），升它不開新 spec。
 - **接手只看 README 與 git history**（user 2026-10-26）：接手時的 spec 只要寫出現在有哪些功能，那是 README 本來就寫的；做法的根據是
   引的 tdp 編號，不是舊文件裡寫的理由，所以不讀 dev-remarks 與設計文件。原本叫 genwork、也讀那些文件，改成 analysis。
 - **app 的規則檔放 app 自己的 `.claude/rules/terminu.md`**（user 2026-10-26，在 terminu 定的），不由 plugin 在 SessionStart 帶進去：

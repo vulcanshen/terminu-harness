@@ -31,7 +31,7 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   讀 `harness project`（整頁），範本讀 `harness project/install.sh` 這樣的路徑。引用寫 `harness project.3`、`harness project-13`。
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
-  （`tdptest`）、「計時器：`App.Tick`」。
+  （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -104,6 +104,9 @@ spec 的重點，使用者看了成品再提要改的。
    - 第一次啟動的掃描是 `tdp_test.go` 的 `Check`。
    - E6 的 splash 與 `docs/icon.svg` 一致的測試還是自己寫。
    - app 自己的計時器用 `App.Tick`，不用 `tea.Tick`，測試才推得動它。
+   - app 自己的 popup 執行 app 的動作（tdp popup.8）用 `App.RunAction`，不自己照 menu 重做一遍。從 app 自己的模式裡打開的 popup，
+     動作執行時會離開模式，但不跑 `OnExit`：`OnExit` 原本要做的事（例：暫停），與離開會丟掉使用者要留下的東西時的詢問（tdp K11），
+     都在呼叫前自己做。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。
@@ -125,10 +128,10 @@ spec 的重點，使用者看了成品再提要改的。
 
 1. 讀 `harness-assets/` 的四個檔，跑 `check`：問題先改掉；「待做」就是接下來要做的。
 2. 先查在等的事，不用使用者開口：
-   - **新版**：「0. 準備」的「要用的 terminu-go」有沒有比 go.mod 新（每一版 tdp 都有一版 terminu-go 對到它；go.mod 是正式版時
+   - **新版**：「0. 準備」的「要用的 terminu-go」有沒有比 go.mod 新（每一版 tdp 至少有一版 terminu-go 對到它，對到同一版 tdp 的有好幾版時取最新的；go.mod 是正式版時
      beta 不算）。有的話讀 go.mod 那一版之後每一版
      terminu-go 的 CHANGELOG：有一版改了 lib、或寫了 app 的程式或行為要改，就跟使用者說新版對到哪一版 tdp、tdp 的 CHANGELOG 改了
-     什麼，問要不要升（AskUserQuestion）。要升就照下面的「升版」做。都只改文件的（例：tdp v1.0.1 只改家族成員 README 的一段），
+     什麼（對到的 tdp 跟 go.mod 那一版的一樣時，不講 tdp，改說 terminu-go 多了什麼 API、app 要不要改），問要不要升（AskUserQuestion）。要升就照下面的「升版」做。都只改文件的（例：tdp v1.0.1 只改家族成員 README 的一段），
      只跟使用者說有新版、發版前會升，不問（user 2026-10-27：只改文件的版不用馬上升，`/terminu:release` 發版前升到最新）。
    - **回報**：spec.yaml remark 裡的每個 issue，照當初送的方式看有沒有回應（GitHub issue 用 `gh issue view`；在本機送給別的
      session 的，看那邊的回覆或紀錄）。
@@ -140,6 +143,8 @@ spec 的重點，使用者看了成品再提要改的。
 
 1. `go get github.com/vulcanshen/terminu-go@<要用的版本>`（「0. 準備」的「要用的 terminu-go」），`go mod tidy`。中間隔了好幾版
    （跨 minor 也一樣）也一次升上去。
+   - **只升 terminu-go**：新版對到的 tdp 跟 spec 的 `to` 一樣（例：terminu-go v1.2.7 還是 tdp v1.2.6）時，不開新 spec：跳過 2. 的
+     tdp 部分和 3.，只讀 go.mod 那一版之後每一版 terminu-go 的 CHANGELOG，寫了 app 要改的才改，`make check` 過了就 commit。
 2. 把 spec 的 `to` 到新版之間 tdp 每一版的 CHANGELOG 統整成一份：同一節改過好幾次只看最後的寫法，加了又拿掉的不算，只改
    terminu-go 畫法、app 不用動的拿掉。每一版的 CHANGELOG 寫了改到的編號。terminu-go 舊版之後每一版的 CHANGELOG 也讀：寫了 app
    要改的（例：「An app that logs its own filter takes that out」）一起放進這一份。

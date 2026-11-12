@@ -2,6 +2,14 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.4 — tdp v1.2.6
+
+Follows terminu-go v1.2.7, the first terminu-go release whose number differs from its tdp's: it still follows tdp v1.2.6 and only adds `App.RunAction`.
+
+- A terminu-go release can follow the same tdp as the one before. `check` already reads the tdp from terminu-go's CHANGELOG heading (`## v1.2.7 — tdp v1.2.6`), so it needs no change. `/terminu:newapp`'s upgrade, when the newer terminu-go follows the tdp the spec is on, opens no new spec: it reads only terminu-go's CHANGELOG, changes what that says an app must change, and commits once `make check` passes. "Carry on" tells you what the newer terminu-go adds and whether the app must change, not what tdp changed. `/terminu:analysis` skips summing up tdp's CHANGELOG when the tdp is the same. The README no longer says each tdp version has exactly one terminu-go version.
+- `/terminu:newapp` reads terminu-go's README section on running actions from a popup of the app's own, and runs an app action from such a popup with `App.RunAction` (tdp popup.8) rather than redoing it by hand. From a popup opened in the app's own mode the action leaves the mode without running `OnExit`, so what `OnExit` would do (pausing, say) and asking before losing what the user made (tdp K11) come before the call.
+- harness-assets (work.yaml): an app's own mode lists one more way it is left, an app action run from a popup opened in the mode (tdp popup-74).
+
 ## v1.2.3 — tdp v1.2.6
 
 - harness-assets (spec.yaml, work.yaml): tdp v1.2.6 makes an app's own mode one of P5's openings. A task that uses one cites `tdp P5` and `tdp K11` for the mode's keys and content, and its implementation says what content the mode is on, how it is entered, and each way it is left (`Esc`, a key of the mode, the app ending it), so the review can judge the door and the frame.
