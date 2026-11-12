@@ -62,6 +62,7 @@ tasks:
     的 E 章開頭與 E6 交給 harness）；app 照的 tdp 還有 project/（v1.1.10 以前）時，也可以照舊寫 `tdp project.3`。
   - 在 tdp「app 可以自行決定」的範圍裡做的，引那個放行（領域熱鍵、領域的符號與顏色、功能邏輯都是 `tdp P5`），範圍內還要守的規定
     也一起引（例：熱鍵還要引 `tdp M5`、`tdp K12`）。
+    - app 自己的模式裡的鍵與內容：`tdp P5`、`tdp K11`。
   - 編號寫在 tdp 每一節的標題前面。
 - **找不到根據**（tdp 沒寫、寫得不清楚、兩處矛盾）：不自己決定，用 `terminu:reportgap` 回報，在 remark 記 `{note, issue}`。
   有合 tdp 的暫時做法就先照它做，note 寫暫時怎麼做；`tdp` 欄位可以先空著，check 看到 remark 有 issue 就不報。
@@ -93,6 +94,7 @@ tasks:
 - **implementation 寫到 review 判得出來**：review 不讀程式碼，只拿這裡對 tdp。寫從哪裡觸發（哪個 panel、哪個鍵、Space menu 的哪一項、
   啟動時、計時）、經過什麼（開什麼 popup、問什麼、成功與失敗給什麼回饋、App Log 記什麼、畫面上的字）、讀寫什麼（哪個檔、哪個位置、外部指令）、
   用了 terminu-go 的哪些元件。一個 task 有好幾個入口時，每個入口各寫一行。tgo 本身就會做的（Space menu 怎麼開、`?` 怎麼畫）不用寫。
+  app 自己的模式（tdp K11）另外寫清楚：模式在什麼內容上、怎麼進去、有哪幾種離開方式（按 `Esc`、模式的鍵、app 讓它結束）。
   analysis 從 README 與 git history 找不到的部分寫「不知道：<缺什麼>」，review 會判成沒有測試，等寫程式的一方看程式補上。
 - **test 是作保**，四種，每一筆只寫一種：
   - 測試的名字（`TestDeleteKeyAsks`，子測試寫 `TestX/sub`，照 `go test -v` 印的名字）：check 拿 `go test -list` 對頂層的名字，子測試

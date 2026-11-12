@@ -2,6 +2,10 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.3 — tdp v1.2.6
+
+- harness-assets (spec.yaml, work.yaml): tdp v1.2.6 makes an app's own mode one of P5's openings. A task that uses one cites `tdp P5` and `tdp K11` for the mode's keys and content, and its implementation says what content the mode is on, how it is entered, and each way it is left (`Esc`, a key of the mode, the app ending it), so the review can judge the door and the frame.
+
 ## v1.2.2 — tdp v1.2.5
 
 - harness project.3: besides the files the tree names, what else goes in `docs/` (e.g. the social preview image GitHub shows when the repo's link is shared) the app may decide for itself, as with the top-level files the tree does not name (issue #1, from tetru). Checked against tdp v1.2.1 to v1.2.5, which need no other change.
