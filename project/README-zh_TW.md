@@ -83,7 +83,8 @@ Homebrew tap；跨 repo diff 一下就知道誰走樣。自己做一個 app 用�
   v2 以上的 tag 當成這個 module 的版本 —— kbu 已經是 v4.0.0，Go 的 `@latest` 卻是 v1.7.12 —— 執行檔的 build 資訊
   （`go version -m`）也只是 pseudo-version（user 2026-10-28）。
 - **開發用的小工具**（Go 寫的也一樣）可以放頂層的 `tools/`，不算 app 本身。
-- 圖上沒有的其他頂層目錄與檔案（例：端到端測試），app 可以自行決定。
+- 圖上沒有的其他頂層目錄與檔案（例：端到端測試），以及 `docs/` 裡圖上沒寫的檔案（例：GitHub 分享 repo 連結時顯示的
+  social preview 圖），app 可以自行決定（`docs/` 的部分 user 2026-11-12）。
 - **Claude Code 的檔案不進 git**：`CLAUDE.md` 與 `.claude/` 底下的檔案不追蹤（範本 [`gitignore`](gitignore) 排除了），
   harness 的 `.claude/rules/terminu.md` 除外。工作目錄裡可以有。**為什麼**：那是維護者自己的指示與設定，寫滿一台機器的路徑；
   公開的 repo 用不到，還把維護者的路徑公開了出去（user 2026-10-28）。

@@ -98,7 +98,9 @@ little different from app to app. With one file, a diff shows what differs, and 
   versions — Go's `@latest` was kbu v1.7.12 while kbu was v4.0.0 — and the binaries' build information
   (`go version -m`) read a pseudo-version (the user, 2026-10-28).
 - **Small development tools** (Go ones too) may go in a top-level `tools/`; they are not the app itself.
-- Other top-level directories and files not in the tree (e.g. end-to-end tests), the app may decide for itself.
+- Other top-level directories and files not in the tree (e.g. end-to-end tests), and files in `docs/` beyond those the
+  tree names (e.g. the social preview image GitHub shows when the repo's link is shared), the app may decide for itself
+  (`docs/` added by the user 2026-11-12).
 - **Claude Code's files stay out of git**: `CLAUDE.md` and what is under `.claude/` are not tracked (the template
   [`gitignore`](gitignore) leaves them out), except harness's `.claude/rules/terminu.md`. They may sit in the
   working tree. **Why**: they are the maintainer's own instructions and settings, full of the paths of one machine;
