@@ -31,7 +31,8 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   讀 `harness project`（整頁），範本讀 `harness project/install.sh` 這樣的路徑。引用寫 `harness project.3`、`harness project-13`。
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
-  （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）。
+  （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）、「開著時會變的內容」
+  （`App.ReadAgain`，terminu-go v1.2.14 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -107,6 +108,9 @@ spec 的重點，使用者看了成品再提要改的。
    - app 自己的 popup 執行 app 的動作（tdp popup.8）用 `App.RunAction`，不自己照 menu 重做一遍。從 app 自己的模式裡打開的 popup，
      動作執行時會離開模式，但不跑 `OnExit`：`OnExit` 原本要做的事（例：暫停），與離開會丟掉使用者要留下的東西時的詢問（tdp K11），
      都在呼叫前自己做。
+   - 來源變了、要重新讀進開著的 viewer 或 panel 的內容（例：監看的檔案，tdp note.9）用 `App.ReadAgain`、`Pager.ReadAgain`，不用
+     `SetLines` 換掉或重新打開：搜尋、選取、跟著結尾才會照 note.9。這種內容不算串流，不設 `Panel.Stream`（tdp T2）。開著時會多出
+     新的行的 `Pager`（`Append` 或 `ReadAgain`）要設 `Follow`，結尾在畫面裡時才會跟著往下（tdp note-90）。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。

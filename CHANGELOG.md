@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.5 — tdp v1.2.13
+
+Follows terminu-go v1.2.14, which adds `App.ReadAgain` and `Pager.ReadAgain` for content read again while it is shown (tdp note.9).
+
+- `/terminu:newapp` reads terminu-go's README section on content that changes while it is open, and puts a source read again (a watched file, say) into an open viewer or panel with `App.ReadAgain` or `Pager.ReadAgain`, not by replacing it with `SetLines` or opening it again, so search, the selection and following the end behave as tdp note.9 says. Such content is not streaming, so `Panel.Stream` stays off (tdp T2). A `Pager` that takes new lines while it is open (`Append` or `ReadAgain`) sets `Follow`, or it does not follow its end (tdp note-90).
+- Checked against tdp v1.2.7 to v1.2.13, which need no other change.
+
 ## v1.2.4 — tdp v1.2.6
 
 Follows terminu-go v1.2.7, the first terminu-go release whose number differs from its tdp's: it still follows tdp v1.2.6 and only adds `App.RunAction`.
