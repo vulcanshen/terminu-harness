@@ -110,7 +110,9 @@ spec 的重點，使用者看了成品再提要改的。
      都在呼叫前自己做。
    - 來源變了、要重新讀進開著的 viewer 或 panel 的內容（例：監看的檔案，tdp note.9）用 `App.ReadAgain`、`Pager.ReadAgain`，不用
      `SetLines` 換掉或重新打開：搜尋、選取、跟著結尾才會照 note.9。這種內容不算串流，不設 `Panel.Stream`（tdp T2）。開著時會多出
-     新的行的 `Pager`（`Append` 或 `ReadAgain`）要設 `Follow`，結尾在畫面裡時才會跟著往下（tdp note-90）。
+     新的行的 `Pager`（`Append` 或 `ReadAgain`）要設 `Follow`，結尾在畫面裡時才會跟著往下（tdp note-90）。viewer 的來源讀不到時
+     叫 `App.CannotReadAgain(v, <app 的字>)`：Error toast，或選取模式的 Space menu、`?` 開著時疊在上面的 error popup，都由它跳
+     （tdp note-100），app 不另外跳。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。

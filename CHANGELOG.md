@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.6 — tdp v1.2.14
+
+Follows terminu-go v1.2.15, whose `App.CannotReadAgain` now takes the app's words and shows the Error toast or popup itself.
+
+- `/terminu:newapp`: when a viewer's source cannot be read again, the app calls `App.CannotReadAgain(v, <its words>)`, which shows the Error toast, or the error popup over the selection mode's Space menu or `?` when one is open (tdp note-100); the app shows no toast of its own.
+- Checked against tdp v1.2.14, which needs no other change.
+
 ## v1.2.5 — tdp v1.2.13
 
 Follows terminu-go v1.2.14, which adds `App.ReadAgain` and `Pager.ReadAgain` for content read again while it is shown (tdp note.9).
