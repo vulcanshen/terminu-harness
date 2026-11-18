@@ -32,7 +32,7 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
   （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）、「開著時會變的內容」
-  （`App.ReadAgain`，terminu-go v1.2.14 起）。
+  （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -113,6 +113,10 @@ spec 的重點，使用者看了成品再提要改的。
      新的行的 `Pager`（`Append` 或 `ReadAgain`）要設 `Follow`，結尾在畫面裡時才會跟著往下（tdp note-90）。viewer 的來源讀不到時
      叫 `App.CannotReadAgain(v, <app 的字>)`：Error toast，或選取模式的 Space menu、`?` 開著時疊在上面的 error popup，都由它跳
      （tdp note-100），app 不另外跳。
+   - 自己的檔讀得進來、只是有用不了的值或不合規則的一筆（tdp E3）：先用 `terminu.KeepAside` 備份，成功了才用預設值重寫，再叫
+     `App.DidNotFit`（沒有畫面時把 `DidNotFitText` 寫到 stderr）；備份做不出來就不重寫，預設值只用這一次，把它的 error 用 Error
+     toast 說出來，再叫 `App.DidNotFit(path, "", …)` 記 WARN。Warning toast 與 WARN 由 `DidNotFit` 給，app 不另外跳、不另外記。
+   - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。

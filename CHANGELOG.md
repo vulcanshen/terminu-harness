@@ -2,6 +2,14 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.7 — tdp v1.2.15
+
+Follows terminu-go v1.2.16, which adds `KeepAside`, `App.DidNotFit` and `App.Report`.
+
+- `/terminu:newapp`: a file of the app's own that reads but has values it can't use or entries that don't fit (tdp E3) is first copied aside with `terminu.KeepAside`, written again with the defaults only when that worked, and then reported with `App.DidNotFit` (`DidNotFitText` on stderr with no screen). When the copy can't be made, the file is not written again: the defaults hold for this run, `KeepAside`'s error is the Error toast, and `App.DidNotFit(path, "", …)` logs the WARNs. The Warning toast and the WARNs are `DidNotFit`'s; the app adds none of its own.
+- `/terminu:newapp` reads terminu-go's README section on success reports, and a success report the user must read whole that a toast can't hold (tdp toast.2) goes through `App.Report`, not a viewer the app opens or a Success it logs itself.
+- Checked against tdp v1.2.15, which needs no other change.
+
 ## v1.2.6 — tdp v1.2.14
 
 Follows terminu-go v1.2.15, whose `App.CannotReadAgain` now takes the app's words and shows the Error toast or popup itself.
