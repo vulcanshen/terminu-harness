@@ -113,9 +113,16 @@ spec 的重點，使用者看了成品再提要改的。
      新的行的 `Pager`（`Append` 或 `ReadAgain`）要設 `Follow`，結尾在畫面裡時才會跟著往下（tdp note-90）。viewer 的來源讀不到時
      叫 `App.CannotReadAgain(v, <app 的字>)`：Error toast，或選取模式的 Space menu、`?` 開著時疊在上面的 error popup，都由它跳
      （tdp note-100），app 不另外跳。
-   - 自己的檔讀得進來、只是有用不了的值或不合規則的一筆（tdp E3）：先用 `terminu.KeepAside` 備份，成功了才用預設值重寫，再叫
-     `App.DidNotFit`（沒有畫面時把 `DidNotFitText` 寫到 stderr）；備份做不出來就不重寫，預設值只用這一次，把它的 error 用 Error
-     toast 說出來，再叫 `App.DidNotFit(path, "", …)` 記 WARN。Warning toast 與 WARN 由 `DidNotFit` 給，app 不另外跳、不另外記。
+   - 自己的檔讀得進來、只是有用不了的值或不合規則的一筆（tdp E3）：先用 `terminu.KeepAside` 備份，成功了才用預設值重寫，那一件
+     是 `terminu.MisfitNotice(path, copied, misfits…)`；備份做不出來就不重寫，預設值只用這一次，那一件是
+     `terminu.Notice{Kind: terminu.Error, Text: err.Error()}`，後面接 `MisfitNotice(path, "", …)`（沒有那一行，只帶 WARN）。
+   - 值指到使用者自己資料裡不在的一筆（例：設定指向使用者建的 profile，那一筆被刪掉或改名）不算用不了的值，不備份、不做
+     `MisfitNotice`（tdp E3「指到不在的一筆」）：檔案不動、值留著，這一次用內建的預設值，那一件是 Warning 的 `terminu.Notice`；
+     畫面上照原本寫的顯示這個值，label 畫 Red（一列一個值的 panel 用 `Field.Err`），那一筆不在時它的 select 用 `Selected: -1`
+     打開，選了哪一筆都算改。
+   - 啟動時上面這幾件，連同位置搬了的那句（tdp E3「換了位置時」），照發生的順序收成 `Notice`，最後只叫一次 `App.Notify(ns…)`：
+     一個 toast、一件一行、種類取最重的，App Log 一件一筆、WARN 接在後面（tdp E3-37）。app 不另外叫 `App.Toast`、`App.Log`、
+     `DidNotFit`。沒有畫面時，每個 `Text` 不是空的 `Notice` 各寫一行到 stderr。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的

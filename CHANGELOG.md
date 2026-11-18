@@ -2,6 +2,14 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.8 — tdp v1.2.16
+
+Follows terminu-go v1.2.17, which adds `Notice`, `MisfitNotice` and `App.Notify`.
+
+- `/terminu:newapp`: a value naming an entry of the user's own data that is no longer there (tdp E3) is not a value the app can't use, so it is neither copied aside nor written again. The file and the value stay as they are and the built-in default holds for this run. The value is shown as written with its label Red (`Field.Err` in a values panel), and its select opens with `Selected: -1`, so picking any entry is a change.
+- `/terminu:newapp`: what E3 tells the user at start comes as one toast (tdp E3-37). The app collects a `Notice` for each case, in the order they happened. These are the location move, `MisfitNotice(path, copied, misfits…)` for values that don't fit, an Error `Notice` with `KeepAside`'s error when the copy can't be made (followed by `MisfitNotice(path, "", …)` for the WARNs alone), and a Warning `Notice` for each value naming an entry that is gone. It then calls `App.Notify` once, with no `App.Toast`, `App.Log` or `DidNotFit` of its own. With no screen, each `Notice` with text is a line on stderr.
+- Checked against tdp v1.2.16, which needs no other change.
+
 ## v1.2.7 — tdp v1.2.15
 
 Follows terminu-go v1.2.16, which adds `KeepAside`, `App.DidNotFit` and `App.Report`.
