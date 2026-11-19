@@ -39,7 +39,9 @@ tdp（`check` 第一行）：還有 project/（v1.1.10 以前）就用 `tdp_sect
 7. **問使用者**：給使用者看版號、這一版的 CHANGELOG 段落、review 的結果（合的幾個、使用者選了照樣發的不合項），問要不要打這一版
    的 tag 並 push（AskUserQuestion）。push 之後 `release.yml` 會建置、發 GitHub release、推 Homebrew tap；beta 發成 GitHub 的
    pre-release，不推 tap 與 scoop bucket（harness project.7）。
-8. **同意才做**：`git tag <版號>`，push commit 與 tag。沒有 remote 就打完 tag 停下，跟使用者說。不同意就停在這裡（6. 的 commit
-   留著），跟使用者說。
-9. **發完**：`gh run watch`（或給使用者 Actions 的網址）看 `release.yml` 跑完；`gh release view <版號>` 對照內文是不是 CHANGELOG
-   那一段，beta 的 `--json isPrerelease` 要是 true。失敗就把錯誤給使用者看，不自己刪 tag 或重發。
+8. **同意才做**：打 annotated tag，訊息是 6. 的標題去掉 `## `：`git tag -a <版號> -m "<版號> — tdp vA.B.C"`（harness project.7；
+   `git tag <版號>` 打出來的是 lightweight tag，不用），push commit 與 tag。沒有 remote 就打完 tag 停下，跟使用者說。不同意就停在
+   這裡（6. 的 commit 留著），跟使用者說。
+9. **發完**：`git ls-remote origin "refs/tags/<版號>^{}"` 要印出一行（只有 annotated tag 有）；`gh run watch`（或給使用者
+   Actions 的網址）看 `release.yml` 跑完；`gh release view <版號>` 對照內文是不是 CHANGELOG 那一段，beta 的
+   `--json isPrerelease` 要是 true。失敗就把錯誤給使用者看，不自己刪 tag 或重發。

@@ -208,7 +208,8 @@ tdp an old release followed often cannot be found; filling it in would get it wr
 
 1. `make check` passes.
 2. The CHANGELOG's `## Unreleased` becomes `## vX.Y.Z — tdp vA.B.C`.
-3. A commit, and the tag `vX.Y.Z`.
+3. A commit, and the annotated tag `vX.Y.Z`, its message the release's CHANGELOG heading without `## `:
+   `git tag -a vX.Y.Z -m "vX.Y.Z — tdp vA.B.C"` (a beta likewise).
 4. The commit and the tag are pushed. [`release.yml`](release.yml) then:
    - tests: `go test -race` on ubuntu and macOS (an app with a Windows build adds Windows, without `-race`);
    - runs goreleaser: builds, makes the GitHub release, pushes to the Homebrew tap `vulcanshen/homebrew-tap` (an app
@@ -225,6 +226,14 @@ tdp an old release followed often cannot be found; filling it in would get it wr
   auto`), so brew, scoop and `install.sh` (the latest release) keep the stable one; a beta is installed by downloading
   it from the GitHub pre-release. **Why**: v1.0.0 needed v1.0.1 the same day (the user, 2026-10-27: release a beta before a
   stable one); a beta goes through the whole release without touching what brew and scoop users get.
+- **An annotated tag**: a release is always tagged with `git tag -a`, never with a lightweight tag (`git tag vX.Y.Z`).
+  An annotated tag is an object of its own in git: it records who made it and when, and its message names the tdp the
+  release follows. Once it is pushed, `git ls-remote` shows an extra `vX.Y.Z^{}` line, and `git describe` without
+  `--tags` sees only such tags. Lightweight tags made before harness v1.2.10 and already pushed stay as they are and are
+  not made again: anyone who has fetched one would not get the new one. **Why**: the family had not said, and ccdrawu
+  v1.2.0, following the steps as written, made a lightweight tag where locku, terminu-go and harness make annotated ones
+  (the user, 2026-11-19: what the family has not defined, define); git's own documentation also has annotated tags for
+  releases and lightweight ones for private or temporary labels.
 - **The release notes are written outside the checkout** (`$RUNNER_TEMP`): a file in the checkout leaves the tree
   dirty, and Go writes the binaries' build information as `vX.Y.Z+dirty` (`go version -m`), as the family's v1.0.0
   releases were.

@@ -2,6 +2,11 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.10 — tdp v1.2.17
+
+- A family release is tagged with an annotated tag whose message is the release's CHANGELOG heading without `## `, such as `v1.3.0 — tdp v1.2.17`, and a beta's the same way (harness project.7, project-34). Lightweight tags made before this release and already pushed stay as they are.
+- `/terminu:release`: step 8 tags with `git tag -a <version> -m "<heading>"`. Step 9 then checks the remote, where `git ls-remote origin "refs/tags/<version>^{}"` prints a line only for an annotated tag.
+
 ## v1.2.9 — tdp v1.2.17
 
 Follows terminu-go v1.2.18, which adds `App.OpenDiff`, `Compare.Many` and `Compare.Items`.

@@ -182,7 +182,8 @@ Each release names the version of terminu design (tdp) it follows.
 
 1. `make check` 通過。
 2. CHANGELOG 的 `## Unreleased` 改成 `## vX.Y.Z — tdp vA.B.C`。
-3. commit，打 tag `vX.Y.Z`。
+3. commit，打 annotated tag `vX.Y.Z`，訊息是這一版的 CHANGELOG 標題去掉 `## `：`git tag -a vX.Y.Z -m "vX.Y.Z — tdp vA.B.C"`
+   （beta 一樣）。
 4. push commit 與 tag。[`release.yml`](release.yml) 接著做：
    - 測試：ubuntu 與 macOS 跑 `go test -race`（出 Windows 版的 app 加 Windows，不帶 `-race`）；
    - goreleaser：建置、發 GitHub release、推 Homebrew tap `vulcanshen/homebrew-tap`（照 tdp 做的 app 推自己的 tap；出 Windows 版的加
@@ -196,6 +197,11 @@ Each release names the version of terminu design (tdp) it follows.
   pre-release，不推 Homebrew tap 與 scoop bucket（`skip_upload: auto`），所以 brew、scoop 與 `install.sh`（抓最新的
   release）拿到的還是正式版；要裝 beta，從 GitHub 的 pre-release 下載。**為什麼**：v1.0.0 同一天就得補 v1.0.1（user
   2026-10-27：發 stable 之前要先發 beta）；beta 把整個發版流程走一遍，又不動到 brew、scoop 使用者拿到的版本。
+- **annotated tag**：發版的 tag 一律用 `git tag -a` 打，不打 lightweight tag（`git tag vX.Y.Z`）。annotated tag 是 git 裡的一個
+  物件，記著誰、什麼時候打的，訊息寫著這一版跟的 tdp；push 之後 `git ls-remote` 多一行 `vX.Y.Z^{}`，`git describe` 不加
+  `--tags` 也只認它。harness v1.2.10 以前打、已經 push 的 lightweight tag 照舊，不刪掉重打：已經抓過的人不會跟著換。
+  **為什麼**：家族原本沒定，ccdrawu v1.2.0 照字面打成 lightweight，跟 locku、terminu-go、harness 的不一樣（user 2026-11-19：
+  家族沒定的就定下來）；git 的說明也寫 annotated 給發版用，lightweight 給私人或暫時的標記。
 - **release notes 寫在 checkout 外面**（`$RUNNER_TEMP`）：寫在 checkout 裡會讓工作目錄變髒，Go 記進執行檔的 build 資訊
   就成了 `vX.Y.Z+dirty`（`go version -m` 看得到），家族 v1.0.0 那一輪的 release 都是這樣。
 - **token**：goreleaser 讀 `GITHUB_TOKEN`，發 release 與推 tap 都用它。workflow 在 repo 的 secret `ACTION_TOKEN`（PAT）有設時

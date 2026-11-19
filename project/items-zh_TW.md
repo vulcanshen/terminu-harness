@@ -40,7 +40,7 @@
 | project-31 | project.6 | tdp v0.7.0 以前發的版本，標題照當時的寫法、不改 | 發過版 | 讀檔案：`git log -p CHANGELOG.md`，舊版的標題沒被改寫 |
 | project-32 | project.6 | CHANGELOG 用英文寫 | 都要 | 讀檔案 |
 | project-33 | project.6 | GitHub release 的內文就是 CHANGELOG 裡這一版的那一段 | 發過版 | `gh release view <tag>` 對照 CHANGELOG 那一段 |
-| project-34 | project.7 | 發版的 tag 是 `vX.Y.Z`，beta 是 `vX.Y.Z-beta.N` | 發過版 | `git tag` |
+| project-34 | project.7 | 發版的 tag 是 `vX.Y.Z`，beta 是 `vX.Y.Z-beta.N`；是 annotated tag，訊息是 CHANGELOG 裡這一版的標題（`vX.Y.Z — tdp vA.B.C`）；harness v1.2.10 以前打的 lightweight tag 照舊 | 發過版 | `git tag`；`git tag -l --format='%(objecttype) %(contents:subject)' <tag>` 印出 `tag vX.Y.Z — tdp vA.B.C` |
 | project-35 | project.7 | 現在的 repo 上 `make check` 通過 | 都要 | 在現在的 repo 跑 `make check` |
 | project-36 | project.7 | 出 Windows 版的發布時另推 scoop bucket | 出 Windows 版 | 看 scoop bucket 有這一版 |
 | project-38 | project.7 | 發過的 beta 在 GitHub 是 pre-release，Homebrew tap（與 scoop bucket）上還是最新的正式版 | 發過版 | `gh release view <beta 的 tag> --json isPrerelease`；看 tap 上 formula 的版本 |

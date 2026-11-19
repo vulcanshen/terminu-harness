@@ -40,7 +40,7 @@ what an item applies to: tdp's [checklist](https://github.com/vulcanshen/terminu
 | project-31 | project.6 | Releases made before tdp v0.7.0 keep the headings they were written with | has released | Read the file: in `git log -p CHANGELOG.md`, the old releases' headings have not been rewritten |
 | project-32 | project.6 | The CHANGELOG is written in English | everyone | Read the file |
 | project-33 | project.6 | A GitHub release's notes are that release's section of the CHANGELOG | has released | Compare `gh release view <tag>` with that section of the CHANGELOG |
-| project-34 | project.7 | A release's tag is `vX.Y.Z`, a beta's `vX.Y.Z-beta.N` | has released | Run `git tag` |
+| project-34 | project.7 | A release's tag is `vX.Y.Z`, a beta's `vX.Y.Z-beta.N`; it is an annotated tag whose message is that release's CHANGELOG heading (`vX.Y.Z — tdp vA.B.C`); lightweight tags made before harness v1.2.10 stay as they are | has released | Run `git tag`; `git tag -l --format='%(objecttype) %(contents:subject)' <tag>` prints `tag vX.Y.Z — tdp vA.B.C` |
 | project-35 | project.7 | `make check` passes on the repo as it is now | everyone | Run `make check` on the repo as it is now |
 | project-36 | project.7 | A release with a Windows build also pushes to the scoop bucket | Windows build | Check that the scoop bucket has this release |
 | project-38 | project.7 | A beta, once released, is a GitHub pre-release, and the Homebrew tap (and the scoop bucket) still has the latest stable release | has released | `gh release view <beta tag> --json isPrerelease`; the version in the tap's formula |
