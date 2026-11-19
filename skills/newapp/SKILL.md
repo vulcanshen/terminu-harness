@@ -32,7 +32,8 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
   （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）、「開著時會變的內容」
-  （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）。
+  （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）、「比較」（`App.OpenDiff`，
+  terminu-go v1.2.18 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -122,8 +123,18 @@ spec 的重點，使用者看了成品再提要改的。
      打開，選了哪一筆都算改。
    - 啟動時上面這幾件，連同位置搬了的那句（tdp E3「換了位置時」），照發生的順序收成 `Notice`，最後只叫一次 `App.Notify(ns…)`：
      一個 toast、一件一行、種類取最重的，App Log 一件一筆、WARN 接在後面（tdp E3-37）。app 不另外叫 `App.Toast`、`App.Log`、
-     `DidNotFit`。沒有畫面時，每個 `Text` 不是空的 `Notice` 各寫一行到 stderr。
+     `DidNotFit`。沒有畫面時（在終端機或 pipe 跑的指令），每個 `Text` 不是空的 `Notice` 各寫一行到 stderr。
+   - TUI 以外（不在 TUI 裡的畫面，例：外掛畫的側邊欄；印給別的程式顯示的輸出，例：狀態列）：上面這幾件與讀不了的檔都不動檔案，
+     不叫 `KeepAside`、`MoveAside`，不重寫，這一次用預設值（讀不了時怎麼繼續由 app 決定）；在那裡讓使用者看到哪個檔有什麼問題
+     （例：狀態列最後加一個標記），不是只寫 stderr（tdp E3「TUI 以外」）。下次打開 TUI 時才照上面做。
+   - 設定檔裡 app 不讀的 key（打錯字，或改版後不再讀的）不是用不了的值：不備份、不收進 `Notice`、不跳 toast，app 重寫那個檔時
+     也留著（照 struct 整個重新寫出來會丟掉它）。每次啟動用 `App.Log(terminu.Info, …)` 記一筆，寫出 key 與檔案：app 知道自己
+     以前讀過的寫 `No longer used: …`，其他的寫 `Not read: …`（tdp E3-38）。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
+   - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
+     `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；比較模式裡裝著許多項目的列（資料夾、commit）給
+     `Compare.Many`、`Compare.Items`。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。app 自己的動作要在那個
+     panel 顯示別的東西前，先叫 `Panel.LeaveDiff()`。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。

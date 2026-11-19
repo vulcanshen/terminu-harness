@@ -2,6 +2,15 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.9 — tdp v1.2.17
+
+Follows terminu-go v1.2.18, which adds `App.OpenDiff`, `Compare.Many` and `Compare.Items`.
+
+- `/terminu:newapp`: outside the TUI (a screen that is not part of it, or output printed for another program to show, such as a status line), every E3 case leaves the file alone (tdp E3). There is no `KeepAside`, `MoveAside` or rewrite, and the defaults hold for this run. The problem is shown there, for example as a mark in the status line, not only on stderr. The next TUI start does the rest. "With no screen" now means a command run in a terminal or a pipe.
+- `/terminu:newapp`: a key in a settings file that the app does not read, whether a typo or a key it no longer reads, is not a value it can't use (tdp E3-38). It is not copied aside, collected as a `Notice` or given a toast, and it stays in the file when the app writes the file again. At every start the app logs an Info entry with `App.Log`, naming the key and the file: `No longer used` if the app knows it used to read the key, `Not read` otherwise.
+- `/terminu:newapp`: showing two versions of one item, such as a file in a commit against the commit before it, goes through `App.OpenDiff` instead of a viewer showing a patch (tdp note.8). Rows that hold many in a compare mode use `Compare.Many` and `Compare.Items` (tdp panel.9). The list of items that differ is the lib's, and `Panel.LeaveDiff` comes before the app shows something else in that panel. The README section "比較" is now required reading.
+- Checked against tdp v1.2.17, which needs no other change.
+
 ## v1.2.8 — tdp v1.2.16
 
 Follows terminu-go v1.2.17, which adds `Notice`, `MisfitNotice` and `App.Notify`.
