@@ -33,7 +33,8 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
   （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）、「開著時會變的內容」
   （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）、「比較」（`App.OpenDiff`，
-  terminu-go v1.2.18 起）。
+  terminu-go v1.2.18 起；panel 裡的差異 `Pager.SetDiff`，v1.2.19 起）、「占好幾列的項目」（`Row.Below`，v1.2.19 起）、「命令列」
+  （v1.2.19 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -113,7 +114,10 @@ spec 的重點，使用者看了成品再提要改的。
      `SetLines` 換掉或重新打開：搜尋、選取、跟著結尾才會照 note.9。這種內容不算串流，不設 `Panel.Stream`（tdp T2）。開著時會多出
      新的行的 `Pager`（`Append` 或 `ReadAgain`）要設 `Follow`，結尾在畫面裡時才會跟著往下（tdp note-90）。viewer 的來源讀不到時
      叫 `App.CannotReadAgain(v, <app 的字>)`：Error toast，或選取模式的 Space menu、`?` 開著時疊在上面的 error popup，都由它跳
-     （tdp note-100），app 不另外跳。
+     （tdp note-100），app 不另外跳。app 自己重讀時，App Log 只記一次（tdp note-104、note-105）：讀到變了用
+     `App.Log(terminu.Info, …)` 記一筆、寫出改了什麼，沒變不記；讀不到只在第一次與換了一個失敗時說（viewer 的給
+     `CannotReadAgain` 字，其他的跳 Error toast），同一個失敗（同一句話）再發生不跳、不記，viewer 的叫 `CannotReadAgain(v)`
+     不給字；又讀得到時記一筆 INFO，不跳 toast。
    - 自己的檔讀得進來、只是有用不了的值或不合規則的一筆（tdp E3）：先用 `terminu.KeepAside` 備份，成功了才用預設值重寫，那一件
      是 `terminu.MisfitNotice(path, copied, misfits…)`；備份做不出來就不重寫，預設值只用這一次，那一件是
      `terminu.Notice{Kind: terminu.Error, Text: err.Error()}`，後面接 `MisfitNotice(path, "", …)`（沒有那一行，只帶 WARN）。
@@ -123,18 +127,35 @@ spec 的重點，使用者看了成品再提要改的。
      打開，選了哪一筆都算改。
    - 啟動時上面這幾件，連同位置搬了的那句（tdp E3「換了位置時」），照發生的順序收成 `Notice`，最後只叫一次 `App.Notify(ns…)`：
      一個 toast、一件一行、種類取最重的，App Log 一件一筆、WARN 接在後面（tdp E3-37）。app 不另外叫 `App.Toast`、`App.Log`、
-     `DidNotFit`。沒有畫面時（在終端機或 pipe 跑的指令），每個 `Text` 不是空的 `Notice` 各寫一行到 stderr。
+     `DidNotFit`。沒有畫面時（在終端機或 pipe 跑的指令），改把每個 `Notice` 的 `Lines()`（toast 那一行，再接它的 WARN）
+     一行一行寫到 stderr，每行開頭 `<app>: `；讀不了的檔不叫 `MoveAside`，照它的 `Esc` 做：不動檔案，寫
+     `terminu.CannotReadText(path, err)`（可以多一行說怎麼辦），exit status 1。TUI 會繼續的地方，指令也繼續（tdp E3-40、E3-27）。
    - TUI 以外（不在 TUI 裡的畫面，例：外掛畫的側邊欄；印給別的程式顯示的輸出，例：狀態列）：上面這幾件與讀不了的檔都不動檔案，
      不叫 `KeepAside`、`MoveAside`，不重寫，這一次用預設值（讀不了時怎麼繼續由 app 決定）；在那裡讓使用者看到哪個檔有什麼問題
      （例：狀態列最後加一個標記），不是只寫 stderr（tdp E3「TUI 以外」）。下次打開 TUI 時才照上面做。
    - 設定檔裡 app 不讀的 key（打錯字，或改版後不再讀的）不是用不了的值：不備份、不收進 `Notice`、不跳 toast，app 重寫那個檔時
      也留著（照 struct 整個重新寫出來會丟掉它）。每次啟動用 `App.Log(terminu.Info, …)` 記一筆，寫出 key 與檔案：app 知道自己
-     以前讀過的寫 `No longer used: …`，其他的寫 `Not read: …`（tdp E3-38）。
+     以前讀過的寫 `No longer used: …`，其他的寫 `Not read: …`（tdp E3-38）。沒有畫面時，這幾行與改版後不再用的檔
+     （`App.NoLongerUsed` 記的，`terminu.NoLongerUsedLines(paths...)`）也寫到 stderr，開頭 `<app>: `（tdp E3-40）。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
      `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；比較模式裡裝著許多項目的列（資料夾、commit）給
      `Compare.Many`、`Compare.Items`。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。app 自己的動作要在那個
-     panel 顯示別的東西前，先叫 `Panel.LeaveDiff()`。
+     panel 顯示別的東西前，先叫 `Panel.LeaveDiff()`。顯示差異的 panel（例：跟著 cursor、顯示那個檔改了什麼的明細）也一樣：
+     用 `Pager.SetDiff(anchor, other)` 照 UNIFIED 畫，不放工具自己的輸出（`git diff` 的標頭與 `@@`）；顯示的東西裝著許多項目
+     （新的資料夾、commit）用 `Pager.SetDiffItems(items)`，不只寫名字；panel 的 `Enter` 用 `App.OpenDiff` 打開同一個比較或進到
+     同一份清單（tdp note-103、note-106）。
+   - app 自己的動作要換掉 panel 列的東西，或把它的 cursor 放到某一項上（例：在別的 panel 移動 cursor，把這個 panel 帶到那一項；
+     進到一項裡面），先叫 `List.ClearFilter()`，不管篩選有沒有藏住那一項（tdp panel-180）。比較模式與 `App.OpenDiff` 進去前 lib
+     自己清；只是 focus 離開，篩選留著。
+   - 一個項目要占好幾列時（例：commit 下面的分支與 tag）用 `Row.Below`，不拆成好幾個項目：移動、`N of M`、篩選才會算項目
+     （tdp panel.5）。
+   - 命令列的指令（tdp E1）照 tgo README「命令列」印：結果寫 stdout；錯誤、警告寫 stderr，一件一行，開頭 `<app>: `，跟同一件事的
+     toast 同一句話；用錯（不認得的指令、少了參數）寫 `<app>: ` 接哪裡錯、空一行、用法，exit status 2；沒做完 1。`Run` 回傳的
+     error 也照這樣（`fmt.Fprintln(os.Stderr, "<app>:", err)`、`os.Exit(1)`）。不用 `log.Fatal`（前面是時間，不是 `<app>: `），
+     也不照 `flag` 套件預設的印法（錯誤沒有 `<app>: `，`-h` 的用法寫到 stderr）。`iconwidth` 印 `terminu.Probe("<app>").Lines()`。
+     照 tgo 的 showcase 寫成 `command(args, stdout, stderr) int`，有參數時 `main` 把它的回傳交給 `os.Exit`，測試才拿得到印出的
+     東西與 exit status。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。

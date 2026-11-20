@@ -2,6 +2,17 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.11 — tdp v1.2.18
+
+Follows terminu-go v1.2.19, which adds `Notice.Lines`, `NoLongerUsedLines`, `CannotReadText`, `ProbeResult.Lines`, `Pager.SetDiff`, `Pager.SetDiffItems` and `Row.Below`.
+
+- `/terminu:newapp`: with no screen, each `Notice`'s `Lines()` goes to stderr, each line starting `<app>: ` (tdp E3-40). So do the Info entries for keys not read and for files no longer used (`NoLongerUsedLines`). A file that can't be read is treated as `MoveAside`'s `Esc`: no file is touched, `CannotReadText` goes to stderr and the command exits 1 (tdp E3-27).
+- `/terminu:newapp`: a command prints as tdp E1 says. Results go to stdout. Errors and warnings go to stderr, starting `<app>: `, and a wrong use prints the usage and exits 2. The app writes no `log.Fatal` and doesn't leave messages to the `flag` package. `iconwidth` prints `ProbeResult.Lines()`, and the command line is written as `command(args, stdout, stderr) int`, as terminu-go's showcase does, so tests can read what it prints and its exit status. In `harness-assets.md`, a command's implementation records what it prints, where, and its exit status, so the review can judge E1.
+- `/terminu:newapp`: a panel showing a difference uses `Pager.SetDiff`, or `Pager.SetDiffItems` for something that holds many, never a tool's own output, and its `Enter` goes through `App.OpenDiff` (tdp note-103, note-106).
+- `/terminu:newapp`: an action of the app's own that changes what a panel lists or moves its cursor calls `List.ClearFilter()` first (tdp panel-180). An item taking several rows uses `Row.Below` (tdp panel.5).
+- `/terminu:newapp`: content the app reads again on its own is logged once (tdp note-104, note-105). A change found or a recovery gets an Info entry. A failure is said only the first time and when it changes, and a repeated one calls `CannotReadAgain(v)` with no words.
+- The README sections "命令列" and "占好幾列的項目" are now required reading. Checked against tdp v1.2.18, which needs no other change: `check`, the reviewer and the templates stay as they are.
+
 ## v1.2.10 — tdp v1.2.17
 
 - A family release is tagged with an annotated tag whose message is the release's CHANGELOG heading without `## `, such as `v1.3.0 — tdp v1.2.17`, and a beta's the same way (harness project.7, project-34). Lightweight tags made before this release and already pushed stay as they are.

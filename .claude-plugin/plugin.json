@@ -1,6 +1,6 @@
 {
   "name": "terminu",
-  "version": "1.2.10",
+  "version": "1.2.11",
   "description": "The terminu harness: make TUI apps with terminu design (tdp) and terminu-go, from what you want to a finished app",
   "author": {
     "name": "vulcanshen"
