@@ -121,12 +121,15 @@ spec 的重點，使用者看了成品再提要改的。
    - 自己的檔讀得進來、只是有用不了的值或不合規則的一筆（tdp E3）：先用 `terminu.KeepAside` 備份，成功了才用預設值重寫，那一件
      是 `terminu.MisfitNotice(path, copied, misfits…)`；備份做不出來就不重寫，預設值只用這一次，那一件是
      `terminu.Notice{Kind: terminu.Error, Text: err.Error()}`，後面接 `MisfitNotice(path, "", …)`（沒有那一行，只帶 WARN）。
-   - 值指到使用者自己資料裡不在的一筆（例：設定指向使用者建的 profile，那一筆被刪掉或改名）不算用不了的值，不備份、不做
-     `MisfitNotice`（tdp E3「指到不在的一筆」）：檔案不動、值留著，這一次用內建的預設值，那一件是 Warning 的 `terminu.Notice`；
-     畫面上照原本寫的顯示這個值，label 畫 Red（一列一個值的 panel 用 `Field.Err`），那一筆不在時它的 select 用 `Selected: -1`
-     打開，選了哪一筆都算改。
+   - 值指到使用者自己資料裡不在的一筆（例：設定指向使用者建的 profile，那一筆被刪掉或改名），或 app 讀的外面不在的東西（例：狀態
+     記著的叢集 namespace 被刪掉了），不算用不了的值，不備份、不做 `MisfitNotice`（tdp E3「指到不在的一筆」）：檔案不動、值留著，
+     app 重寫那個檔時（例：離開時寫狀態）也留著；這一次用內建的預設值，有好幾筆的值用還在的那幾筆、一筆都不在才用預設值
+     （tdp E3-41），那一件是 Warning 的 `terminu.Notice`；畫面上照原本寫的顯示這個值，label 畫 Red（一列一個值的 panel 用
+     `Field.Err`），那一筆不在時它的 select 用 `Selected: -1` 打開，選了哪一筆都算改。啟動後才找得到的（例：畫面開了之後才問得到
+     的種類），找完之前先用預設值、不算不在，找完還是沒有才是那一件（tdp E3-42）。
    - 啟動時上面這幾件，連同位置搬了的那句（tdp E3「換了位置時」），照發生的順序收成 `Notice`，最後只叫一次 `App.Notify(ns…)`：
-     一個 toast、一件一行、種類取最重的，App Log 一件一筆、WARN 接在後面（tdp E3-37）。app 不另外叫 `App.Toast`、`App.Log`、
+     一個 toast、一件一行、種類取最重的，App Log 一件一筆、WARN 接在後面（tdp E3-37）。啟動後才找完的那幾件，找完時再交給
+     `App.Notify`：啟動的 toast 還在，lib 把它們併進去，已經收掉了才另外跳（tdp E3-43）。app 不另外叫 `App.Toast`、`App.Log`、
      `DidNotFit`。沒有畫面時（在終端機或 pipe 跑的指令），改把每個 `Notice` 的 `Lines()`（toast 那一行，再接它的 WARN）
      一行一行寫到 stderr，每行開頭 `<app>: `；讀不了的檔不叫 `MoveAside`，照它的 `Esc` 做：不動檔案，寫
      `terminu.CannotReadText(path, err)`（可以多一行說怎麼辦），exit status 1。TUI 會繼續的地方，指令也繼續（tdp E3-40、E3-27）。
@@ -138,10 +141,15 @@ spec 的重點，使用者看了成品再提要改的。
      以前讀過的寫 `No longer used: …`，其他的寫 `Not read: …`（tdp E3-38）。沒有畫面時，這幾行與改版後不再用的檔
      （`App.NoLongerUsed` 記的，`terminu.NoLongerUsedLines(paths...)`）也寫到 stderr，開頭 `<app>: `（tdp E3-40）。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
+   - 刪除與 Diff 的鍵整個家族都一樣（tdp K13）：會永久拿掉東西的動作（刪除、丟掉改動、drop），一項的（cursor 上那一項）放 `x`
+     （`[x] Delete`），很多的（標記的那些、整批）放 `X`（例：`[X] Delete marked`），不放 `d`、`D`，也不用其他字母；Diff 模式的
+     鍵是 `D`（`DiffMode{Key: "D"}`，lib 沒有預設的鍵）。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
      `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diff 模式（`App.DiffModeAction`）裡裝著許多項目的列
      （資料夾、commit）給 `DiffMode.Many`、`DiffMode.Items`（舊的名字 `CompareAction`、`Compare` 是 deprecated，之後的 minor
-     版拿掉，不用）。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。app 自己的動作要在那個 panel 顯示別的
+     版拿掉，不用）。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。清單有跟著 cursor 的明細 panel、要把
+     Diff 模式的差異放在明細裡時（放不放由 app 挑），設 `DiffMode.InDetails`（空狀態裡的名詞給 `Noun`），不自己跟著 cursor 在
+     明細裡畫：兩個框、`Esc` 一層一層退、空狀態與錯誤狀態都是 lib 的（tdp panel-185～187）。app 自己的動作要在那個 panel 顯示別的
      東西前，先叫 `Panel.LeaveDiff()`。顯示差異的 panel（例：跟著 cursor、顯示那個檔改了什麼的明細）也一樣：
      用 `Pager.SetDiff(anchor, other)` 照 UNIFIED 畫，不放工具自己的輸出（`git diff` 的標頭與 `@@`）；顯示的東西裝著許多項目
      （新的資料夾、commit）用 `Pager.SetDiffItems(items)`，不只寫名字；panel 的 `Enter` 用 `App.OpenDiff` 打開同一個 Diff 或進到

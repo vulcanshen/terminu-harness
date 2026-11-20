@@ -82,7 +82,7 @@ tasks:
   - id: 4
     spec: 2
     implementation: |
-      Space menu「刪除」與 [D]：都開 confirm「Delete office?」，Enter 刪、Esc 不動；刪完 Success toast「Deleted office」
+      Space menu「[x] Delete」與 x：都開 confirm「Delete office?」，Enter 刪、Esc 不動；刪完 Success toast「Deleted office」
       寫 profiles.yaml
     test:
       - TestDeleteFromMenuAsks
@@ -122,7 +122,7 @@ tasks:
     reason: 違反：confirm 的問句不在最後（tdp confirm.2「問句放最後，下面接著就是 hint」）
   - id: 5
     accepted: false
-    reason: 沒有測試：[D] 那個入口沒有測試走到
+    reason: 沒有測試：按 x 那個入口沒有測試走到
   - id: 6
     accepted: false
     reason: tdp 不清楚：背景工作的進度要用哪個元件，tdp 沒寫

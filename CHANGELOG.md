@@ -2,6 +2,15 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.13 — tdp v1.2.20
+
+Follows terminu-go v1.2.21, which adds `DiffMode.InDetails` and `DiffMode.Noun` and has `App.Notify` join a late toast to the start's.
+
+- `/terminu:newapp`: anything that removes for good (delete, discard, drop) is on `x` for the item under the cursor and on `X` for many at once, never on `d` or `D`, and the Diff mode's key is `D` (tdp K13). The example in `harness-assets.md`, which deleted on `[D]`, now deletes on `x`.
+- `/terminu:newapp`: a value naming something outside the app that is not there, such as a namespace gone from a cluster, is kept like one naming the user's own data, also when the app writes the file again, and a value of several entries uses those still there (tdp E3-41). Something the app finds only after start is not missing until the finding is done (tdp E3-42). Then it goes to `App.Notify`, which joins it to the start's toast while that toast still shows (tdp E3-43).
+- `/terminu:newapp`: a Diff mode shown in a list's details panel uses `DiffMode.InDetails`; the app does not draw it there itself (tdp panel-185 to panel-187). Whether to show it there is the app's pick.
+- Checked against tdp v1.2.20, which needs no other change: `check`, the reviewer and the templates stay as they are.
+
 ## v1.2.12 — tdp v1.2.19
 
 Follows terminu-go v1.2.20, which renames the Compare mode the Diff mode (`DiffMode`, `App.DiffModeAction`, with `Compare` and `CompareAction` kept as deprecated aliases) and adds `List.Spread`.
