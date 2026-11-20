@@ -34,7 +34,8 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）、「開著時會變的內容」
   （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）、「Diff」（`App.OpenDiff`，
   terminu-go v1.2.18 起；panel 裡的差異 `Pager.SetDiff`，v1.2.19 起；v1.2.19 以前這一節叫「比較」）、「占好幾列的項目」
-  （`Row.Below`，v1.2.19 起）、「命令列」（v1.2.19 起）。
+  （`Row.Below`，v1.2.19 起）、「命令列」（v1.2.19 起；`<app> update` 的 `SelfUpdate`，v1.3.0 起）、「項目的附註」
+  （`Panel.Note`，v1.3.0 起）、「說明牌」（`Panel.Sign`，v1.3.0 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -121,17 +122,18 @@ spec 的重點，使用者看了成品再提要改的。
    - 自己的檔讀得進來、只是有用不了的值或不合規則的一筆（tdp E3）：先用 `terminu.KeepAside` 備份，成功了才用預設值重寫，那一件
      是 `terminu.MisfitNotice(path, copied, misfits…)`；備份做不出來就不重寫，預設值只用這一次，那一件是
      `terminu.Notice{Kind: terminu.Error, Text: err.Error()}`，後面接 `MisfitNotice(path, "", …)`（沒有那一行，只帶 WARN）。
-   - 值指到使用者自己資料裡不在的一筆（例：設定指向使用者建的 profile，那一筆被刪掉或改名），或 app 讀的外面不在的東西（例：狀態
-     記著的叢集 namespace 被刪掉了），不算用不了的值，不備份、不做 `MisfitNotice`（tdp E3「指到不在的一筆」）：檔案不動、值留著，
-     app 重寫那個檔時（例：離開時寫狀態）也留著；這一次用內建的預設值，有好幾筆的值用還在的那幾筆、一筆都不在才用預設值
-     （tdp E3-41），那一件是 Warning 的 `terminu.Notice`；畫面上照原本寫的顯示這個值，label 畫 Red（一列一個值的 panel 用
-     `Field.Err`），那一筆不在時它的 select 用 `Selected: -1` 打開，選了哪一筆都算改。啟動後才找得到的（例：畫面開了之後才問得到
-     的種類），找完之前先用預設值、不算不在，找完還是沒有才是那一件（tdp E3-42）。
-   - 啟動時上面這幾件，連同位置搬了的那句（tdp E3「換了位置時」），照發生的順序收成 `Notice`，最後只叫一次 `App.Notify(ns…)`：
-     一個 toast、一件一行、種類取最重的，App Log 一件一筆、WARN 接在後面（tdp E3-37）。啟動後才找完的那幾件，找完時再交給
-     `App.Notify`：啟動的 toast 還在，lib 把它們併進去，已經收掉了才另外跳（tdp E3-43）。app 不另外叫 `App.Toast`、`App.Log`、
-     `DidNotFit`。沒有畫面時（在終端機或 pipe 跑的指令），改把每個 `Notice` 的 `Lines()`（toast 那一行，再接它的 WARN）
-     一行一行寫到 stderr，每行開頭 `<app>: `；讀不了的檔不叫 `MoveAside`，照它的 `Esc` 做：不動檔案，寫
+   - 值指到使用者自己資料裡不在的一筆（例：設定指向使用者建的 profile，那一筆被刪掉或改名），不算用不了的值，不備份、不做
+     `MisfitNotice`（tdp E3「指到不在的一筆」）：檔案不動、值留著，app 重寫那個檔時也留著，使用者選了別的一筆才改掉；這一次用
+     內建的預設值，有好幾筆的值用還在的那幾筆、一筆都不在才用預設值，那一件是 Warning 的 `terminu.Notice`；畫面上照原本寫的
+     顯示這個值，label 畫 Red（一列一個值的 panel 用 `Field.Err`），那一筆不在時它的 select 用 `Selected: -1` 打開，選了哪一筆
+     都算改。
+   - 值指到 app 外面的東西（例：狀態記著的叢集 namespace）不一樣（tdp E3-41）：拿名字就能用的直接用，不等外面回答；外面回答說
+     其中一筆不在了，就少了那一筆繼續，那一件是 Warning 的 `terminu.Notice`，下次寫那個檔時把那一筆拿掉，下次啟動就不會再警告。
+     找到之前用不了的（例：畫面開了之後才問得到的種類），找完之前先用預設值、不算不在，找完還是沒有才是那一件（tdp E3-42）。
+   - 啟動時上面這幾件，連同位置搬了的那句（tdp E3「換了位置時」），照發生的順序收成 `Notice`，叫 `App.Notify(ns…)`：一件一個
+     toast，跟所有 toast 一樣往上疊，App Log 一件一筆、WARN 接在後面（tdp E3-37）。啟動後才知道的（外面回答不在了、找完還是沒有），
+     知道時再交給 `App.Notify`，一樣是自己的一個 toast。app 不另外叫 `App.Toast`、`App.Log`、`DidNotFit`。沒有畫面時（在終端機
+     或 pipe 跑的指令），改把每個 `Notice` 的 `Lines()`（toast 那一行，再接它的 WARN）一行一行寫到 stderr，每行開頭 `<app>: `；讀不了的檔不叫 `MoveAside`，照它的 `Esc` 做：不動檔案，寫
      `terminu.CannotReadText(path, err)`（可以多一行說怎麼辦），exit status 1。TUI 會繼續的地方，指令也繼續（tdp E3-40、E3-27）。
    - TUI 以外（不在 TUI 裡的畫面，例：外掛畫的側邊欄；印給別的程式顯示的輸出，例：狀態列）：上面這幾件與讀不了的檔都不動檔案，
      不叫 `KeepAside`、`MoveAside`，不重寫，這一次用預設值（讀不了時怎麼繼續由 app 決定）；在那裡讓使用者看到哪個檔有什麼問題
@@ -141,9 +143,15 @@ spec 的重點，使用者看了成品再提要改的。
      以前讀過的寫 `No longer used: …`，其他的寫 `Not read: …`（tdp E3-38）。沒有畫面時，這幾行與改版後不再用的檔
      （`App.NoLongerUsed` 記的，`terminu.NoLongerUsedLines(paths...)`）也寫到 stderr，開頭 `<app>: `（tdp E3-40）。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
-   - 刪除與 Diff 的鍵整個家族都一樣（tdp K13）：會永久拿掉東西的動作（刪除、丟掉改動、drop），一項的（cursor 上那一項）放 `x`
-     （`[x] Delete`），很多的（標記的那些、整批）放 `X`（例：`[X] Delete marked`），不放 `d`、`D`，也不用其他字母；Diff 模式的
-     鍵是 `D`（`DiffMode{Key: "D"}`，lib 沒有預設的鍵）。
+   - 刪除、Diff、附註的鍵整個家族都一樣（tdp K13）：會永久拿掉東西的動作（刪除、丟掉改動、drop），一項的（cursor 上那一項）放 `x`
+     （`[x] Delete`），很多的（標記的那些、整批）放 `X`（例：`[X] Delete marked`），不放 `d`、`D`，也不用其他字母；`x`、`X` 也只
+     放這種，還能再打開的（例：關分頁）用別的字母（tdp K13-5）。Diff 模式的鍵是 `D`（`DiffMode{Key: "D"}`，lib 沒有預設的鍵）；
+     沒有 Diff 模式的 app 可以把 `D` 給不是刪除的事。`i` 只打開附註（下一條），app 自己的動作都不放 `i`（tdp K13-4）。
+   - 一項是什麼、欄位又放不下的（例：連結會去哪、備註、為什麼沒在跑）放那一項的附註（tdp panel.18）：設 `Panel.Note`（app 自己
+     的模式裡 `Mode.Note`），回傳 cursor 那一項的附註，頭、`i`、打開的 viewer 都是 lib 的；app 自己的 body 要實作
+     `terminu.NoteSpot`。不用 toast 說（tdp toast.1），也不用 `Panel.Inspect`、`Mode.Inspect`（deprecated，之後的 minor 版拿掉）。
+   - 只用來說明、沒有操作的 panel（例：遊戲旁邊的 NEXT、圖例）做成說明牌（tdp panel.17）：設 `Panel.Sign`（`terminu.SignLit`
+     常亮、`terminu.SignDim` 常暗，由 app 挑），不做成拿得到 focus 的一般 panel；內容在最小畫面（60 × 32）分到的大小裡要放得下。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
      `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diff 模式（`App.DiffModeAction`）裡裝著許多項目的列
      （資料夾、commit）給 `DiffMode.Many`、`DiffMode.Items`（舊的名字 `CompareAction`、`Compare` 是 deprecated，之後的 minor
@@ -163,8 +171,11 @@ spec 的重點，使用者看了成品再提要改的。
      toast 同一句話；用錯（不認得的指令、少了參數）寫 `<app>: ` 接哪裡錯、空一行、用法，exit status 2；沒做完 1。`Run` 回傳的
      error 也照這樣（`fmt.Fprintln(os.Stderr, "<app>:", err)`、`os.Exit(1)`）。不用 `log.Fatal`（前面是時間，不是 `<app>: `），
      也不照 `flag` 套件預設的印法（錯誤沒有 `<app>: `，`-h` 的用法寫到 stderr）。`iconwidth` 印 `terminu.Probe("<app>").Lines()`。
-     照 tgo 的 showcase 寫成 `command(args, stdout, stderr) int`，有參數時 `main` 把它的回傳交給 `os.Exit`，測試才拿得到印出的
-     東西與 exit status。
+     每個 app 都有 `<app> update`（tdp E1-9、E1-10），用 `terminu.SelfUpdate{App, Version, Owner, Tap, Source}.Run(stdout, stderr)`
+     的回傳當 exit status，不自己寫：`Version` 是 `version.Version`，`Owner`、`Tap` 照 tdp E6（家族成員是 `vulcanshen`、
+     `vulcanshen/tap`，其他的用使用者自己的帳號與 tap），`Source` 寫從原始碼編的怎麼更新（例：`git pull && make install`）。它下載的
+     release 檔名是 harness project/goreleaser.yaml 的命名，改了發布步驟的 app 要留著這個命名。照 tgo 的 showcase 寫成
+     `command(args, stdout, stderr) int`，有參數時 `main` 把它的回傳交給 `os.Exit`，測試才拿得到印出的東西與 exit status。
 2. `make check` 過。
 3. 用 harness 的終端機開起來看（`open`、`keys`、`screen`、`image`），照這個 task 引的 tdp 自己走一遍。app 會寫系統檔或使用者的
    檔案時（例：hosts 檔、家目錄裡的設定），用 app 自己的環境變數（tdp E3 的覆寫）指到暫存目錄再開，不碰真的檔案。
@@ -209,7 +220,9 @@ spec 的重點，使用者看了成品再提要改的。
 3. 開新一份 spec：id 加一，`from` 改成原本的 `to`，`to` 改成新版。拿統整的那一份對每個 task：引到改了的節的，拿新版的原文對它
    做的事；沒引到、但做的事被新的規定管到的也一樣。新的寫法改到它（紀錄要改，或照紀錄做的程式得改）才照新版改 task（`tdp`、
    remark），`spec` 改成新的 id，4. 會照新版重做；改的地方跟它做的事無關的（例：T1 加了一列管搜尋，引 T1 但不搜尋的 task），
-   `spec` 不動：每次 review 都拿新版判全部的 task，加 id 只多一次白做。idea.md 同時有改的也在這一份裡處理。對不到任何 task 的（repo
+   `spec` 不動：每次 review 都拿新版判全部的 task，加 id 只多一次白做。idea.md 同時有改的也在這一份裡處理。
+   新版要每個 app 都有的東西（例：tdp v1.3.0 的 `<app> update`，E1-9）放進管那一塊的 task（例：命令列那個 task），沒有的話開一個
+   新的 task，`request` 寫 tdp 要的那件事（例：`tdp E1：<app> update`），review 才判得到。對不到任何 task 的（repo
    範本的檔、README、CHANGELOG 的寫法）不開 task，直接照新版改，`make check` 過了 commit。照 tdp 做的 app 不用跟家族的 repo
    範本改（harness project.1）。
    - **第一次升到沒有 project/ 的 tdp**（v1.2.0-beta.1 起）：家族的 repo 範本搬到 harness，編號不變。spec 裡的 `tdp project.3`、

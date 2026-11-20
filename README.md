@@ -40,6 +40,8 @@ In Claude Code:
 
 The first start builds the terminal into `~/.terminu-harness/bin`, which takes a little while. If Claude Code reports the plugin's MCP server failed to start, run `/mcp` to reconnect once the build is done.
 
+If you install it into a session that's already open, run `/reload-plugins` once the install is done. The skills can show up without it, but the reviewer that `/terminu:review` sends does not.
+
 To remove it, `/plugin uninstall terminu@terminu-harness`, then delete `~/.terminu-harness`.
 
 ## Usage

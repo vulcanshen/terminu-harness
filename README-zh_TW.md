@@ -40,6 +40,8 @@
 
 第一次啟動會把終端機建到 `~/.terminu-harness/bin`，要等一下。Claude Code 說 plugin 的 MCP server 沒啟動成功的話，等建好之後跑 `/mcp` 重新連上。
 
+在已經開著的 session 裡裝的話，裝完再跑一次 `/reload-plugins`。skill 不跑也可能已經出現，`/terminu:review` 派的 reviewer 要跑過才有。
+
 移除：`/plugin uninstall terminu@terminu-harness`，再刪掉 `~/.terminu-harness`。
 
 ## 使用方式

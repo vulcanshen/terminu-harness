@@ -2,6 +2,20 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.0 — tdp v1.3.0
+
+Follows terminu-go v1.3.0, which adds `SelfUpdate` for `<app> update`, `Panel.Note` for an item's note and `Panel.Sign` for a sign, and stacks toasts, so `App.Notify` no longer merges them.
+
+- `/terminu:newapp`: every app has `<app> update`, run by terminu-go's `SelfUpdate`, never written by the app (tdp E1-9, E1-10). `Owner` and `Tap` follow tdp E6, and an app that changed its release steps keeps the release file names of the family's goreleaser template, which `update` downloads.
+- `/terminu:newapp`, upgrading: something the new tdp wants in every app, such as `<app> update`, goes into the task that covers that part, or into a new task whose request is what tdp asks for, so the review sees it.
+- `/terminu:newapp`: each E3 notice is a toast of its own, stacked like every toast. The start's notices no longer merge into one, and one found later is a toast of its own too (tdp E3-37; E3-43 is gone).
+- `/terminu:newapp`: a value naming something outside the app is used at once by its name. An entry the answer shows gone is warned about and dropped at the next write, so the next start says nothing (tdp E3-41). What can't be used until found holds the default until the finding is done (tdp E3-42). A value naming the user's own data is kept as before.
+- `/terminu:newapp`: what an item is, when its columns can't hold it, goes in the item's note (`Panel.Note`, tdp panel.18), not in a toast or the deprecated `Panel.Inspect`. `i` opens notes and nothing else, and `x` and `X` only remove for good: closing what can be opened again takes another letter (tdp K13-4, K13-5). An app with no Diff mode may give `D` to something that isn't a delete.
+- `/terminu:newapp`: a panel that only tells is a sign (`Panel.Sign`, tdp panel.17), never a panel that takes the focus. The README sections 「項目的附註」 and 「說明牌」 are now required reading.
+- `/terminu:review`: when there is no `terminu:reviewer` agent, as after installing the plugin into a session already open without running `/reload-plugins` afterwards, the review goes to a general-purpose agent instead of being judged in the session itself. The agent is given `agents/reviewer.md` and the same limits: it only reads, with Read, Grep, Glob, `tdp_section` and `tdp_file`, runs no commands and changes no files. The user is told that `/reload-plugins` or a new session brings the reviewer.
+- The install notes say to run `/reload-plugins` after installing into a session already open: the skills can show up without it, but the reviewer agent does not.
+- Checked against tdp v1.3.0, which needs no other change: stacked toasts, the App Log's short text (tdp note-108) and the bracketed letter (tdp M5-1) are drawn by the lib, and `check`, the reviewer and the templates stay as they are.
+
 ## v1.2.13 — tdp v1.2.20
 
 Follows terminu-go v1.2.21, which adds `DiffMode.InDetails` and `DiffMode.Noun` and has `App.Notify` join a late toast to the start's.

@@ -29,7 +29,7 @@ to: v0.10.1      # 這份 spec 照的 tdp：go.mod 的 terminu-go 對到的那�
 tasks:
   - id: 1                  # 整個 app 一路遞增，不重複使用，取消了也不回收
     spec: 1                # 這個 task 最後一次新增或修改是在第幾份 spec
-    request: 側邊是存著的 profile 清單，每個 profile 一列，寫名字與有幾個 domain   # idea.md 裡的那個需求
+    request: 側邊是存著的 profile 清單，每個 profile 一列，寫名字與有幾個 domain   # idea.md 裡的那個需求；tdp 要每個 app 都有的寫 tdp 要的事
     tdp: [tdp panel.1, tdp panel.5]   # 這個需求照的 tdp：tdp 加編號
     remark:                # 設計決定（附理由）、tdp 的缺漏、發出去的回報
       - 名字前面的 icon 標出生效的那一個（tdp P5：領域的符號 app 可以自行決定）

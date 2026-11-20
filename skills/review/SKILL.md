@@ -40,6 +40,11 @@ work.yaml 裡沒取消的 task，作保是 `user: {date, how}` 的，每一次 r
 - 要判的 task：work.yaml 裡沒取消的全部；`$ARGUMENTS` 指定了就只判那幾個。1.、2. 已經判成 `沒有測試` 的不用給它。
 - 第二次以後：上一次判不合的 task 與原因，與這次改了哪些 task
 
+沒有 `terminu:reviewer` 這個 agent 時（例：plugin 是在開著的 session 裡裝的，裝完還沒跑過 `/reload-plugins`），改派一個
+general-purpose agent，不要自己判：prompt 先放 plugin 的 `agents/reviewer.md`（這個 skill 資料夾的 `../../agents/reviewer.md`）
+frontmatter 以下的全文，再接上面那幾項，並寫明只用 Read、Grep、Glob 與 MCP 工具 `tdp_section`、`tdp_file`，不跑指令、不改任何檔案。
+跟使用者說這次是這樣派的，跑一次 `/reload-plugins`（或開新的 session）就會有 `terminu:reviewer`。
+
 ## 4. 寫 review.yaml
 
 把 reviewer 的結果，加上 1.、2. 判的 `沒有測試`，寫成 `harness-assets/review.yaml`，覆蓋舊的：`spec` 是 spec.yaml 的 id，`tasks`
