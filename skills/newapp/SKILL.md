@@ -32,9 +32,9 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
 - **terminu-go**：讀那一版的 README 與 examples；`README-zh_TW.md` 這幾節一定要讀，照它寫的用 lib：「文字與顏色」（上色給 span，
   不把顏色碼塞進字串；外面來的字自己畫時用 `Escape`）、「App Log」（使用者執行的每個 operation，只看不改的也算，與背景做的事記進去；tdp note.7 寫了哪些不記）、「讀不了自己的檔時」、「設定」、「測試 app」
   （`tdptest`）、「計時器：`App.Tick`」、「從 app 自己的 popup 執行動作」（`App.RunAction`，terminu-go v1.2.7 起）、「開著時會變的內容」
-  （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）、「比較」（`App.OpenDiff`，
-  terminu-go v1.2.18 起；panel 裡的差異 `Pager.SetDiff`，v1.2.19 起）、「占好幾列的項目」（`Row.Below`，v1.2.19 起）、「命令列」
-  （v1.2.19 起）。
+  （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）、「Diff」（`App.OpenDiff`，
+  terminu-go v1.2.18 起；panel 裡的差異 `Pager.SetDiff`，v1.2.19 起；v1.2.19 以前這一節叫「比較」）、「占好幾列的項目」
+  （`Row.Below`，v1.2.19 起）、「命令列」（v1.2.19 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -139,14 +139,15 @@ spec 的重點，使用者看了成品再提要改的。
      （`App.NoLongerUsed` 記的，`terminu.NoLongerUsedLines(paths...)`）也寫到 stderr，開頭 `<app>: `（tdp E3-40）。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
-     `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；比較模式裡裝著許多項目的列（資料夾、commit）給
-     `Compare.Many`、`Compare.Items`。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。app 自己的動作要在那個
-     panel 顯示別的東西前，先叫 `Panel.LeaveDiff()`。顯示差異的 panel（例：跟著 cursor、顯示那個檔改了什麼的明細）也一樣：
+     `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diff 模式（`App.DiffModeAction`）裡裝著許多項目的列
+     （資料夾、commit）給 `DiffMode.Many`、`DiffMode.Items`（舊的名字 `CompareAction`、`Compare` 是 deprecated，之後的 minor
+     版拿掉，不用）。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。app 自己的動作要在那個 panel 顯示別的
+     東西前，先叫 `Panel.LeaveDiff()`。顯示差異的 panel（例：跟著 cursor、顯示那個檔改了什麼的明細）也一樣：
      用 `Pager.SetDiff(anchor, other)` 照 UNIFIED 畫，不放工具自己的輸出（`git diff` 的標頭與 `@@`）；顯示的東西裝著許多項目
-     （新的資料夾、commit）用 `Pager.SetDiffItems(items)`，不只寫名字；panel 的 `Enter` 用 `App.OpenDiff` 打開同一個比較或進到
+     （新的資料夾、commit）用 `Pager.SetDiffItems(items)`，不只寫名字；panel 的 `Enter` 用 `App.OpenDiff` 打開同一個 Diff 或進到
      同一份清單（tdp note-103、note-106）。
    - app 自己的動作要換掉 panel 列的東西，或把它的 cursor 放到某一項上（例：在別的 panel 移動 cursor，把這個 panel 帶到那一項；
-     進到一項裡面），先叫 `List.ClearFilter()`，不管篩選有沒有藏住那一項（tdp panel-180）。比較模式與 `App.OpenDiff` 進去前 lib
+     進到一項裡面），先叫 `List.ClearFilter()`，不管篩選有沒有藏住那一項（tdp panel-180）。Diff 模式與 `App.OpenDiff` 進去前 lib
      自己清；只是 focus 離開，篩選留著。
    - 一個項目要占好幾列時（例：commit 下面的分支與 tag）用 `Row.Below`，不拆成好幾個項目：移動、`N of M`、篩選才會算項目
      （tdp panel.5）。

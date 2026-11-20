@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.2.12 — tdp v1.2.19
+
+Follows terminu-go v1.2.20, which renames the Compare mode the Diff mode (`DiffMode`, `App.DiffModeAction`, with `Compare` and `CompareAction` kept as deprecated aliases) and adds `List.Spread`.
+
+- `/terminu:newapp` uses the new names: rows that hold many in the Diff mode (`App.DiffModeAction`) use `DiffMode.Many` and `DiffMode.Items`, and the deprecated names are not used, as a later minor version removes them. The required README section 「比較」 is now 「Diff」.
+- Checked against tdp v1.2.19, which needs no other change. Where a list's room left over goes (tdp panel-184) is the app's pick, and the default, `SpreadEnd`, is one of the four.
+
 ## v1.2.11 — tdp v1.2.18
 
 Follows terminu-go v1.2.19, which adds `Notice.Lines`, `NoLongerUsedLines`, `CannotReadText`, `ProbeResult.Lines`, `Pager.SetDiff`, `Pager.SetDiffItems` and `Row.Below`.
