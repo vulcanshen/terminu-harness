@@ -152,6 +152,10 @@ spec 的重點，使用者看了成品再提要改的。
      `terminu.NoteSpot`。不用 toast 說（tdp toast.1），也不用 `Panel.Inspect`、`Mode.Inspect`（deprecated，之後的 minor 版拿掉）。
    - 只用來說明、沒有操作的 panel（例：遊戲旁邊的 NEXT、圖例）做成說明牌（tdp panel.17）：設 `Panel.Sign`（`terminu.SignLit`
      常亮、`terminu.SignDim` 常暗，由 app 挑），不做成拿得到 focus 的一般 panel；內容在最小畫面（60 × 32）分到的大小裡要放得下。
+   - 幾塊 panel 要跟著帶頭的 panel 換時（例：git 工具的右邊，focus 最後在分支時是 commit 清單，在改動的檔案時是那個檔的 diff 與
+     history；要不要這樣由 app 挑），寫在 `Screen.Following`（跟著換的位置）與 `Screen.Leads`（`terminu.Lead{Panel, Shows}`，
+     `nil` 收起那個位置），不在 focus 換的時候自己換 panel 的 body：同一塊帶頭的每次都一樣、focus 移進跟著的那幾塊時不換、號碼照
+     位置、收起的那塊數字鍵不作用，都是 lib 的（tdp L5、L5-4）。app 的 `Layout` 用 `Screen.Hidden(i)` 把收起那塊的空間給旁邊。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
      `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diff 模式（`App.DiffModeAction`）裡裝著許多項目的列
      （資料夾、commit）給 `DiffMode.Many`、`DiffMode.Items`（舊的名字 `CompareAction`、`Compare` 是 deprecated，之後的 minor

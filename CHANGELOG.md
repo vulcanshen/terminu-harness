@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.1 — tdp v1.3.1
+
+Follows terminu-go v1.3.1, which adds `Screen.Following`, `Screen.Leads` and `Screen.Hidden` for panels that follow a leading panel.
+
+- `/terminu:newapp`: panels that follow whichever leading panel last had the focus, such as a git tool's right side showing commits for a branch and a diff and history for a changed file, are written in `Screen.Following` and `Screen.Leads`, not swapped by the app as the focus moves (tdp L5, L5-4). The lib keeps them the same each time, changes nothing as the focus moves into them, numbers them by place and leaves a hidden one's digit doing nothing. Whether to have them is the app's pick.
+- Checked against tdp v1.3.1, which needs no other change: an item's other rows fading out, the terminal background asked with OSC 11 and a note's opening in the App Log are the lib's, and `check`, the reviewer and the templates stay as they are.
+
 ## v1.3.0 — tdp v1.3.0
 
 Follows terminu-go v1.3.0, which adds `SelfUpdate` for `<app> update`, `Panel.Note` for an item's note and `Panel.Sign` for a sign, and stacks toasts, so `App.Notify` no longer merges them.
