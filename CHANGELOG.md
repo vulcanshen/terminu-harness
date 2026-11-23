@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.3 — tdp v1.3.3
+
+Follows terminu-go v1.3.3, which adds `Mode.PTY` for a mode of the app's own that holds its panel's PTY, `Terminal.Send` and `Panel.EscDesc`.
+
+- `/terminu:newapp`: a panel's PTY gone into and out of as a mode of the app's own, such as an agent the user goes into to type to, is entered with `Panel.EnterMode` and a `Mode` with `PTY` set, not made by the app forwarding keys in a mode of its own. Every key but `Esc` going to the program, `Esc` leaving with no confirm and two Escs read as `Alt-Esc` leaving and sending one Esc are the lib's (tdp K11-28). Whether to have it is the app's pick; going in with `Terminal.Enter` stays as it was. Out of the mode, an `Esc` that cancels what the program is doing is sent with `Terminal.Send`, and any panel whose `OnEsc` does something other than going up a level sets `Panel.EscDesc`, so the key reference does not say "one level up" (tdp K4, M5).
+- Checked against tdp v1.3.3, which needs no other change: F6's third case, asking only when a run would carry something plainly wrong into what it makes, leaves the delete-key step as it is, and `check`, the reviewer and the templates stay as they are.
+
 ## v1.3.2 — tdp v1.3.2
 
 Follows terminu-go v1.3.2, which adds `List.LocationWork` and `Panel.LocationWork` for work running on the place a location row names, and keeps a panel's key the panel's while its action is hidden.

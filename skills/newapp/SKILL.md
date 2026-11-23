@@ -161,6 +161,12 @@ spec 的重點，使用者看了成品再提要改的。
      history；要不要這樣由 app 挑），寫在 `Screen.Following`（跟著換的位置）與 `Screen.Leads`（`terminu.Lead{Panel, Shows}`，
      `nil` 收起那個位置），不在 focus 換的時候自己換 panel 的 body：同一塊帶頭的每次都一樣、focus 移進跟著的那幾塊時不換、號碼照
      位置、收起的那塊數字鍵不作用，都是 lib 的（tdp L5、L5-4）。app 的 `Layout` 用 `Screen.Hidden(i)` 把收起那塊的空間給旁邊。
+   - panel 的 PTY 要照 app 自己的模式進出時（例：panel 裡跑著一個 agent，進去才打字給它；要不要這樣由 app 挑，照舊用
+     `Terminal.Enter` 進去也可以），用 `Panel.EnterMode(&terminu.Mode{…, PTY: true})`，那個 panel 的 Body 是 `*Terminal`；不自己
+     在模式裡轉送鍵，也不放 `Alt-Esc`、不跳 confirm：除了 `Esc` 每個鍵都給子程序（`Space`、`?`、`q`、`Ctrl-C` 也是）、`Esc` 離開
+     模式、兩下 `Esc` 讀成 `Alt-Esc` 時離開再送一個 `Esc`，都是 lib 的（tdp K11-28）。離開後 panel 上的 `Esc` 要取消子程序正在做的
+     事時，`OnEsc` 用 `Terminal.Send([]byte{0x1b})` 送一個 `Esc`。不只 PTY：`OnEsc` 做的不是回上一層時，設 `Panel.EscDesc` 寫它
+     做什麼，key reference 才不會寫成 one level up（tdp K4、M5）。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
      `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diff 模式（`App.DiffModeAction`）裡裝著許多項目的列
      （資料夾、commit）給 `DiffMode.Many`、`DiffMode.Items`（舊的名字 `CompareAction`、`Compare` 是 deprecated，之後的 minor
