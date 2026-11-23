@@ -143,10 +143,15 @@ spec 的重點，使用者看了成品再提要改的。
      以前讀過的寫 `No longer used: …`，其他的寫 `Not read: …`（tdp E3-38）。沒有畫面時，這幾行與改版後不再用的檔
      （`App.NoLongerUsed` 記的，`terminu.NoLongerUsedLines(paths...)`）也寫到 stderr，開頭 `<app>: `（tdp E3-40）。
    - 使用者要讀完、toast 又放不下的成功報告（tdp toast.2）用 `App.Report`，不自己開 viewer，也不另外記 App Log 的 Success。
-   - 刪除、Diff、附註的鍵整個家族都一樣（tdp K13）：會永久拿掉東西的動作（刪除、丟掉改動、drop），一項的（cursor 上那一項）放 `x`
-     （`[x] Delete`），很多的（標記的那些、整批）放 `X`（例：`[X] Delete marked`），不放 `d`、`D`，也不用其他字母；`x`、`X` 也只
-     放這種，還能再打開的（例：關分頁）用別的字母（tdp K13-5）。Diff 模式的鍵是 `D`（`DiffMode{Key: "D"}`，lib 沒有預設的鍵）；
-     沒有 Diff 模式的 app 可以把 `D` 給不是刪除的事。`i` 只打開附註（下一條），app 自己的動作都不放 `i`（tdp K13-4）。
+   - 一個動作暫時沒有對象（例：清單空了的 Mark all），或只有某幾個 tab 有時，留在 `Panel.Actions` 裡，用 `Hidden` 藏起來；不在
+     清單變空或 `OnTab` 時把它拿出 `Actions`，不然它的鍵在那裡會變成同一個鍵的全域動作（tdp M4-5、M4-6）。
+   - 刪除、Diff、附註的鍵整個家族都一樣（tdp K13）：目的就是永久拿掉東西的動作（刪除、丟掉改動、drop），一項的（cursor 上那一項）
+     放 `x`（`[x] Delete`），很多的（標記的那些、整批）放 `X`（例：`[X] Delete marked`），不放 `d`、`D`，也不用其他字母，或者不給
+     熱鍵、從 menu 選（`Key: ""`，tdp M3）；`x`、`X` 也只放這種，還能再打開的（例：關分頁）用別的字母（tdp K13-5）。目的是別的事、
+     只是順帶丟掉東西的（例：放棄 merge 會丟掉解好的衝突）不算，照它做的事取字母（`[A]bort`），這一次會丟東西時用
+     `Action.AskFor` 先問：回傳 `nil` 就不問，問不問只看這一次的狀態，不看之前問過沒有（tdp K13-6、F6-6）。Diff 模式的鍵是 `D`
+     （`DiffMode{Key: "D"}`，lib 沒有預設的鍵）；沒有 Diff 模式的 app 可以把 `D` 給不是刪除的事。`i` 只打開附註（下一條），app 自己
+     的動作都不放 `i`（tdp K13-4）。
    - 一項是什麼、欄位又放不下的（例：連結會去哪、備註、為什麼沒在跑）放那一項的附註（tdp panel.18）：設 `Panel.Note`（app 自己
      的模式裡 `Mode.Note`），回傳 cursor 那一項的附註，頭、`i`、打開的 viewer 都是 lib 的；app 自己的 body 要實作
      `terminu.NoteSpot`。不用 toast 說（tdp toast.1），也不用 `Panel.Inspect`、`Mode.Inspect`（deprecated，之後的 minor 版拿掉）。
@@ -168,7 +173,13 @@ spec 的重點，使用者看了成品再提要改的。
      同一份清單（tdp note-103、note-106）。
    - app 自己的動作要換掉 panel 列的東西，或把它的 cursor 放到某一項上（例：在別的 panel 移動 cursor，把這個 panel 帶到那一項；
      進到一項裡面），先叫 `List.ClearFilter()`，不管篩選有沒有藏住那一項（tdp panel-180）。Diff 模式與 `App.OpenDiff` 進去前 lib
-     自己清；只是 focus 離開，篩選留著。
+     自己清；只是 focus 離開，篩選留著。使用者對篩選後的一項做的動作讓它移走或消失時（例：stage 讓它移到另一組、刪掉）不一樣：
+     不清篩選，用 `SetRows` 換上新的列，cursor 用 `List.Select` 放到篩選看得到的一項（回傳 `false` 就是被藏住了；放哪一項由 app
+     挑，例：同一組的下一項）（tdp panel-198）。
+   - 位置列要寫那個地方正在跑的工作時（例：push 時寫 `Pushing…`；要不要寫由 app 挑），設 `List.LocationWork`（沒有清單的 panel
+     用 `Panel.LocationWork`），跑完設回 `""`；不寫進 `Location`，也不自己換 `LocationGlyph`：Green、轉著的 loading icon、跑完
+     換回原本的 icon 都是 lib 的（tdp panel.10、panel-197）。那個地方做到一半的事（例：merge 到一半）才寫進 `Location`，用
+     `LocationGlyph` 表示狀態。
    - 一個項目要占好幾列時（例：commit 下面的分支與 tag）用 `Row.Below`，不拆成好幾個項目：移動、`N of M`、篩選才會算項目
      （tdp panel.5）。
    - 命令列的指令（tdp E1）照 tgo README「命令列」印：結果寫 stdout；錯誤、警告寫 stderr，一件一行，開頭 `<app>: `，跟同一件事的

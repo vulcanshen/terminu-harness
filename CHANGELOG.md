@@ -2,6 +2,16 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.2 — tdp v1.3.2
+
+Follows terminu-go v1.3.2, which adds `List.LocationWork` and `Panel.LocationWork` for work running on the place a location row names, and keeps a panel's key the panel's while its action is hidden.
+
+- `/terminu:newapp`, the delete key: only an action whose point is removing for good goes on `x` or `X`, and it may have no hotkey at all, reached from its menu (tdp M3). One that does something else and loses something on the way, such as abandoning a merge, takes the letter of what it does (`[A]bort`) and asks with `Action.AskFor` only when this run would lose something, the same state always asking the same way (tdp K13-6, F6-6). The step used to put every action that removes something on `x`.
+- `/terminu:newapp`, the panel filter: an action the user runs on an item of the filtered list that moves it or takes it away, such as staging or deleting, keeps the filter. The app sets the new rows and puts the cursor on an item the filter shows with `List.Select` (tdp panel-198). The step used to clear the filter before any action that changes what the panel lists.
+- `/terminu:newapp`: work running on the place a location row names, such as a push, is written in `LocationWork`, not in `Location`. The Green, the turning loading icon and the row's own glyph coming back are the lib's (tdp panel.10, panel-197).
+- `/terminu:newapp`: an action with no target for now, such as Mark all on an empty list, or one that only some tabs have, stays in `Panel.Actions` with `Hidden`. Taken out, its key would run the global action on the same key there (tdp M4-5, M4-6).
+- Checked against tdp v1.3.2, which needs no other change: `Enter` by each item as it stands (K3-2 removed) and the cursor going to a new item only for an action whose point is adding it (K3-15) need nothing from the harness, and `check`, the reviewer and the templates stay as they are.
+
 ## v1.3.1 — tdp v1.3.1
 
 Follows terminu-go v1.3.1, which adds `Screen.Following`, `Screen.Leads` and `Screen.Hidden` for panels that follow a leading panel.
