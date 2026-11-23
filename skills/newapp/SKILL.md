@@ -182,6 +182,10 @@ spec 的重點，使用者看了成品再提要改的。
      自己清；只是 focus 離開，篩選留著。使用者對篩選後的一項做的動作讓它移走或消失時（例：stage 讓它移到另一組、刪掉）不一樣：
      不清篩選，用 `SetRows` 換上新的列，cursor 用 `List.Select` 放到篩選看得到的一項（回傳 `false` 就是被藏住了；放哪一項由 app
      挑，例：同一組的下一項）（tdp panel-198）。
+   - 有 Drag 的清單（tdp panel.8，例：手動排順序）用 `Panel.EnterMode` 做 Drag 模式：拿起叫 `List.Hold`，`j|k` 叫 `List.MoveHeld`，
+     `Enter` 放下叫 `List.Drop`，`Esc` 放回時在 `OnExit` 先 `Drop`、再用 `SetRows` 換回原本的列。不自己用 `SetRows` 搬，拿起前也
+     不叫 `ClearFilter`（上一條的「先叫 `List.ClearFilter()`」不算 Drag）：篩選後的清單拿著時篩選先收起來、全部列出，放下或放回後
+     照原樣回來、cursor 停在那一項，都是 lib 的（tdp panel-199）。
    - 位置列要寫那個地方正在跑的工作時（例：push 時寫 `Pushing…`；要不要寫由 app 挑），設 `List.LocationWork`（沒有清單的 panel
      用 `Panel.LocationWork`），跑完設回 `""`；不寫進 `Location`，也不自己換 `LocationGlyph`：Green、轉著的 loading icon、跑完
      換回原本的 icon 都是 lib 的（tdp panel.10、panel-197）。那個地方做到一半的事（例：merge 到一半）才寫進 `Location`，用

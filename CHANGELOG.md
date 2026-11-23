@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.4 — tdp v1.3.5
+
+Follows terminu-go v1.3.5, whose `List.Hold` sets a list's filter aside while an item is held and whose `List.Drop` brings it back.
+
+- `/terminu:newapp`: a list with a Drag mode builds it with `Panel.EnterMode`, picking the item up with `List.Hold`, moving it with `List.MoveHeld` and dropping it with `List.Drop`; putting it back with `Esc` drops it in `OnExit`, then sets the rows as they were with `SetRows`. The app does not move rows itself with `SetRows`, and does not call `ClearFilter` before `Hold`: the step that clears the filter before the app's own actions does not cover a Drag. On a filtered list, setting the filter aside while the item is held and bringing it back as it was, with the cursor on that item, are the lib's (tdp panel-199).
+- Checked against tdp v1.3.4 and v1.3.5, which need no other change: how a fixed-width slot is padded is the app's own (L2-2), and the flat start colour with no OSC 11 answer and the order of the OSC 11 query are the lib's (panel-200, color.4). `check`, the reviewer and the templates stay as they are.
+
 ## v1.3.3 — tdp v1.3.3
 
 Follows terminu-go v1.3.3, which adds `Mode.PTY` for a mode of the app's own that holds its panel's PTY, `Terminal.Send` and `Panel.EscDesc`.
