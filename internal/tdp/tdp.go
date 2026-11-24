@@ -2,7 +2,6 @@
 package tdp
 
 import (
-	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
@@ -46,16 +45,18 @@ func (s Source) Latest() (string, error) {
 		}
 		names = strings.Fields(string(out))
 	} else {
-		b, err := get("https://api.github.com/repos/" + GitHub + "/tags?per_page=100")
+		// git, not GitHub's API: to a network not signed in the API answers
+		// 60 times an hour, then says 403.
+		cmd := exec.Command("git", "ls-remote", "--tags", "--refs", "https://github.com/"+GitHub)
+		cmd.Env = append(os.Environ(), "GIT_TERMINAL_PROMPT=0")
+		out, err := cmd.Output()
 		if err != nil {
-			return "", err
-		}
-		var tags []struct{ Name string }
-		if err := json.Unmarshal(b, &tags); err != nil {
 			return "", fmt.Errorf("tags of %s: %w", GitHub, err)
 		}
-		for _, t := range tags {
-			names = append(names, t.Name)
+		for _, line := range strings.Split(string(out), "\n") {
+			if _, name, ok := strings.Cut(line, "\trefs/tags/"); ok {
+				names = append(names, name)
+			}
 		}
 	}
 	best := newest(names)
@@ -189,7 +190,7 @@ func (s Source) File(tag, path string) ([]byte, error) {
 var retryWait = []time.Duration{time.Second, 2 * time.Second}
 
 // get fetches url, trying again after a network error, a 5xx or a 429 (a
-// GitHub API call that timed out once fails no check); a 404 or a 403 is
+// fetch from GitHub that timed out once fails no check); a 404 or a 403 is
 // final.
 func get(url string) ([]byte, error) {
 	for try := 0; ; try++ {

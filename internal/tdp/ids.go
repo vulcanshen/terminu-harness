@@ -1,10 +1,12 @@
 package tdp
 
 import (
+	"archive/tar"
 	"bufio"
 	"bytes"
-	"encoding/json"
+	"compress/gzip"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path"
@@ -58,20 +60,14 @@ func (s Source) Files(tag string) ([]string, error) {
 		}
 		paths = strings.Fields(string(out))
 	} else {
-		b, err := get("https://api.github.com/repos/" + GitHub + "/git/trees/" + tag + "?recursive=1")
+		// The tag's source archive, not GitHub's API: to a network not signed
+		// in the API answers 60 times an hour, then says 403.
+		b, err := get("https://github.com/" + GitHub + "/archive/refs/tags/" + tag + ".tar.gz")
 		if err != nil {
 			return nil, err
 		}
-		var tree struct {
-			Tree []struct{ Path, Type string }
-		}
-		if err := json.Unmarshal(b, &tree); err != nil {
+		if paths, err = archivePaths(b); err != nil {
 			return nil, fmt.Errorf("files of %s at %s: %w", GitHub, tag, err)
-		}
-		for _, t := range tree.Tree {
-			if t.Type == "blob" {
-				paths = append(paths, t.Path)
-			}
 		}
 	}
 	sort.Strings(paths)
@@ -81,6 +77,29 @@ func (s Source) Files(tag string) ([]string, error) {
 		}
 	}
 	return paths, nil
+}
+
+// archivePaths lists the files in a source archive from GitHub (.tar.gz),
+// without the folder it puts them all in (terminu-1.3.5/).
+func archivePaths(b []byte) ([]string, error) {
+	zr, err := gzip.NewReader(bytes.NewReader(b))
+	if err != nil {
+		return nil, err
+	}
+	tr := tar.NewReader(zr)
+	var paths []string
+	for {
+		h, err := tr.Next()
+		if err == io.EOF {
+			return paths, nil
+		}
+		if err != nil {
+			return nil, err
+		}
+		if _, p, ok := strings.Cut(h.Name, "/"); ok && p != "" && h.Typeflag == tar.TypeReg {
+			paths = append(paths, p)
+		}
+	}
 }
 
 // tree is what IDs and Sections read: tdp at a tag, or harness's project/.

@@ -62,7 +62,8 @@ terminu 的 harness：一個 Claude Code plugin，照 terminu design（tdp）用
 - **等畫面穩定**：從送鍵之後、或之後最後一次變化起算，150ms 沒變就回傳（`open` 先等到第一次變化再等 300ms）。從上一次變化
   起算會在 app 還沒反應前就回傳。
 - **tdp 的檔案**（`internal/tdp`）：從 GitHub 抓那一版 tag 的檔案，存在 `~/.terminu-harness/cache/tdp/`；設
-  `TERMINU_HARNESS__TDP_REPO` 時用本機 clone 的 `git show`。
+  `TERMINU_HARNESS__TDP_REPO` 時用本機 clone 的 `git show`。不用 GitHub 的 API（沒登入時一個網路一小時 60 次，之後回 403）：
+  最新的 tag 用 `git ls-remote`，一版有哪些檔案讀那個 tag 的原始碼壓縮檔，檔案本身從 `raw.githubusercontent.com` 抓。
 
 ## 設計決定
 

@@ -1,10 +1,52 @@
 package tdp
 
 import (
+	"archive/tar"
+	"bytes"
+	"compress/gzip"
 	"os"
+	"reflect"
 	"strings"
 	"testing"
 )
+
+// TestArchivePaths: a source archive from GitHub lists its files without the
+// folder it puts them in, and not the pax header, the folders or a link.
+func TestArchivePaths(t *testing.T) {
+	var buf bytes.Buffer
+	zw := gzip.NewWriter(&buf)
+	tw := tar.NewWriter(zw)
+	entries := []tar.Header{
+		{Name: "pax_global_header", Typeflag: tar.TypeXGlobalHeader, PAXRecords: map[string]string{"comment": "dab1fa0"}},
+		{Name: "terminu-1.3.5/", Typeflag: tar.TypeDir, Mode: 0o755},
+		{Name: "terminu-1.3.5/CHANGELOG.md", Typeflag: tar.TypeReg, Mode: 0o644, Size: 2},
+		{Name: "terminu-1.3.5/checklist/", Typeflag: tar.TypeDir, Mode: 0o755},
+		{Name: "terminu-1.3.5/checklist/items-zh_TW.md", Typeflag: tar.TypeReg, Mode: 0o644, Size: 2},
+		{Name: "terminu-1.3.5/link.md", Typeflag: tar.TypeSymlink, Linkname: "CHANGELOG.md"},
+	}
+	for _, h := range entries {
+		if err := tw.WriteHeader(&h); err != nil {
+			t.Fatal(err)
+		}
+		if h.Typeflag == tar.TypeReg {
+			_, _ = tw.Write([]byte("x\n"))
+		}
+	}
+	if err := tw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	if err := zw.Close(); err != nil {
+		t.Fatal(err)
+	}
+	got, err := archivePaths(buf.Bytes())
+	want := []string{"CHANGELOG.md", "checklist/items-zh_TW.md"}
+	if err != nil || !reflect.DeepEqual(got, want) {
+		t.Errorf("archivePaths = %q, %v; want %q", got, err, want)
+	}
+	if _, err := archivePaths([]byte("not gzip")); err == nil {
+		t.Errorf("not gzip: no error")
+	}
+}
 
 func TestHeadingIDs(t *testing.T) {
 	md := []byte("# panel（框）\n" +

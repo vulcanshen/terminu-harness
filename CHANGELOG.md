@@ -2,6 +2,14 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.5 — tdp v1.3.5
+
+Follows terminu-go v1.3.7, whose `SelfUpdate` no longer asks GitHub's API for the latest release: to a network that has not signed in, the API answers 60 times an hour, every program on it counted together, and then says 403.
+
+- Templates: `install.sh` finds the latest release the same way, from where `github.com/<owner>/<app>/releases/latest` leads (`.../releases/tag/v<version>`), never a pre-release, not from GitHub's API. With no release found it says so and exits 1; before, it went on with an empty version and failed on a download that was not there. Every app copies the new `install.sh` again at its next release (`check` says so); `<app>`, `WINDOWS` and the app's own blocks stay the app's.
+- `check`, `tdp_section` and `tdp_file` no longer ask GitHub's API either: the latest tdp comes from `git ls-remote`, and the files of a tdp version from that tag's source archive, still read once and kept.
+- Checked against terminu-go v1.3.6 and v1.3.7, which need no other change: a PTY on Windows needs no API, and nothing in harness says a PTY is unix-only; `/terminu:newapp`'s `update` step names no API.
+
 ## v1.3.4 — tdp v1.3.5
 
 Follows terminu-go v1.3.5, whose `List.Hold` sets a list's filter aside while an item is held and whose `List.Drop` brings it back.
