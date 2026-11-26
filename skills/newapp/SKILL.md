@@ -35,7 +35,7 @@ harness 的紀錄放在 app 的 `harness-assets/`：`idea.md`、`spec.yaml`、`w
   （`App.ReadAgain`，terminu-go v1.2.14 起）、「成功的報告」（`App.Report`，terminu-go v1.2.16 起）、「Diff」（`App.OpenDiff`，
   terminu-go v1.2.18 起；panel 裡的差異 `Pager.SetDiff`，v1.2.19 起；v1.2.19 以前這一節叫「比較」）、「占好幾列的項目」
   （`Row.Below`，v1.2.19 起）、「命令列」（v1.2.19 起；`<app> update` 的 `SelfUpdate`，v1.3.0 起）、「項目的附註」
-  （`Panel.Note`，v1.3.0 起）、「說明牌」（`Panel.Sign`，v1.3.0 起）。
+  （`Panel.Note`，v1.3.0 起）、「說明牌」（`Panel.Sign`，v1.3.0 起）、「移動 panel 之間的線」（`App.Lines`，v1.3.8 起）。
 - **使用者給的參考**（舊專案、文件）先讀完。
 - 確認有 `go`、`git`、`gh`（`gh auth status`）。沒有 `gh`，回報那一步改成把 issue 內容給使用者自己貼。
 
@@ -161,6 +161,13 @@ spec 的重點，使用者看了成品再提要改的。
      history；要不要這樣由 app 挑），寫在 `Screen.Following`（跟著換的位置）與 `Screen.Leads`（`terminu.Lead{Panel, Shows}`，
      `nil` 收起那個位置），不在 focus 換的時候自己換 panel 的 body：同一塊帶頭的每次都一樣、focus 移進跟著的那幾塊時不換、號碼照
      位置、收起的那塊數字鍵不作用，都是 lib 的（tdp L5、L5-4）。app 的 `Layout` 用 `Screen.Hidden(i)` 把收起那塊的空間給旁邊。
+   - 畫面不只一個 panel 時，使用者從有 focus 的 panel 移動 panel 之間的線（tdp screen.9）：`>` `<` `+` `-` `=`、menu 的那幾列、動不
+     了時的 toast、從 `Layout` 找線都是 lib 的，`Layout` 照舊只寫預設；panel、畫面、global 的熱鍵不用這五個鍵（`Run` 會回錯誤；模式
+     與 app 自己的 popup 可以用）。線停在哪裡由 app 記在自己的 state（tdp E3）：`Run` 之前把 state 裡的 `terminu.Lines` 讀進
+     `App.Lines`，`App.OnLines` 收到的寫回 state，寫不進去回傳 Error toast；不設的話線只留到這次結束。什麼時候寫由 lib 決定：使用者
+     移動線或 `=` 改了東西時才叫 `OnLines`；記著的線放不下時，lib 也會自己換回預設、拿掉，再交給 `OnLines`。這不算用不了的值，不
+     `KeepAside`，也不收進 `Notice`（tdp E3 唯一的例外）。panel 最小能多小用 `Panel.MinWidth`、`MinHeight` 給（沒給是 10 × 3；例：
+     說明牌的內容要整個看得到時給它那幾列），在 60 × 32 時不比 `Layout` 給它的大（tdp L1）。
    - panel 的 PTY 要照 app 自己的模式進出時（例：panel 裡跑著一個 agent，進去才打字給它；要不要這樣由 app 挑，照舊用
      `Terminal.Enter` 進去也可以），用 `Panel.EnterMode(&terminu.Mode{…, PTY: true})`，那個 panel 的 Body 是 `*Terminal`；不自己
      在模式裡轉送鍵，也不放 `Alt-Esc`、不跳 confirm：除了 `Esc` 每個鍵都給子程序（`Space`、`?`、`q`、`Ctrl-C` 也是）、`Esc` 離開

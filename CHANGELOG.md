@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.6 — tdp v1.3.6
+
+Follows tdp v1.3.6 and terminu-go v1.3.8, where the user moves the lines between panels from the focused one (tdp screen.9) and the lib keeps the new places for the app to write to its state.
+
+- `/terminu:newapp`: on a screen with more than one panel, the app keeps where the user left the lines in its own state (tdp E3): it reads them into `App.Lines` before `Run` and writes what `App.OnLines` gets back to its state, with an Error toast when that fails. Without it the lines last only until the app quits. When to write is up to the lib: it calls `OnLines` once the user moves a line or `=` changes something, and also after it puts back kept lines that no longer fit. Those are not a value that does not fit: no `KeepAside`, no `Notice` (tdp E3's one exception). The five keys, the menu rows, the toast when nothing moves and finding the lines in `Layout` are the lib's, and no panel, screen or global hotkey takes `>` `<` `+` `-` `=` (`Run` refuses them). `Panel.MinWidth` and `MinHeight` set a panel's least size. The terminu-go README's section on moving the lines joins what is read first.
+- Checked against tdp v1.3.6, which needs no other change: the toast's place (toast.2), the disabled rows (M6), leaving resizing out of the App Log (note.7) and the pointer in L1 are the lib's or need nothing from the app. `check`, the reviewer and the templates name none of the five keys and stay as they are.
+
 ## v1.3.5 — tdp v1.3.5
 
 Follows terminu-go v1.3.7, whose `SelfUpdate` no longer asks GitHub's API for the latest release: to a network that has not signed in, the API answers 60 times an hour, every program on it counted together, and then says 403.
