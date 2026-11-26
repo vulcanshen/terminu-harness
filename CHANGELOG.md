@@ -2,6 +2,14 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.7 — tdp v1.3.7
+
+Follows tdp v1.3.7 and terminu-go v1.3.9, where a mode is named by the -ing word of what is done in it, an app's own mode too, and its layers are joined with `:`.
+
+- `/terminu:newapp`: a mode of the app's own takes such a name in `Mode.Name`, one word (a game's `Playing`), not `Play`, `Drag` or `Visual`, and so does a layer it goes into with `Panel.EnterLayer` (`selecting`); the lib joins them with `:` (tdp K11-29). The lib does not check the name, so a wrong one still builds and passes its tests. A Drag mode is now a Dragging mode, named `Dragging`, and the list's Diff mode is the Diffing mode; the Diff popup, `[D]iff` and the `D` key keep their name, and so do the APIs (`DiffMode`, `App.DiffModeAction`).
+- `harness-assets.md`: the implementation of a mode of the app's own says what it is called, so a review can judge its name.
+- Checked against tdp v1.3.7, which needs no other change: a terminal's scrolling back with no History mode is the lib's, and nothing in harness names the History mode or joins layers with `>`. `check`, the reviewer and the templates stay as they are.
+
 ## v1.3.6 — tdp v1.3.6
 
 Follows tdp v1.3.6 and terminu-go v1.3.8, where the user moves the lines between panels from the focused one (tdp screen.9) and the lib keeps the new places for the app to write to its state.

@@ -149,9 +149,9 @@ spec 的重點，使用者看了成品再提要改的。
      放 `x`（`[x] Delete`），很多的（標記的那些、整批）放 `X`（例：`[X] Delete marked`），不放 `d`、`D`，也不用其他字母，或者不給
      熱鍵、從 menu 選（`Key: ""`，tdp M3）；`x`、`X` 也只放這種，還能再打開的（例：關分頁）用別的字母（tdp K13-5）。目的是別的事、
      只是順帶丟掉東西的（例：放棄 merge 會丟掉解好的衝突）不算，照它做的事取字母（`[A]bort`），這一次會丟東西時用
-     `Action.AskFor` 先問：回傳 `nil` 就不問，問不問只看這一次的狀態，不看之前問過沒有（tdp K13-6、F6-6）。Diff 模式的鍵是 `D`
-     （`DiffMode{Key: "D"}`，lib 沒有預設的鍵）；沒有 Diff 模式的 app 可以把 `D` 給不是刪除的事。`i` 只打開附註（下一條），app 自己
-     的動作都不放 `i`（tdp K13-4）。
+     `Action.AskFor` 先問：回傳 `nil` 就不問，問不問只看這一次的狀態，不看之前問過沒有（tdp K13-6、F6-6）。Diffing 模式的鍵是 `D`
+     （`DiffMode{Key: "D"}`，lib 沒有預設的鍵）；沒有 Diffing 模式的 app 可以把 `D` 給不是刪除的事。`i` 只打開附註（下一條），
+     app 自己的動作都不放 `i`（tdp K13-4）。
    - 一項是什麼、欄位又放不下的（例：連結會去哪、備註、為什麼沒在跑）放那一項的附註（tdp panel.18）：設 `Panel.Note`（app 自己
      的模式裡 `Mode.Note`），回傳 cursor 那一項的附註，頭、`i`、打開的 viewer 都是 lib 的；app 自己的 body 要實作
      `terminu.NoteSpot`。不用 toast 說（tdp toast.1），也不用 `Panel.Inspect`、`Mode.Inspect`（deprecated，之後的 minor 版拿掉）。
@@ -168,6 +168,10 @@ spec 的重點，使用者看了成品再提要改的。
      移動線或 `=` 改了東西時才叫 `OnLines`；記著的線放不下時，lib 也會自己換回預設、拿掉，再交給 `OnLines`。這不算用不了的值，不
      `KeepAside`，也不收進 `Notice`（tdp E3 唯一的例外）。panel 最小能多小用 `Panel.MinWidth`、`MinHeight` 給（沒給是 10 × 3；例：
      說明牌的內容要整個看得到時給它那幾列），在 60 × 32 時不比 `Layout` 給它的大（tdp L1）。
+   - app 自己的模式（`Panel.EnterMode`）的 `Mode.Name` 是在模式裡正在做的事的 -ing 字，一個詞（例：遊戲的 `Playing`），不寫
+     `Play`、`Drag`、`Visual`；`Panel.EnterLayer` 進去的層也一樣（`selecting`），lib 用 `:` 接在後面（`Viewing:selecting`）
+     （tdp K11-29、panel.3）。app 自己的閱讀 panel 的選取模式不設 `Selection.Name`，就是 lib 的 `Viewing`。lib 不檢查名字，寫成
+     `Drag` 照樣編得過、測試照樣過。
    - panel 的 PTY 要照 app 自己的模式進出時（例：panel 裡跑著一個 agent，進去才打字給它；要不要這樣由 app 挑，照舊用
      `Terminal.Enter` 進去也可以），用 `Panel.EnterMode(&terminu.Mode{…, PTY: true})`，那個 panel 的 Body 是 `*Terminal`；不自己
      在模式裡轉送鍵，也不放 `Alt-Esc`、不跳 confirm：除了 `Esc` 每個鍵都給子程序（`Space`、`?`、`q`、`Ctrl-C` 也是）、`Esc` 離開
@@ -175,24 +179,24 @@ spec 的重點，使用者看了成品再提要改的。
      事時，`OnEsc` 用 `Terminal.Send([]byte{0x1b})` 送一個 `Esc`。不只 PTY：`OnEsc` 做的不是回上一層時，設 `Panel.EscDesc` 寫它
      做什麼，key reference 才不會寫成 one level up（tdp K4、M5）。
    - 看差異一律經過 lib（tdp panel.9、note.8）：app 自己的動作要看同一項的兩個版本（例：commit 裡的檔對它的上一個 commit）用
-     `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diff 模式（`App.DiffModeAction`）裡裝著許多項目的列
+     `App.OpenDiff(p, item)`，不開顯示 patch 的 viewer（tdp note-101）；Diffing 模式（`App.DiffModeAction`）裡裝著許多項目的列
      （資料夾、commit）給 `DiffMode.Many`、`DiffMode.Items`（舊的名字 `CompareAction`、`Compare` 是 deprecated，之後的 minor
      版拿掉，不用）。有差異的項目清單、標記、`Enter`、`Esc` 都是 lib 的，app 不自己列。清單有跟著 cursor 的明細 panel、要把
-     Diff 模式的差異放在明細裡時（放不放由 app 挑），設 `DiffMode.InDetails`（空狀態裡的名詞給 `Noun`），不自己跟著 cursor 在
+     Diffing 模式的差異放在明細裡時（放不放由 app 挑），設 `DiffMode.InDetails`（空狀態裡的名詞給 `Noun`），不自己跟著 cursor 在
      明細裡畫：兩個框、`Esc` 一層一層退、空狀態與錯誤狀態都是 lib 的（tdp panel-185～187）。app 自己的動作要在那個 panel 顯示別的
      東西前，先叫 `Panel.LeaveDiff()`。顯示差異的 panel（例：跟著 cursor、顯示那個檔改了什麼的明細）也一樣：
      用 `Pager.SetDiff(anchor, other)` 照 UNIFIED 畫，不放工具自己的輸出（`git diff` 的標頭與 `@@`）；顯示的東西裝著許多項目
      （新的資料夾、commit）用 `Pager.SetDiffItems(items)`，不只寫名字；panel 的 `Enter` 用 `App.OpenDiff` 打開同一個 Diff 或進到
      同一份清單（tdp note-103、note-106）。
    - app 自己的動作要換掉 panel 列的東西，或把它的 cursor 放到某一項上（例：在別的 panel 移動 cursor，把這個 panel 帶到那一項；
-     進到一項裡面），先叫 `List.ClearFilter()`，不管篩選有沒有藏住那一項（tdp panel-180）。Diff 模式與 `App.OpenDiff` 進去前 lib
+     進到一項裡面），先叫 `List.ClearFilter()`，不管篩選有沒有藏住那一項（tdp panel-180）。Diffing 模式與 `App.OpenDiff` 進去前 lib
      自己清；只是 focus 離開，篩選留著。使用者對篩選後的一項做的動作讓它移走或消失時（例：stage 讓它移到另一組、刪掉）不一樣：
      不清篩選，用 `SetRows` 換上新的列，cursor 用 `List.Select` 放到篩選看得到的一項（回傳 `false` 就是被藏住了；放哪一項由 app
      挑，例：同一組的下一項）（tdp panel-198）。
-   - 有 Drag 的清單（tdp panel.8，例：手動排順序）用 `Panel.EnterMode` 做 Drag 模式：拿起叫 `List.Hold`，`j|k` 叫 `List.MoveHeld`，
-     `Enter` 放下叫 `List.Drop`，`Esc` 放回時在 `OnExit` 先 `Drop`、再用 `SetRows` 換回原本的列。不自己用 `SetRows` 搬，拿起前也
-     不叫 `ClearFilter`（上一條的「先叫 `List.ClearFilter()`」不算 Drag）：篩選後的清單拿著時篩選先收起來、全部列出，放下或放回後
-     照原樣回來、cursor 停在那一項，都是 lib 的（tdp panel-199）。
+   - 有 Dragging mode 的清單（tdp panel.8，例：手動排順序）用 `Panel.EnterMode` 做，`Mode.Name` 寫 `Dragging`：拿起叫 `List.Hold`，
+     `j|k` 叫 `List.MoveHeld`，`Enter` 放下叫 `List.Drop`，`Esc` 放回時在 `OnExit` 先 `Drop`、再用 `SetRows` 換回原本的列。不自己用
+     `SetRows` 搬，拿起前也不叫 `ClearFilter`（上一條的「先叫 `List.ClearFilter()`」不算 Dragging）：篩選後的清單拿著時篩選先收起
+     來、全部列出，放下或放回後照原樣回來、cursor 停在那一項，都是 lib 的（tdp panel-199）。
    - 位置列要寫那個地方正在跑的工作時（例：push 時寫 `Pushing…`；要不要寫由 app 挑），設 `List.LocationWork`（沒有清單的 panel
      用 `Panel.LocationWork`），跑完設回 `""`；不寫進 `Location`，也不自己換 `LocationGlyph`：Green、轉著的 loading icon、跑完
      換回原本的 icon 都是 lib 的（tdp panel.10、panel-197）。那個地方做到一半的事（例：merge 到一半）才寫進 `Location`，用
