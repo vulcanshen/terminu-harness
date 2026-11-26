@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.8 — tdp v1.3.8
+
+Follows tdp v1.3.8 and terminu-go v1.3.10, where data naming something outside the app is kept when its thing is not there, and the one panel with a number on its screen may take the digits.
+
+- `/terminu:newapp`: an entry of the user's data (a list the user writes for the app: pinned containers or kinds, favourites, names to watch) that names something outside the app is not left out when that thing is not there (tdp E3-43). It stays as written: no `Notice`, no toast, no WARN, and it is still there when the app writes the file again, since what goes back is the list the user wrote, not the entries that work now; it works again once its thing is back, and only the user removes it. Warning once and leaving the entry out (tdp E3-41) stays for a value in the state.
+- Checked against tdp v1.3.8, which needs no other change: the digits of the one panel with a number are `Panel.Digits`, and `Run` already refuses a digit as a panel's hotkey, so there is no way to take them by hand; its hint, its row in `?`, a digit past N and a second panel taking them back are the lib's. The reviewer reads K1 from tdp, so such a panel is no longer judged against K1-7. `check`, the reviewer and the templates stay as they are.
+
 ## v1.3.7 — tdp v1.3.7
 
 Follows tdp v1.3.7 and terminu-go v1.3.9, where a mode is named by the -ing word of what is done in it, an app's own mode too, and its layers are joined with `:`.
