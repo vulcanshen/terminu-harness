@@ -76,7 +76,7 @@ little different from app to app. With one file, a diff shows what differs, and 
 ├── cmd/<app>/main.go               the main package
 ├── internal/                       the app's own packages
 │   └── version/version.go          the version (see "Version")
-├── docs/                           icon.svg, the README's demo gif (tdp E6, E7)
+├── docs/                           icon.svg (also the icon atop the README), the README's demo gif (tdp E6, E7)
 ├── .local/                         not in git; demos/ holds the VHS tapes
 ├── .github/workflows/release.yml
 ├── .goreleaser.yaml

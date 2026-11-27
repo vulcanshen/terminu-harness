@@ -62,7 +62,7 @@ Homebrew tap；跨 repo diff 一下就知道誰走樣。自己做一個 app 用�
 ├── cmd/<app>/main.go               main package
 ├── internal/                       app 自己分的 package
 │   └── version/version.go          版本（見「版本」）
-├── docs/                           icon.svg、README 的 demo gif（tdp E6、E7）
+├── docs/                           icon.svg（也是 README 開頭的 icon）、README 的 demo gif（tdp E6、E7）
 ├── .local/                         git 不收；demos/ 放 VHS 的 tape
 ├── .github/workflows/release.yml
 ├── .goreleaser.yaml

@@ -2,6 +2,13 @@
 
 Each release names the version of terminu design (tdp) it follows.
 
+## v1.3.9 — tdp v1.3.9
+
+Follows tdp v1.3.9 and terminu-go v1.3.11, where a README's first section shows the app's icon.
+
+- `harness project.3`: the tree's `docs/` says `icon.svg` is also the icon atop the README.
+- Checked against tdp v1.3.9, which needs no other change: `/terminu:newapp` writes both READMEs by tdp E7, so a new app's README shows the icon, and a member adds it at its next release as `/terminu:newapp`'s upgrade already says for what no task covers. `check` does not read a README, and still does not; the reviewer and the templates stay as they are.
+
 ## v1.3.8 — tdp v1.3.8
 
 Follows tdp v1.3.8 and terminu-go v1.3.10, where data naming something outside the app is kept when its thing is not there, and the one panel with a number on its screen may take the digits.
